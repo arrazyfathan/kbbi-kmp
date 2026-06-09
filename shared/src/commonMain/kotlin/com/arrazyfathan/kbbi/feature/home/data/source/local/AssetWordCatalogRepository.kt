@@ -19,7 +19,7 @@ class AssetWordCatalogRepository(
             val jsonString =
                 try {
                     Res.readBytes("files/entries.json").decodeToString()
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     return@withContext emptyList()
                 }
 

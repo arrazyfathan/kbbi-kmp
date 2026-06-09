@@ -36,6 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SplashScreen(
@@ -66,7 +67,7 @@ fun SplashScreen(
                 animationSpec = tween(durationMillis = 2000, easing = { it }),
             )
         }
-        delay(3000)
+        delay(3000.milliseconds)
         onTimeout()
     }
 
