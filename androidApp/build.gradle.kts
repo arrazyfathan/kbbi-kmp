@@ -3,7 +3,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }

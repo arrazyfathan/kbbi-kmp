@@ -20,9 +20,12 @@ of every source-project file.
 
 ## iOS Fixes
 
-- Aligned Kotlin `2.3.20`, Compose Multiplatform `1.11.1`, KSP `2.3.4`,
+- Aligned Kotlin `2.3.20`, Compose Multiplatform `1.11.1`, KSP `2.3.9`,
   Room `2.8.4`, SQLite `2.6.2`, Koin `4.2.0`, and lifecycle
   `2.11.0-beta01`.
+- Upgraded Android Gradle Plugin (AGP) to `9.2.1` and Gradle to `9.4.1` for modern compiler and toolchain compatibility.
+- Migrated the `:shared` module from legacy `com.android.library` to the new Android-KMP library plugin (`com.android.kotlin.multiplatform.library`), configuring standard Android target settings directly inside `kotlin { android { ... } }`.
+- Removed the redundant `org.jetbrains.kotlin.android` plugin from `:androidApp` as AGP 9.x now provides built-in Kotlin compilation.
 - Removed dependency substitutions that replaced the native Compose runtime and
   broke `androidx.compose.runtime` resolution on iOS.
 - Initialized Koin before the iOS Compose controller renders.
