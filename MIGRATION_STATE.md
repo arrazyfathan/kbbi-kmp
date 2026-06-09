@@ -2,7 +2,12 @@
 
 Last verified: 2026-06-09
 
-Source project: `/Users/macintosh/personal/Android/samples/kbbi`
+Original Android repository:
+[arrazyfathan/kbbi](https://github.com/arrazyfathan/kbbi)
+
+This repository is the Kotlin Multiplatform migration of that Android
+application, targeting Android and iOS with shared Compose Multiplatform UI and
+application logic.
 
 ## Current Status
 
@@ -40,6 +45,7 @@ Migrated:
 - Home, detail, bookmarks, word list, and splash flows
 - Navigation, Koin DI, Ktor networking, Room persistence, and logging
 - Dictionary catalog, fonts, shared strings, icons, and screen images
+- Lottie animation assets rendered through Compottie
 - Android and iOS platform implementations
 
 Not migrated:
@@ -50,9 +56,6 @@ Not migrated:
   - `FakeWordRepository`
   - `WordUseCasesTest`
 - The original Android Room instrumentation test
-- Five Lottie/raw animation files (`empty.json`, `loading.json`,
-  `loading_search.json`, `reading.json`, and `swipeblue.json`). The migrated UI
-  does not reference them.
 
 The current KMP tests are only smoke tests. Porting the original tests to
 `commonTest` is the main remaining migration work.

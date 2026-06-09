@@ -1,31 +1,84 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# KBBI Multiplatform
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+KBBI Multiplatform is a Kotlin Multiplatform dictionary application for
+Android and iOS. Its user interface and application logic are shared with
+Compose Multiplatform, while platform-specific integrations remain in their
+respective Android and iOS source sets.
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+## Migration
 
-### Running the apps
+This project is the Kotlin Multiplatform migration of the original Android
+KBBI application:
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+- Original repository: [arrazyfathan/kbbi](https://github.com/arrazyfathan/kbbi)
+- Multiplatform targets: Android and iOS
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+The Android production features have been migrated into shared Kotlin and
+Compose Multiplatform code. See [MIGRATION_STATE.md](./MIGRATION_STATE.md) for
+the verified migration coverage, known warnings, and remaining test work.
 
-### Running tests
+## Features
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+- Search for Indonesian dictionary entries
+- View word meanings and details
+- Browse the bundled word catalog
+- Save and remove bookmarked words
+- Persist and manage search history
+- Shared navigation and user interface on Android and iOS
 
-- Android tests: `./gradlew :shared:testAndroidHostTest`
-- iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
+## Technology
 
----
+- Kotlin Multiplatform
+- Compose Multiplatform and Material 3
+- Navigation 3
+- Koin dependency injection
+- Ktor networking
+- Room and bundled SQLite persistence
+- Kotlinx Serialization and Coroutines
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## Project Structure
+
+- [`androidApp`](./androidApp) contains the Android application entry point
+  and Android-specific configuration.
+- [`iosApp`](./iosApp) contains the Xcode project and iOS application entry
+  point.
+- [`shared/src/commonMain`](./shared/src/commonMain) contains shared UI,
+  navigation, domain, data, and dependency-injection code.
+- [`shared/src/androidMain`](./shared/src/androidMain) contains Android
+  platform implementations.
+- [`shared/src/iosMain`](./shared/src/iosMain) contains iOS platform
+  implementations.
+
+## Running the Apps
+
+### Android
+
+Open the project in Android Studio and run the `androidApp` configuration, or
+build a debug APK from the command line:
+
+```shell
+./gradlew :androidApp:assembleDebug
+```
+
+### iOS
+
+Open [`iosApp/iosApp.xcodeproj`](./iosApp/iosApp.xcodeproj) in Xcode, select an
+iOS simulator, and run the `iosApp` scheme.
+
+To build the shared simulator framework directly:
+
+```shell
+./gradlew :shared:linkDebugFrameworkIosSimulatorArm64
+```
+
+## Tests
+
+Run the shared Android and iOS tests with:
+
+```shell
+./gradlew :shared:allTests
+```
+
+The current suite primarily provides migration smoke coverage. Porting the
+original repository's substantive unit and Room instrumentation tests remains
+planned work.
