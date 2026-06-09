@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -61,6 +63,7 @@ import com.arrazyfathan.kbbi.core.presentation.ui.AppAlertState
 import com.arrazyfathan.kbbi.core.presentation.ui.AppAlertType
 import com.arrazyfathan.kbbi.core.presentation.ui.AppTopAlert
 import com.arrazyfathan.kbbi.core.presentation.ui.UiText
+import com.arrazyfathan.kbbi.core.utils.setPlainText
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.WordModel
 import kbbi_kmp.shared.generated.resources.Res
@@ -71,6 +74,7 @@ import kbbi_kmp.shared.generated.resources.bookmarked
 import kbbi_kmp.shared.generated.resources.copy
 import kbbi_kmp.shared.generated.resources.copy_success
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -133,7 +137,8 @@ fun DetailContent(
     onShowAlert: (UiText, AppAlertType) -> Unit,
     alertState: AppAlertState?,
 ) {
-    val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
     val bookmarkInteractionSource = remember { MutableInteractionSource() }
     val isBookmarkPressed by bookmarkInteractionSource.collectIsPressedAsState()
@@ -198,8 +203,13 @@ fun DetailContent(
                             val cleanDescription = item.description.replace(Regex("\\?(.*)"), "")
                             copiedText += "${i + 1}. $cleanWordClass $cleanDescription\n\n"
                         }
-                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString(copiedText.trim()))
-                        onShowAlert(UiText.StringResource(Res.string.copy_success), AppAlertType.Success)
+                        coroutineScope.launch {
+                            clipboard.setPlainText(copiedText.trim())
+                            onShowAlert(
+                                UiText.StringResource(Res.string.copy_success),
+                                AppAlertType.Success,
+                            )
+                        }
                     },
                 )
             }

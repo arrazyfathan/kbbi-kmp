@@ -17,8 +17,8 @@ plugins {
 }
 
 subprojects {
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
-    apply(plugin = "io.gitlab.arturbosch.detekt")
+    pluginManager.apply("org.jlleitschuh.gradle.ktlint")
+    pluginManager.apply("io.gitlab.arturbosch.detekt")
 
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         debug.set(false)
@@ -32,7 +32,9 @@ subprojects {
     }
 
     detekt {
-        toolVersion = rootProject.libs.versions.detekt.get()
+        toolVersion =
+            rootProject.libs.versions.detekt
+                .get()
         config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
         buildUponDefaultConfig = true
     }
