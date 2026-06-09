@@ -1,5 +1,14 @@
 package com.arrazyfathan.kbbi
 
 import androidx.compose.ui.window.ComposeUIViewController
+import com.arrazyfathan.kbbi.di.initKoin
 
-fun MainViewController() = ComposeUIViewController { App() }
+private var isKoinInitialized = false
+
+fun MainViewController() = run {
+    if (!isKoinInitialized) {
+        initKoin()
+        isKoinInitialized = true
+    }
+    ComposeUIViewController { App() }
+}
