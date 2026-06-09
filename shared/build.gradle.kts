@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +9,7 @@ plugins {
     alias(libs.plugins.googleDevtoolsKsp)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.room)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
@@ -94,4 +96,12 @@ dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
+}
+
+buildkonfig {
+    packageName = "com.arrazyfathan.kbbi.shared"
+    
+    defaultConfigs {
+        buildConfigField(Type.STRING, "BASE_URL", "https://kbbi-api-green.vercel.app/")
+    }
 }

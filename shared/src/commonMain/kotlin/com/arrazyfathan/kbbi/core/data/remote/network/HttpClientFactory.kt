@@ -2,6 +2,7 @@ package com.arrazyfathan.kbbi.core.data.remote.network
 
 import com.arrazyfathan.kbbi.core.logging.AppLogger
 import com.arrazyfathan.kbbi.core.logging.NetworkLogFormatter
+import com.arrazyfathan.kbbi.shared.BuildKonfig
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
@@ -20,7 +21,6 @@ import kotlinx.serialization.json.Json
 private const val NETWORK_TIMEOUT_SECONDS = 120L
 private const val NETWORK_TIMEOUT_MILLIS = NETWORK_TIMEOUT_SECONDS * 1_000L
 private const val API_LOG_TAG = "KBBI-API"
-private const val BASE_URL = "https://kbbi-api-green.vercel.app/"
 
 class HttpClientFactory(
     private val json: Json,
@@ -49,7 +49,7 @@ class HttpClientFactory(
                     }
             }
             defaultRequest {
-                url(BASE_URL)
+                url(BuildKonfig.BASE_URL)
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 header("Accept-Language", "id")
