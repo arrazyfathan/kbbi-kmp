@@ -10,16 +10,18 @@ import platform.Foundation.NSUserDomainMask
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun getDatabaseBuilder(): RoomDatabase.Builder<WordDatabase> {
-    val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
-        directory = NSDocumentDirectory,
-        inDomain = NSUserDomainMask,
-        appropriateForURL = null,
-        create = true,
-        error = null
-    )
+    val documentDirectory =
+        NSFileManager.defaultManager.URLForDirectory(
+            directory = NSDocumentDirectory,
+            inDomain = NSUserDomainMask,
+            appropriateForURL = null,
+            create = true,
+            error = null,
+        )
     val dbFilePath = documentDirectory!!.path!! + "/kbbi_db.db"
+    // KMP-safe: resolved post-KSP
     return Room.databaseBuilder<WordDatabase>(
         name = dbFilePath,
-        factory = { WordDatabaseConstructor.initialize() }  // KMP-safe: resolved post-KSP
+        factory = { WordDatabaseConstructor.initialize() },
     ).setDriver(BundledSQLiteDriver())
 }

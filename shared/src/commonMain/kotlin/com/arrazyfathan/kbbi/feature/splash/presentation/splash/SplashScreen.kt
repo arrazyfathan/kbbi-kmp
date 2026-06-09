@@ -50,7 +50,8 @@ fun SplashScreen(
         launch {
             logoTranslationY.animateTo(
                 targetValue = 100f,
-                animationSpec = tween(durationMillis = 2000, easing = { it }), // Linear
+                // Linear
+                animationSpec = tween(durationMillis = 2000, easing = { it }),
             )
         }
         launch {

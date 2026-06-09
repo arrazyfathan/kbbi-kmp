@@ -26,7 +26,6 @@ expect object WordDatabaseConstructor : RoomDatabaseConstructor<WordDatabase> {
     override fun initialize(): WordDatabase
 }
 
-
 expect fun getDatabaseBuilder(): RoomDatabase.Builder<WordDatabase>
 
 fun getDatabase(builder: RoomDatabase.Builder<WordDatabase>): WordDatabase {

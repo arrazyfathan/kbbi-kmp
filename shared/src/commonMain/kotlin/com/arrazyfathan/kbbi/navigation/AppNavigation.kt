@@ -265,48 +265,53 @@ private fun BlockingLoadingOverlay() {
     }
 }
 
-private val navigationSavedStateConfiguration = SavedStateConfiguration {
-    serializersModule = kotlinx.serialization.modules.SerializersModule {
-        polymorphic(NavKey::class) {
-            subclass(Screen.Home::class, Screen.Home.serializer())
-            subclass(Screen.WordList::class, Screen.WordList.serializer())
-            subclass(Screen.Bookmarks::class, Screen.Bookmarks.serializer())
-            subclass(DetailNavRoute::class, DetailNavRoute.serializer())
-        }
+private val navigationSavedStateConfiguration =
+    SavedStateConfiguration {
+        serializersModule =
+            kotlinx.serialization.modules.SerializersModule {
+                polymorphic(NavKey::class) {
+                    subclass(Screen.Home::class, Screen.Home.serializer())
+                    subclass(Screen.WordList::class, Screen.WordList.serializer())
+                    subclass(Screen.Bookmarks::class, Screen.Bookmarks.serializer())
+                    subclass(DetailNavRoute::class, DetailNavRoute.serializer())
+                }
+            }
     }
-}
 
 @Composable
 private fun rememberCustomNavBackStack(startRoute: NavKey): NavBackStack<NavKey> {
-    val routeJson = remember {
-        Json {
-            ignoreUnknownKeys = true
-            serializersModule = navigationSavedStateConfiguration.serializersModule
-        }
-    }
-
-    val saver = remember(routeJson) {
-        Saver<NavBackStack<NavKey>, String>(
-            save = { backStack ->
-                val list = backStack.toList()
-                routeJson.encodeToString(
-                    ListSerializer(PolymorphicSerializer(NavKey::class)),
-                    list
-                )
-            },
-            restore = { jsonStr ->
-                val list = routeJson.decodeFromString(
-                    ListSerializer(PolymorphicSerializer(NavKey::class)),
-                    jsonStr
-                )
-                val backStack = NavBackStack(list.first())
-                if (list.size > 1) {
-                    backStack.addAll(list.drop(1))
-                }
-                backStack
+    val routeJson =
+        remember {
+            Json {
+                ignoreUnknownKeys = true
+                serializersModule = navigationSavedStateConfiguration.serializersModule
             }
-        )
-    }
+        }
+
+    val saver =
+        remember(routeJson) {
+            Saver<NavBackStack<NavKey>, String>(
+                save = { backStack ->
+                    val list = backStack.toList()
+                    routeJson.encodeToString(
+                        ListSerializer(PolymorphicSerializer(NavKey::class)),
+                        list,
+                    )
+                },
+                restore = { jsonStr ->
+                    val list =
+                        routeJson.decodeFromString(
+                            ListSerializer(PolymorphicSerializer(NavKey::class)),
+                            jsonStr,
+                        )
+                    val backStack = NavBackStack(list.first())
+                    if (list.size > 1) {
+                        backStack.addAll(list.drop(1))
+                    }
+                    backStack
+                },
+            )
+        }
 
     return rememberSaveable(saver = saver) {
         NavBackStack(startRoute)
@@ -318,9 +323,10 @@ private fun rememberNavigationState(
     startRoute: Screen,
     topLevelRoutes: List<Screen>,
 ): NavigationState {
-    val topLevelRoute = remember {
-        mutableStateOf<NavKey>(startRoute)
-    }
+    val topLevelRoute =
+        remember {
+            mutableStateOf<NavKey>(startRoute)
+        }
 
     val backStacks: Map<NavKey, NavBackStack<NavKey>> =
         topLevelRoutes.associate { key ->
@@ -335,7 +341,6 @@ private fun rememberNavigationState(
         )
     }
 }
-
 
 private class NavigationState(
     val startRoute: NavKey,
@@ -380,9 +385,7 @@ private class Navigator(
 }
 
 @Composable
-private fun NavigationState.toEntries(
-    entryProvider: (NavKey) -> NavEntry<NavKey>,
-): SnapshotStateList<NavEntry<NavKey>> {
+private fun NavigationState.toEntries(entryProvider: (NavKey) -> NavEntry<NavKey>): SnapshotStateList<NavEntry<NavKey>> {
     val decoratedEntries =
         backStacks.mapValues { (_, stack) ->
             rememberDecoratedNavEntries(

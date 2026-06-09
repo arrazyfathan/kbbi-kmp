@@ -13,15 +13,16 @@ import platform.UIKit.UIAlertControllerStyleAlert
 import platform.UIKit.UIApplication
 import platform.UIKit.UIDevice
 
-class IOSPlatform: Platform {
+class IOSPlatform : Platform {
     override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()
 
-actual val platformModule: Module = module {
-    single<HttpClientEngine> { Darwin.create() }
-}
+actual val platformModule: Module =
+    module {
+        single<HttpClientEngine> { Darwin.create() }
+    }
 
 @Composable
 actual fun BindSystemBarColor(isDetailVisible: Boolean) {
@@ -32,17 +33,18 @@ actual fun showToast(message: String) {
     val keyWindow = UIApplication.sharedApplication.keyWindow
     val rootViewController = keyWindow?.rootViewController
     if (rootViewController != null) {
-        val alert = UIAlertController.alertControllerWithTitle(
-            title = null,
-            message = message,
-            preferredStyle = UIAlertControllerStyleAlert
-        )
+        val alert =
+            UIAlertController.alertControllerWithTitle(
+                title = null,
+                message = message,
+                preferredStyle = UIAlertControllerStyleAlert,
+            )
         alert.addAction(
             UIAlertAction.actionWithTitle(
                 title = "OK",
                 style = UIAlertActionStyleDefault,
-                handler = null
-            )
+                handler = null,
+            ),
         )
         rootViewController.presentViewController(alert, animated = true, completion = null)
     }

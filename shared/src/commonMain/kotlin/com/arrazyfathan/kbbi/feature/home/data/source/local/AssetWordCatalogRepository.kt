@@ -13,7 +13,6 @@ class AssetWordCatalogRepository(
     private val json: Json,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : WordCatalogRepository {
-
     @OptIn(ExperimentalResourceApi::class)
     override suspend fun getWords(): List<String> =
         withContext(ioDispatcher) {

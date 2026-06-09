@@ -10,6 +10,6 @@ actual fun getDatabaseBuilder(): RoomDatabase.Builder<WordDatabase> {
     return Room.databaseBuilder(
         context = appContext,
         name = "kbbi_db",
-        klass = WordDatabase::class.java
+        klass = WordDatabase::class.java,
     )
 }

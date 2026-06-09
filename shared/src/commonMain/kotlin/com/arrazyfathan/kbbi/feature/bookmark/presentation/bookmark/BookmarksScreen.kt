@@ -1,7 +1,5 @@
 package com.arrazyfathan.kbbi.feature.bookmark.presentation.bookmark
 
-
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -210,7 +208,6 @@ fun BookmarkItem(
     onDeleteInitiated: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
     var isDeleteOverlayVisible by remember { mutableStateOf(false) }
 
     val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current

@@ -5,10 +5,12 @@ import com.arrazyfathan.kbbi.di.initKoin
 
 private var isKoinInitialized = false
 
-fun MainViewController() = run {
-    if (!isKoinInitialized) {
-        initKoin()
-        isKoinInitialized = true
+@Suppress("FunctionName")
+fun MainViewController() =
+    run {
+        if (!isKoinInitialized) {
+            initKoin()
+            isKoinInitialized = true
+        }
+        ComposeUIViewController { App() }
     }
-    ComposeUIViewController { App() }
-}

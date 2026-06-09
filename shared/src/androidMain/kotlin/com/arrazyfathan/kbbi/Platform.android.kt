@@ -21,9 +21,10 @@ class AndroidPlatform : Platform {
 
 actual fun getPlatform(): Platform = AndroidPlatform()
 
-actual val platformModule: Module = module {
-    single<HttpClientEngine> { OkHttp.create() }
-}
+actual val platformModule: Module =
+    module {
+        single<HttpClientEngine> { OkHttp.create() }
+    }
 
 private tailrec fun Context.findActivity(): Activity? =
     when (this) {
@@ -37,14 +38,16 @@ actual fun BindSystemBarColor(isDetailVisible: Boolean) {
     val context = LocalContext.current
     LaunchedEffect(isDetailVisible) {
         val activity = context.findActivity() ?: return@LaunchedEffect
-        val statusBarColor = if (isDetailVisible) {
-            0xFFE8F0F1.toInt() // BlueBg
-        } else {
-            0xFF303E9F.toInt() // BluePrimary
-        }
+        val statusBarColor =
+            if (isDetailVisible) {
+                0xFFE8F0F1.toInt() // BlueBg
+            } else {
+                0xFF303E9F.toInt() // BluePrimary
+            }
+        // White
         activity.updateSystemBarStyle(
             statusBarColor,
-            0xFFFFFFFF.toInt(), // White
+            0xFFFFFFFF.toInt(),
         )
     }
 }

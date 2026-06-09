@@ -76,8 +76,6 @@ object NetworkLogFormatter {
         return "=".repeat(left) + normalizedTitle + "=".repeat(right)
     }
 
-
-
     private fun String.toReadableBody(): String = toPrettyJsonOrNull() ?: this
 
     private fun String.toPrettyJsonOrNull(): String? {
@@ -263,8 +261,7 @@ object NetworkLogFormatter {
             }.joinToString(separator = " \\\n")
         }
 
-        private fun String.allowsRequestBody(): Boolean =
-            !equals("GET", ignoreCase = true) && !equals("HEAD", ignoreCase = true)
+        private fun String.allowsRequestBody(): Boolean = !equals("GET", ignoreCase = true) && !equals("HEAD", ignoreCase = true)
 
         private fun String.shellQuote(): String = "'${replace("'", "'\\''")}'"
     }

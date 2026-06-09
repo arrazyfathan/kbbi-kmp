@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -28,14 +28,14 @@ kotlin {
 
     listOf(
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
         }
     }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
@@ -56,7 +56,6 @@ kotlin {
             // Navigation 3
             implementation(libs.androidx.navigation3.runtime)
             implementation(libs.androidx.navigation3.ui)
-
 
             // Room
             implementation(libs.androidx.room.runtime)
@@ -86,8 +85,6 @@ kotlin {
     }
 }
 
-
-
 room {
     schemaDirectory("$projectDir/schemas")
 }
@@ -100,7 +97,7 @@ dependencies {
 
 buildkonfig {
     packageName = "com.arrazyfathan.kbbi.shared"
-    
+
     defaultConfigs {
         buildConfigField(Type.STRING, "BASE_URL", "https://kbbi-api-green.vercel.app/")
     }

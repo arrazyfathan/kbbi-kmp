@@ -65,8 +65,7 @@ class WordRepository(
             localDataSource.deleteWord(word.trim().lowercase()) > 0
         }
 
-    override fun checkIfWordIsSaved(word: String): Flow<Boolean> =
-        localDataSource.checkWordIsExist(word.trim().lowercase())
+    override fun checkIfWordIsSaved(word: String): Flow<Boolean> = localDataSource.checkWordIsExist(word.trim().lowercase())
 
     override fun getBookmarks(): Flow<List<ListWordModel>> =
         localDataSource.getAllWords().map {

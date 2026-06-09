@@ -12,4 +12,28 @@ plugins {
     alias(libs.plugins.room) apply false
     alias(libs.plugins.kotlinSerialization) apply false
     alias(libs.plugins.buildkonfig) apply false
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
+}
+
+subprojects {
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    apply(plugin = "io.gitlab.arturbosch.detekt")
+
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        debug.set(false)
+        verbose.set(true)
+        android.set(true)
+        outputToConsole.set(true)
+        ignoreFailures.set(false)
+        filter {
+            exclude { element -> element.file.path.contains("build/") }
+        }
+    }
+
+    detekt {
+        toolVersion = rootProject.libs.versions.detekt.get()
+        config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+        buildUponDefaultConfig = true
+    }
 }

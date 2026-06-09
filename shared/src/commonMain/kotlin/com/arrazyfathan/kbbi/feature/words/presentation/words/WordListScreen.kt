@@ -107,6 +107,7 @@ fun WordListScreen(
         modifier = modifier,
     )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WordListScreenContent(
