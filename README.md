@@ -1,87 +1,130 @@
+<div align="center">
+
 # KBBI Multiplatform
 
-KBBI Multiplatform is a Kotlin Multiplatform dictionary application for Android and iOS. Its user interface and application logic are shared with Compose Multiplatform, while platform-specific integrations remain in their respective Android and iOS source sets.
+An Indonesian dictionary application built with Kotlin Multiplatform and Compose Multiplatform.
 
-## Migration
+**Android · iOS · Web · Desktop**
 
-This project is the Kotlin Multiplatform migration of the original Android KBBI application:
-- Original repository: [arrazyfathan/kbbi](https://github.com/arrazyfathan/kbbi)
-- Multiplatform targets: Android and iOS
+[Features](#features) · [Architecture](#architecture) · [Running](#running-the-project) · [Development](#development)
 
-The Android production features have been migrated into shared Kotlin and Compose Multiplatform code. See [MIGRATION_STATE.md](./MIGRATION_STATE.md) for the verified migration coverage, known warnings, and remaining test work.
+</div>
 
 ---
+
+## Overview
+
+KBBI Multiplatform shares its user interface, navigation, domain logic, networking, and data layer across four application platforms. Platform-specific source sets provide native integrations where required.
+
+| Platform | Target | Application module | Local persistence |
+|---|---|---|---|
+| Android | Android JVM | `androidApp` | Room and bundled SQLite |
+| iOS | Kotlin/Native | `iosApp` | Room and bundled SQLite |
+| Web | JavaScript and WebAssembly | `webApp` | In-memory storage |
+| Desktop | JVM | `desktopApp` | Room and bundled SQLite |
+
+This project is a Kotlin Multiplatform migration of the original [Android KBBI application](https://github.com/arrazyfathan/kbbi). See [MIGRATION_STATE.md](./MIGRATION_STATE.md) for migration coverage, known warnings, and remaining test work.
 
 ## Features
 
-- **Indonesian Dictionary Search**: Search for words in the KBBI database.
-- **Word Details**: View word meanings, origins, and structural details.
-- **Word Catalog**: Browse the bundled, offline-capable dictionary catalog.
-- **Bookmarks**: Save and manage bookmarked words.
-- **Search History**: Persist and view past search records.
-- **Shared UI & Navigation**: Fully unified user interface and flow using Navigation 3.
+| Feature | Description |
+|---|---|
+| Dictionary search | Search for Indonesian words using the KBBI API |
+| Word details | View meanings, origins, and structural information |
+| Word catalog | Browse the bundled offline-capable word catalog |
+| Bookmarks | Save and manage selected words |
+| Search history | Review recently searched words |
+| Shared navigation | Use one Navigation 3 flow across all platforms |
+| Shared interface | Render a unified Material 3 interface with Compose Multiplatform |
 
----
+## Technology
 
-## Technology Stack
+| Area | Technology |
+|---|---|
+| Language and core | [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) 2.4.0 |
+| User interface | [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) 1.11.1 and Material 3 |
+| Navigation | [Navigation 3](https://developer.android.com/guide/navigation/navigation-3) |
+| Dependency injection | [Koin](https://insert-koin.io/) 4.2.1 |
+| Networking | [Ktor](https://ktor.io/) 3.5.0 |
+| Persistence | [Room](https://developer.android.com/jetpack/androidx/releases/room) and bundled SQLite |
+| Serialization | [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization) |
+| Configuration | [BuildKonfig](https://github.com/yshrsmz/BuildKonfig) |
+| Code quality | [Ktlint](https://github.com/pinterest/ktlint) and [Detekt](https://github.com/detekt/detekt) |
 
-- **Core**: [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) (2.4.0)
-- **UI & Layout**: [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) (1.11.1) with Material 3
-- **Navigation**: [Navigation 3](https://developer.android.com/jetpack/compose/navigation) for multiplatform routing
-- **Dependency Injection**: [Koin](https://insert-koin.io/) (4.2.1)
-- **Networking**: [Ktor](https://ktor.io/) (3.5.0) with OkHttp (Android) & Darwin (iOS) engines
-- **Persistence**: [Room](https://developer.android.com/jetpack/androidx/releases/room) with bundled SQLite driver
-- **Serialization**: [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization)
-- **Code Style & Analysis**: [Ktlint](https://github.com/pinterest/ktlint) and [Detekt](https://github.com/detekt/detekt)
-- **Environment Management**: [BuildKonfig](https://github.com/yshrsmz/BuildKonfig)
+### Platform Integrations
 
----
+| Platform | Ktor engine | Platform implementation |
+|---|---|---|
+| Android | OkHttp | Android context, system bars, toast, clipboard, and Room builder |
+| iOS | Darwin | UIKit integration, clipboard, and Room builder |
+| Web | JavaScript | Browser runtime, clipboard, and in-memory data access |
+| Desktop | CIO | AWT clipboard and JVM Room builder |
 
-## Project Architecture & Data Flow
+## Architecture
 
-The codebase follows a Clean Architecture design, dividing components into shared and platform-specific implementations:
+The project follows a shared, feature-oriented architecture. Most production code lives in `shared`, while application modules provide platform entry points and packaging.
 
-```
-kbbi-kmp
-├── androidApp/             # Android application wrapper (MainActivity, BaseApplication)
-├── iosApp/                 # iOS native Xcode project (App entry point, UIViewController wrapper)
-└── shared/                 # Shared logic & UI module
+```text
+kbbi-kmp/
+├── androidApp/             Android entry point and application configuration
+├── desktopApp/             Desktop JVM entry point and native distributions
+├── iosApp/                 Native Xcode project and iOS entry point
+├── webApp/                 JavaScript and WebAssembly browser entry points
+└── shared/
     └── src/
-        ├── commonMain/     # Shared UI components, view models, domain logic, and Ktor APIs
-        ├── androidMain/    # Android-specific database builders & system bar controllers
-        └── iosMain/        # iOS-specific database builders & ViewController integration
+        ├── commonMain/     Shared UI, navigation, domain, data, and networking
+        ├── androidMain/    Android integrations
+        ├── iosMain/        iOS integrations
+        ├── jvmMain/        Desktop integrations
+        ├── sqliteMain/     Room implementation shared by native platforms
+        └── webMain/        JavaScript and WebAssembly integrations
 ```
 
-### Shared Configurations & DI
-- **Dependency Injection**: All dependency modules are declared in `commonMain` under Koin configuration, but the platform-specific dependencies (such as Ktor engines and Room database builders) are configured in `androidMain` and `iosMain` using Koin's `platformModule`.
-- **Database (Room)**: The database builder is declared via platform-specific builders (`getDatabaseBuilder()`) and initialized with the KSP-generated `WordDatabaseConstructor`.
+### Shared Boundaries
 
----
+- `commonMain` contains the shared application and feature code.
+- `sqliteMain` contains Room entities, converters, database definitions, and DAO adapters.
+- Android, iOS, and desktop provide platform-specific database builders.
+- Web uses the same repository contracts with an in-memory DAO because Room does not target JavaScript or WebAssembly.
+- Koin assembles shared modules with the appropriate platform networking and persistence implementations.
 
-## Running the Applications
+## Running the Project
 
-### Android
+### Requirements
 
-Open the project in Android Studio and run the `androidApp` configuration, or build a debug APK from the command line:
+- Android Studio or IntelliJ IDEA with Kotlin Multiplatform support
+- Xcode for the iOS application
+- A compatible JDK for Gradle, Android, and desktop builds
+- Node.js tooling managed by the Kotlin Gradle plugin for web builds
 
-```shell
-./gradlew :androidApp:assembleDebug
-```
+### Command Reference
 
-### iOS
+| Platform | Action | Command |
+|---|---|---|
+| Android | Build debug APK | `./gradlew :androidApp:assembleDebug` |
+| iOS | Build simulator framework | `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64` |
+| Desktop | Run application | `./gradlew :desktopApp:run` |
+| Desktop | Create native distribution | `./gradlew :desktopApp:createDistributable` |
+| Web JS | Run development server | `./gradlew :webApp:jsBrowserDevelopmentRun` |
+| Web JS | Build production distribution | `./gradlew :webApp:jsBrowserDistribution` |
+| Web Wasm | Run development server | `./gradlew :webApp:wasmJsBrowserDevelopmentRun` |
+| Web Wasm | Build production distribution | `./gradlew :webApp:wasmJsBrowserDistribution` |
 
-Open [`iosApp/iosApp.xcodeproj`](./iosApp/iosApp.xcodeproj) in Xcode, select an iOS simulator target, and run the project.
+### IDE Launching
 
-To build the shared iOS framework from the command line:
-```shell
-./gradlew :shared:linkDebugFrameworkIosSimulatorArm64
-```
+**Android**
 
----
+Open the project in Android Studio and run the `androidApp` configuration.
 
-## Testing
+**iOS**
 
-Run the shared Android, iOS, and common test suites with:
+Open [`iosApp/iosApp.xcodeproj`](./iosApp/iosApp.xcodeproj) in Xcode, select an iOS simulator, and run the project.
+
+## Development
+
+### Tests
+
+Run the shared multiplatform test suites:
 
 ```shell
 ./gradlew :shared:allTests
@@ -89,29 +132,28 @@ Run the shared Android, iOS, and common test suites with:
 
 The current suite primarily provides migration smoke coverage. Porting the original repository's substantive unit and Room instrumentation tests remains planned work.
 
----
+### Code Quality
 
-## Code Style & Formatting
+Check formatting and static analysis:
 
-The project enforces code formatting and quality analysis using **Ktlint** and **Detekt**.
+```shell
+./gradlew ktlintCheck detekt
+```
 
-- **Check Code Quality**:
-  ```shell
-  ./gradlew ktlintCheck detekt
-  ```
-- **Auto-Format Code**:
-  ```shell
-  ./gradlew ktlintFormat
-  ```
+Format Kotlin sources:
 
-Linter rules are globally configured in [.editorconfig](./.editorconfig) and [config/detekt/detekt.yml](./config/detekt/detekt.yml).
+```shell
+./gradlew ktlintFormat
+```
 
----
+Rules are configured in [.editorconfig](./.editorconfig) and [config/detekt/detekt.yml](./config/detekt/detekt.yml).
 
-## Environment Management (Dev/Prod)
+### Environment Configuration
 
-Environment properties (such as the base API URL) are managed via **BuildKonfig** inside the shared module.
+Build-time configuration, including the API base URL, is managed through BuildKonfig in [shared/build.gradle.kts](./shared/build.gradle.kts).
 
-- Default configurations are declared directly in [shared/build.gradle.kts](./shared/build.gradle.kts).
-- **Local Settings**: Specify local keys in `local.properties` (which is excluded from Git tracking).
-- **CI/CD Pipelines**: Pass production keys via environment variables, which are read by the Gradle build script.
+| Environment source | Usage |
+|---|---|
+| Shared Gradle configuration | Default application values |
+| `local.properties` | Local settings excluded from Git |
+| Environment variables | CI/CD and production configuration |
