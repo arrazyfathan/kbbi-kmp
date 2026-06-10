@@ -14,8 +14,8 @@ class BaseApplication : Application() {
         AppLogger.plantDebugTree()
 
         initKoin {
-            androidLogger()
             androidContext(this@BaseApplication)
+            androidLogger()
         }
     }
 }

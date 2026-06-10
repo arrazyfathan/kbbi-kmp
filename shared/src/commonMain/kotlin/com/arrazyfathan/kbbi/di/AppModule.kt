@@ -17,36 +17,36 @@ import com.arrazyfathan.kbbi.feature.home.domain.usecase.SearchWordWithHistoryUs
 import com.arrazyfathan.kbbi.feature.home.presentation.home.HomeViewModel
 import com.arrazyfathan.kbbi.feature.words.presentation.words.WordViewModel
 import com.arrazyfathan.kbbi.platformModule
+import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.KoinAppDeclaration
+import org.koin.dsl.includes
 import org.koin.dsl.module
 
-val useCaseModule =
-    module {
-        factoryOf(::SearchWordUseCase)
-        factoryOf(::SearchWordWithHistoryUseCase)
-        factoryOf(::AddSearchHistoryUseCase)
-        factoryOf(::ObserveSearchHistoryUseCase)
-        factoryOf(::SaveBookmarkUseCase)
-        factoryOf(::DeleteBookmarkUseCase)
-        factoryOf(::CheckWordSavedUseCase)
-        factoryOf(::ObserveBookmarksUseCase)
-        factoryOf(::GetWordEntriesUseCase)
-    }
+val useCaseModule = module {
+    factoryOf(::SearchWordUseCase)
+    factoryOf(::SearchWordWithHistoryUseCase)
+    factoryOf(::AddSearchHistoryUseCase)
+    factoryOf(::ObserveSearchHistoryUseCase)
+    factoryOf(::SaveBookmarkUseCase)
+    factoryOf(::DeleteBookmarkUseCase)
+    factoryOf(::CheckWordSavedUseCase)
+    factoryOf(::ObserveBookmarksUseCase)
+    factoryOf(::GetWordEntriesUseCase)
+}
 
-val viewModelModule =
-    module {
-        viewModelOf(::DetailViewModel)
-        viewModelOf(::HomeViewModel)
-        viewModelOf(::BookmarksViewModel)
-        viewModelOf(::WordViewModel)
-    }
+val viewModelModule = module {
+    viewModelOf(::DetailViewModel)
+    viewModelOf(::HomeViewModel)
+    viewModelOf(::BookmarksViewModel)
+    viewModelOf(::WordViewModel)
+}
 
-fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
-    startKoin {
-        appDeclaration()
+fun initKoin(config: KoinAppDeclaration? = null): KoinApplication {
+    return startKoin {
+        includes(config)
         modules(
             platformModule,
             databaseModule,
