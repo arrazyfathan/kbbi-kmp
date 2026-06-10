@@ -394,7 +394,7 @@ fun HomeContent(
                     .align(Alignment.BottomCenter)
                     .clickable {
                         showBottomSheet = true
-                    }.padding(bottom = 16.dp),
+                    }.padding(bottom = 84.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AppLottieAnimation(
