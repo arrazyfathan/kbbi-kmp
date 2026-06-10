@@ -18,7 +18,6 @@ import com.arrazyfathan.kbbi.feature.home.domain.repository.BookmarkRepository
 import com.arrazyfathan.kbbi.feature.home.domain.repository.SearchHistoryRepository
 import com.arrazyfathan.kbbi.feature.home.domain.repository.WordSearchRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -39,7 +38,7 @@ class WordRepository(
         word: String,
         result: List<WordModel>,
     ): Boolean =
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             val normalizedWord = word.trim().lowercase()
             localDataSource.insertWord(
                 ListWordEntity(
@@ -51,7 +50,7 @@ class WordRepository(
         }
 
     override suspend fun addToHistory(history: HistoryModel) =
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             return@withContext localDataSource.insertHistory(history.toEntity())
         }
 
@@ -61,7 +60,7 @@ class WordRepository(
         }
 
     override suspend fun deleteWord(word: String): Boolean =
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             localDataSource.deleteWord(word.trim().lowercase()) > 0
         }
 

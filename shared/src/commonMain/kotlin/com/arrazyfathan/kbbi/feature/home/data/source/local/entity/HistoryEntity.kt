@@ -1,7 +1,5 @@
 package com.arrazyfathan.kbbi.feature.home.data.source.local.entity
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
 /**
@@ -9,10 +7,8 @@ import kotlinx.serialization.Serializable
  */
 expect fun currentTimeMillis(): Long
 
-@Entity(tableName = "history_table")
 @Serializable
 data class HistoryEntity(
-    @PrimaryKey(autoGenerate = false)
     var word: String = "",
     val searchedAt: Long = currentTimeMillis(),
 )

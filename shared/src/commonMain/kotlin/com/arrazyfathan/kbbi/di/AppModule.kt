@@ -25,24 +25,26 @@ import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.includes
 import org.koin.dsl.module
 
-val useCaseModule = module {
-    factoryOf(::SearchWordUseCase)
-    factoryOf(::SearchWordWithHistoryUseCase)
-    factoryOf(::AddSearchHistoryUseCase)
-    factoryOf(::ObserveSearchHistoryUseCase)
-    factoryOf(::SaveBookmarkUseCase)
-    factoryOf(::DeleteBookmarkUseCase)
-    factoryOf(::CheckWordSavedUseCase)
-    factoryOf(::ObserveBookmarksUseCase)
-    factoryOf(::GetWordEntriesUseCase)
-}
+val useCaseModule =
+    module {
+        factoryOf(::SearchWordUseCase)
+        factoryOf(::SearchWordWithHistoryUseCase)
+        factoryOf(::AddSearchHistoryUseCase)
+        factoryOf(::ObserveSearchHistoryUseCase)
+        factoryOf(::SaveBookmarkUseCase)
+        factoryOf(::DeleteBookmarkUseCase)
+        factoryOf(::CheckWordSavedUseCase)
+        factoryOf(::ObserveBookmarksUseCase)
+        factoryOf(::GetWordEntriesUseCase)
+    }
 
-val viewModelModule = module {
-    viewModelOf(::DetailViewModel)
-    viewModelOf(::HomeViewModel)
-    viewModelOf(::BookmarksViewModel)
-    viewModelOf(::WordViewModel)
-}
+val viewModelModule =
+    module {
+        viewModelOf(::DetailViewModel)
+        viewModelOf(::HomeViewModel)
+        viewModelOf(::BookmarksViewModel)
+        viewModelOf(::WordViewModel)
+    }
 
 fun initKoin(config: KoinAppDeclaration? = null): KoinApplication {
     return startKoin {
