@@ -40,6 +40,23 @@ class NavigatorTest {
         assertEquals(HomeKey, state.topLevelRoute)
     }
 
+    @Test
+    fun restoringSnapshotRestoresTopLevelRouteAndEveryBackStack() {
+        val state = createNavigationState()
+        val navigator = Navigator(state)
+
+        navigator.navigate(DetailsKey("home"))
+        val homeDetailsSnapshot = state.snapshot()
+
+        navigator.navigate(SavedKey)
+        navigator.navigate(DetailsKey("saved"))
+        state.restore(homeDetailsSnapshot)
+
+        assertEquals(HomeKey, state.topLevelRoute)
+        assertEquals(listOf<NavKey>(HomeKey, DetailsKey("home")), state.backStacks.getValue(HomeKey).toList())
+        assertEquals(listOf<NavKey>(SavedKey), state.backStacks.getValue(SavedKey).toList())
+    }
+
     private fun createNavigationState(): NavigationState {
         val homeStack = NavBackStack<NavKey>(HomeKey)
         val savedStack = NavBackStack<NavKey>(SavedKey)

@@ -70,6 +70,7 @@ fun MainApp() {
     }
 
     BindSystemBarColor(isDetailVisible = isDetailVisible)
+    BindBrowserNavigation(navigationState)
 
     val entries =
         navigationState.toDecoratedEntries(

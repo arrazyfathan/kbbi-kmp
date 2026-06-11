@@ -62,6 +62,21 @@ internal class NavigationState(
     private val currentBackStack: NavBackStack<NavKey>
         get() = backStacks.getValue(topLevelRoute)
 
+    fun snapshot(): NavigationSnapshot =
+        NavigationSnapshot(
+            topLevelRoute = topLevelRoute,
+            backStacks = backStacks.mapValues { (_, stack) -> stack.toList() },
+        )
+
+    fun restore(snapshot: NavigationSnapshot) {
+        backStacks.forEach { (route, stack) ->
+            val restoredStack = snapshot.backStacks[route] ?: listOf(route)
+            stack.clear()
+            stack.addAll(restoredStack)
+        }
+        topLevelRoute = snapshot.topLevelRoute
+    }
+
     @Composable
     fun toDecoratedEntries(entryProvider: (NavKey) -> NavEntry<NavKey>): List<NavEntry<NavKey>> {
         val decoratedEntries =
@@ -86,3 +101,8 @@ internal class NavigationState(
             listOf(startRoute, topLevelRoute)
         }
 }
+
+internal data class NavigationSnapshot(
+    val topLevelRoute: NavKey,
+    val backStacks: Map<NavKey, List<NavKey>>,
+)
