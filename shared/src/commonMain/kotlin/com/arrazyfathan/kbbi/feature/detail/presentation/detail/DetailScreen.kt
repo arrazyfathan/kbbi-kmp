@@ -81,6 +81,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val DETAIL_ALERT_DURATION_MILLIS = 2_200L
+private val WORD_CLASS_ANNOTATION_REGEX = Regex("""\s*\[(.*?)\]\s*""")
 
 @Composable
 fun DetailScreen(
@@ -198,9 +199,8 @@ fun DetailContent(
                     onCopyClick = {
                         var copiedText = ""
                         for ((i, item) in wordModel.meanings.withIndex()) {
-                            val regex = Regex("""\[(.*?)]""")
-                            val cleanWordClass = item.wordClass.replace(regex, " ").trim()
-                            val cleanDescription = item.description.replace(Regex("\\?(.*)"), "")
+                            val cleanWordClass = cleanWordClass(item.wordClass).trim()
+                            val cleanDescription = cleanMeaningDescription(item.description)
                             copiedText += "${i + 1}. $cleanWordClass $cleanDescription\n\n"
                         }
                         coroutineScope.launch {
@@ -409,9 +409,8 @@ fun buildMeaningText(
     rawDescription: String,
 ): AnnotatedString {
     val number = "${position + 1}. "
-    val regex = Regex("""\[(.*?)]""")
-    val cleanWordClass = wordClass.replace(regex, " ")
-    val cleanDescription = " ${rawDescription.replace(Regex("\\?(.*)"), "")}"
+    val cleanWordClass = cleanWordClass(wordClass)
+    val cleanDescription = " ${cleanMeaningDescription(rawDescription)}"
 
     return buildAnnotatedString {
         append(number)
@@ -428,3 +427,7 @@ fun buildMeaningText(
         append(cleanDescription)
     }
 }
+
+internal fun cleanWordClass(wordClass: String): String = wordClass.replace(WORD_CLASS_ANNOTATION_REGEX, " ")
+
+internal fun cleanMeaningDescription(description: String): String = description.substringBefore('?')

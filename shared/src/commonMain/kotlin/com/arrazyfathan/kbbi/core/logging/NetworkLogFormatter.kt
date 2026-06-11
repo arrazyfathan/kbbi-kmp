@@ -12,7 +12,8 @@ private const val SENSITIVE_KEY_PATTERN =
 
 private val sensitiveHeaderRegex =
     Regex(
-        pattern = """(?im)^(.*\b(?:$SENSITIVE_KEY_PATTERN)\b\s*[:=]\s*).*$""",
+        pattern = """^(.*\b(?:$SENSITIVE_KEY_PATTERN)\b\s*[:=]\s*).*$""",
+        options = setOf(RegexOption.IGNORE_CASE, RegexOption.MULTILINE),
     )
 
 private val sensitiveJsonRegex =
@@ -225,7 +226,11 @@ object NetworkLogFormatter {
     private val requestUrlRegex = Regex("""REQUEST:\s*(.+)""")
     private val fromUrlRegex = Regex("""FROM:\s*(.+)""")
     private val responseStatusRegex = Regex("""RESPONSE:\s*(.+)""")
-    private val contentTypeRegex = Regex("""(?i)\bcontent[- ]?type\s*[:=]\s*(.+)""")
+    private val contentTypeRegex =
+        Regex(
+            pattern = """\bcontent[- ]?type\s*[:=]\s*(.+)""",
+            option = RegexOption.IGNORE_CASE,
+        )
     private val headerFieldRegex = Regex("""^(?:->|<-)?\s*([^:]+):\s*(.+)$""")
 
     private fun MatchResult.toHeaderField(): HeaderField {

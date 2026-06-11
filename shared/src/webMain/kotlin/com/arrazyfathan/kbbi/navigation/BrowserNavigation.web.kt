@@ -12,6 +12,7 @@ import kotlin.js.ExperimentalWasmJsInterop
 import web.events.EventHandler
 import web.history.history
 import web.window.window
+import kotlin.js.unsafeCast
 
 @Composable
 internal actual fun BindBrowserNavigation(navigationState: NavigationState) {
