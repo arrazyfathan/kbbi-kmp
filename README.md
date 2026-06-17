@@ -152,8 +152,39 @@ Rules are configured in [.editorconfig](./.editorconfig) and [config/detekt/dete
 
 Build-time configuration, including the API base URL, is managed through BuildKonfig in [shared/build.gradle.kts](./shared/build.gradle.kts).
 
-| Environment source | Usage |
+The active environment is selected by the `BASE_URL` value generated into `BuildKonfig`:
+
+```kotlin
+buildkonfig {
+    packageName = "com.arrazyfathan.kbbi.shared"
+
+    defaultConfigs {
+        buildConfigField(Type.STRING, "BASE_URL", "https://kbbi-api-green.vercel.app/")
+    }
+}
+```
+
+To switch between development and production:
+
+1. Open [shared/build.gradle.kts](./shared/build.gradle.kts).
+2. Change `BASE_URL` in the `buildkonfig.defaultConfigs` block.
+3. Rebuild the target application so BuildKonfig regenerates the value.
+
+Example values:
+
+| Environment | `BASE_URL` |
 |---|---|
-| Shared Gradle configuration | Default application values |
-| `local.properties` | Local settings excluded from Git |
-| Environment variables | CI/CD and production configuration |
+| Development | `http://localhost:3000/` or your staging API URL |
+| Production | `https://kbbi-api-green.vercel.app/` |
+
+Rebuild commands after changing the value:
+
+| Platform | Command |
+|---|---|
+| Android | `./gradlew :androidApp:assembleDebug` |
+| iOS | `./gradlew :shared:linkDebugFrameworkIosSimulatorArm64` or run the Xcode project |
+| Desktop | `./gradlew :desktopApp:run` |
+| Web JS | `./gradlew :webApp:jsBrowserDevelopmentRun` |
+| Web Wasm | `./gradlew :webApp:wasmJsBrowserDevelopmentRun` |
+
+Do not commit local development URLs unless that is the intended default for everyone. For local experiments, change `BASE_URL`, run the app, then restore the production value before committing.
