@@ -1,6 +1,18 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.isFile) {
+        localPropertiesFile.inputStream().use(::load)
+    }
+}
+
+val apiBaseUrl = listOf(
+    localProperties.getProperty("BASE_URL"),
+).firstNotNullOf { it?.trim()?.takeIf(String::isNotEmpty) }
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -142,6 +154,6 @@ buildkonfig {
     packageName = "com.arrazyfathan.kbbi.shared"
 
     defaultConfigs {
-        buildConfigField(Type.STRING, "BASE_URL", "https://kbbi-api-green.vercel.app/")
+        buildConfigField(Type.STRING, "BASE_URL", apiBaseUrl)
     }
 }

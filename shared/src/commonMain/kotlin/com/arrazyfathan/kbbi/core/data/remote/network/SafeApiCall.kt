@@ -1,6 +1,8 @@
 package com.arrazyfathan.kbbi.core.data.remote.network
+
 import com.arrazyfathan.kbbi.core.domain.model.AppResult
 import com.arrazyfathan.kbbi.core.domain.model.DataError
+import com.arrazyfathan.kbbi.shared.BuildKonfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
@@ -135,13 +137,11 @@ suspend inline fun <reified T : Any> readSuccessBody(response: HttpResponse): Ap
         AppResult.Error(DataError.Unknown)
     }
 
-private const val BASE_URL = "https://kbbi-api-green.vercel.app/"
-
 fun constructRoute(route: String): String =
     when {
-        route.contains(BASE_URL) -> route
-        route.startsWith("/") -> BASE_URL.trimEnd('/') + route
-        else -> BASE_URL.trimEnd('/') + "/$route"
+        route.contains(BuildKonfig.BASE_URL) -> route
+        route.startsWith("/") -> BuildKonfig.BASE_URL.trimEnd('/') + route
+        else -> BuildKonfig.BASE_URL.trimEnd('/') + "/$route"
     }
 
 @PublishedApi

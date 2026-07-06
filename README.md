@@ -150,25 +150,21 @@ Rules are configured in [.editorconfig](./.editorconfig) and [config/detekt/dete
 
 ### Environment Configuration
 
-Build-time configuration, including the API base URL, is managed through BuildKonfig in [shared/build.gradle.kts](./shared/build.gradle.kts).
+Build-time configuration, including the API base URL, is managed through the ignored `local.properties` file and generated into shared code by BuildKonfig in [shared/build.gradle.kts](./shared/build.gradle.kts).
 
-The active environment is selected by the `BASE_URL` value generated into `BuildKonfig`:
+Create your local configuration from the committed example:
 
-```kotlin
-buildkonfig {
-    packageName = "com.arrazyfathan.kbbi.shared"
-
-    defaultConfigs {
-        buildConfigField(Type.STRING, "BASE_URL", "https://kbbi-api-green.vercel.app/")
-    }
-}
+```shell
+cp local.properties.example local.properties
 ```
 
-To switch between development and production:
+Then edit `local.properties`:
 
-1. Open [shared/build.gradle.kts](./shared/build.gradle.kts).
-2. Change `BASE_URL` in the `buildkonfig.defaultConfigs` block.
-3. Rebuild the target application so BuildKonfig regenerates the value.
+```properties
+BASE_URL=https://kbbi-api-green.vercel.app/
+```
+
+`local.properties` is ignored by Git, so developer-specific URLs stay out of the committed codebase. CI can also provide the same value with a `BASE_URL` environment variable. If neither value is set, the build falls back to the production API URL.
 
 Example values:
 
@@ -177,7 +173,7 @@ Example values:
 | Development | `http://localhost:3000/` or your staging API URL |
 | Production | `https://kbbi-api-green.vercel.app/` |
 
-Rebuild commands after changing the value:
+Rebuild commands after changing `BASE_URL`:
 
 | Platform | Command |
 |---|---|
@@ -187,4 +183,4 @@ Rebuild commands after changing the value:
 | Web JS | `./gradlew :webApp:jsBrowserDevelopmentRun` |
 | Web Wasm | `./gradlew :webApp:wasmJsBrowserDevelopmentRun` |
 
-Do not commit local development URLs unless that is the intended default for everyone. For local experiments, change `BASE_URL`, run the app, then restore the production value before committing.
+Do not commit real secrets to `local.properties.example`. The base API URL is still visible in built apps and network traffic, so privileged API keys or private credentials must stay on a backend service.
