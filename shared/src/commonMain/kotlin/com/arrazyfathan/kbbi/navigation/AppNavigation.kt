@@ -46,6 +46,8 @@ import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.detailEntry
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.homeEntry
+import com.arrazyfathan.kbbi.feature.proverb.presentation.navigation.ProverbKey
+import com.arrazyfathan.kbbi.feature.proverb.presentation.navigation.proverbEntry
 import com.arrazyfathan.kbbi.feature.words.presentation.navigation.wordsEntry
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -64,6 +66,7 @@ fun MainApp() {
     val navigator = remember(navigationState) { Navigator(navigationState) }
     val currentRoute = navigationState.currentRoute
     val isDetailVisible = currentRoute is DetailKey
+    val showBottomNavigation = currentRoute in topLevelRoutes
     val loadingController = rememberAppLoadingController()
     val isUiBlocked by remember {
         derivedStateOf { loadingController.isBlocking }
@@ -78,9 +81,21 @@ fun MainApp() {
                 val navigateToDetail: (ListWordModel) -> Unit = { word ->
                     navigator.navigate(DetailKey(word))
                 }
-                homeEntry(onNavigateToDetail = navigateToDetail)
+                homeEntry(
+                    onNavigateToDetail = navigateToDetail,
+                    onNavigateToProverb = {
+                        navigator.navigate(ProverbKey)
+                    },
+                )
                 wordsEntry(onNavigateToDetail = navigateToDetail)
                 bookmarksEntry(onNavigateToDetail = navigateToDetail)
+                proverbEntry(
+                    onNavigateBack = {
+                        if (!isUiBlocked) {
+                            navigator.goBack()
+                        }
+                    },
+                )
                 detailEntry()
             },
         )
@@ -95,12 +110,12 @@ fun MainApp() {
                     }
                 },
                 modifier = Modifier.fillMaxSize(),
-                transitionSpec = { appNavigationTransition(isDetailVisible) },
-                popTransitionSpec = { appPopNavigationTransition(isDetailVisible) },
-                predictivePopTransitionSpec = { appPopNavigationTransition(isDetailVisible) },
+                transitionSpec = { appNavigationTransition(showBottomNavigation) },
+                popTransitionSpec = { appPopNavigationTransition(showBottomNavigation) },
+                predictivePopTransitionSpec = { appPopNavigationTransition(showBottomNavigation) },
             )
 
-            if (!isDetailVisible) {
+            if (showBottomNavigation) {
                 Row(
                     modifier =
                         Modifier
@@ -174,18 +189,18 @@ private fun BlockingLoadingOverlay() {
     }
 }
 
-private fun appNavigationTransition(isDetailVisible: Boolean): ContentTransform =
-    if (isDetailVisible) {
-        iosNavigationTransition()
-    } else {
+private fun appNavigationTransition(showBottomNavigation: Boolean): ContentTransform =
+    if (showBottomNavigation) {
         bottomNavigationTransition()
+    } else {
+        iosNavigationTransition()
     }
 
-private fun appPopNavigationTransition(isDetailVisible: Boolean): ContentTransform =
-    if (isDetailVisible) {
-        iosPopNavigationTransition()
-    } else {
+private fun appPopNavigationTransition(showBottomNavigation: Boolean): ContentTransform =
+    if (showBottomNavigation) {
         bottomNavigationTransition()
+    } else {
+        iosPopNavigationTransition()
     }
 
 private fun bottomNavigationTransition(): ContentTransform {

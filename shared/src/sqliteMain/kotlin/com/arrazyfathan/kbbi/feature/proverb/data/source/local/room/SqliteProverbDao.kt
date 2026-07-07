@@ -1,0 +1,76 @@
+package com.arrazyfathan.kbbi.feature.proverb.data.source.local.room
+
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Upsert
+import com.arrazyfathan.kbbi.feature.proverb.data.source.local.entity.CachedProverbDetailEntity
+import com.arrazyfathan.kbbi.feature.proverb.data.source.local.entity.CachedProverbEntity
+
+@Dao
+interface RoomProverbDao {
+    @Query("SELECT * FROM cached_proverb_table WHERE query = :query AND page = :page ORDER BY position ASC")
+    suspend fun getProverbs(
+        query: String,
+        page: Int,
+    ): List<SqliteCachedProverbEntity>
+
+    @Query("DELETE FROM cached_proverb_table WHERE query = :query")
+    suspend fun deleteProverbsForQuery(query: String)
+
+    @Query("DELETE FROM cached_proverb_table WHERE query = :query AND page = :page")
+    suspend fun deleteProverbPage(
+        query: String,
+        page: Int,
+    )
+
+    @Upsert
+    suspend fun upsertProverbs(proverbs: List<SqliteCachedProverbEntity>)
+
+    @Transaction
+    suspend fun replaceProverbPage(
+        query: String,
+        page: Int,
+        proverbs: List<SqliteCachedProverbEntity>,
+    ) {
+        if (page == FIRST_PROVERB_PAGE) {
+            deleteProverbsForQuery(query)
+        } else {
+            deleteProverbPage(query, page)
+        }
+        upsertProverbs(proverbs)
+    }
+
+    @Query("SELECT * FROM cached_proverb_detail_table WHERE slug = :slug")
+    suspend fun getProverbDetail(slug: String): SqliteCachedProverbDetailEntity?
+
+    @Upsert
+    suspend fun upsertProverbDetail(proverb: SqliteCachedProverbDetailEntity)
+
+    private companion object {
+        const val FIRST_PROVERB_PAGE = 1
+    }
+}
+
+class RoomProverbDaoAdapter(
+    private val dao: RoomProverbDao,
+) : ProverbDao {
+    override suspend fun getProverbs(
+        query: String,
+        page: Int,
+    ): List<CachedProverbEntity> = dao.getProverbs(query, page).map(SqliteCachedProverbEntity::toCommonEntity)
+
+    override suspend fun replaceProverbPage(
+        query: String,
+        page: Int,
+        proverbs: List<CachedProverbEntity>,
+    ) {
+        dao.replaceProverbPage(query, page, proverbs.map(CachedProverbEntity::toSqliteEntity))
+    }
+
+    override suspend fun getProverbDetail(slug: String): CachedProverbDetailEntity? = dao.getProverbDetail(slug)?.toCommonEntity()
+
+    override suspend fun upsertProverbDetail(proverb: CachedProverbDetailEntity) {
+        dao.upsertProverbDetail(proverb.toSqliteEntity())
+    }
+}

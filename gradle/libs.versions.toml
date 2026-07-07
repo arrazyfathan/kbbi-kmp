@@ -17,6 +17,7 @@ kotlin = "2.4.0"
 kotlin-wrappers = "2026.6.3"
 kotlinx-coroutines = "1.11.0"
 material3 = "1.11.0-alpha07"
+paging = "3.5.0"
 ksp = "2.3.9"
 room = "2.8.4"
 sqlite = "2.6.2"
@@ -49,6 +50,8 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMul
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 compottie-lite = { module = "io.github.alexzhirkevich:compottie-lite", version.ref = "compottie" }
+androidx-paging-common = { group = "androidx.paging", name = "paging-common", version.ref = "paging" }
+androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
 
 # Navigation 3
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }

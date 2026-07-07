@@ -77,9 +77,14 @@ import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.button_search
 import kbbi_kmp.shared.generated.resources.hero_home
 import kbbi_kmp.shared.generated.resources.hero_image_text
+import kbbi_kmp.shared.generated.resources.home_menu_subtitle
+import kbbi_kmp.shared.generated.resources.home_menu_title
 import kbbi_kmp.shared.generated.resources.history_label
 import kbbi_kmp.shared.generated.resources.ic_history
+import kbbi_kmp.shared.generated.resources.ic_proverb
 import kbbi_kmp.shared.generated.resources.ic_search
+import kbbi_kmp.shared.generated.resources.proverb_menu_subtitle
+import kbbi_kmp.shared.generated.resources.proverb_menu_title
 import kbbi_kmp.shared.generated.resources.search_word_list_hint
 import kbbi_kmp.shared.generated.resources.subtitle_text
 import kbbi_kmp.shared.generated.resources.swipe_label
@@ -94,6 +99,7 @@ private const val HOME_SEARCH_LOADING_SOURCE = "home_search"
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onNavigateToDetail: (ListWordModel) -> Unit,
+    onNavigateToProverb: () -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val loadingController = LocalAppLoadingController.current
@@ -135,6 +141,7 @@ fun HomeScreen(
         searchQuery = searchQuery,
         onSearchQueryChange = { searchQuery = it },
         onAction = viewModel::onAction,
+        onNavigateToProverb = onNavigateToProverb,
         modifier = modifier,
     )
 }
@@ -146,6 +153,7 @@ fun HomeContent(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onAction: (HomeAction) -> Unit,
+    onNavigateToProverb: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
@@ -428,7 +436,7 @@ fun HomeContent(
                             .padding(bottom = 32.dp),
                 ) {
                     Text(
-                        text = "Menu",
+                        text = stringResource(Res.string.home_menu_title),
                         color = TextH1,
                         fontSize = 20.sp,
                         fontFamily = InterFontFamily,
@@ -438,7 +446,7 @@ fun HomeContent(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Temukan fitur lainnya (Comming Soon)",
+                        text = stringResource(Res.string.home_menu_subtitle),
                         color = TextP,
                         fontSize = 14.sp,
                         fontFamily = InterFontFamily,
@@ -447,25 +455,98 @@ fun HomeContent(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Three placeholder cards side-by-side
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        repeat(3) {
-                            Card(
-                                modifier =
-                                    Modifier
-                                        .weight(1f)
-                                        .height(120.dp),
-                                shape = RoundedCornerShape(10.dp),
-                                colors = CardDefaults.cardColors(containerColor = BlueBg),
-                                elevation = CardDefaults.cardElevation(0.dp),
-                            ) {}
+                        HomeMenuCard(
+                            icon = Res.drawable.ic_proverb,
+                            title = stringResource(Res.string.proverb_menu_title),
+                            subtitle = stringResource(Res.string.proverb_menu_subtitle),
+                            onClick = {
+                                showBottomSheet = false
+                                onNavigateToProverb()
+                            },
+                            modifier = Modifier.weight(1f),
+                        )
+
+                        repeat(2) {
+                            HomeMenuPlaceholderCard(modifier = Modifier.weight(1f))
                         }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun HomeMenuCard(
+    icon: org.jetbrains.compose.resources.DrawableResource,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier.height(120.dp).clickable(onClick = onClick),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = BlueBg),
+        elevation = CardDefaults.cardElevation(0.dp),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(12.dp),
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Surface(
+                modifier = Modifier.size(36.dp),
+                shape = RoundedCornerShape(10.dp),
+                color = Color.White,
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(icon),
+                        contentDescription = null,
+                        tint = BluePrimary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = title,
+                color = TextH1,
+                fontSize = 13.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 16.sp,
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = subtitle,
+                color = TextP,
+                fontSize = 11.sp,
+                fontFamily = InterFontFamily,
+                fontWeight = FontWeight.Normal,
+                lineHeight = 14.sp,
+            )
+        }
+    }
+}
+
+@Composable
+private fun HomeMenuPlaceholderCard(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.height(120.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = BlueBg),
+        elevation = CardDefaults.cardElevation(0.dp),
+    ) {}
 }

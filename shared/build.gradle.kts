@@ -3,16 +3,18 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
-val localProperties = Properties().apply {
-    val localPropertiesFile = rootProject.file("local.properties")
-    if (localPropertiesFile.isFile) {
-        localPropertiesFile.inputStream().use(::load)
+val localProperties =
+    Properties().apply {
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.isFile) {
+            localPropertiesFile.inputStream().use(::load)
+        }
     }
-}
 
-val apiBaseUrl = listOf(
-    localProperties.getProperty("BASE_URL"),
-).firstNotNullOf { it?.trim()?.takeIf(String::isNotEmpty) }
+val apiBaseUrl =
+    listOf(
+        localProperties.getProperty("BASE_URL"),
+    ).firstNotNullOf { it?.trim()?.takeIf(String::isNotEmpty) }
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -32,8 +34,14 @@ kotlin {
 
     android {
         namespace = "com.arrazyfathan.kbbi.shared"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        compileSdk =
+            libs.versions.android.compileSdk
+                .get()
+                .toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
         compilerOptions {
             jvmTarget = JvmTarget.JVM_17
         }
@@ -109,6 +117,8 @@ kotlin {
             implementation(libs.compottie.lite)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.androidx.paging.common)
+            implementation(libs.androidx.paging.compose)
 
             // Navigation 3
             implementation(libs.androidx.navigation3.runtime)

@@ -11,19 +11,27 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object HomeKey : NavKey
 
-fun EntryProviderScope<NavKey>.homeEntry(onNavigateToDetail: (ListWordModel) -> Unit) {
+fun EntryProviderScope<NavKey>.homeEntry(
+    onNavigateToDetail: (ListWordModel) -> Unit,
+    onNavigateToProverb: () -> Unit,
+) {
     entry<HomeKey> {
-        HomeRoute(onNavigateToDetail = onNavigateToDetail)
+        HomeRoute(
+            onNavigateToDetail = onNavigateToDetail,
+            onNavigateToProverb = onNavigateToProverb,
+        )
     }
 }
 
 @Composable
 fun HomeRoute(
     onNavigateToDetail: (ListWordModel) -> Unit,
+    onNavigateToProverb: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     HomeScreen(
         onNavigateToDetail = onNavigateToDetail,
+        onNavigateToProverb = onNavigateToProverb,
         modifier = modifier,
     )
 }

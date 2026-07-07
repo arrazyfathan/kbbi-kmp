@@ -5,6 +5,7 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.BookmarksKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.DetailKey
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
+import com.arrazyfathan.kbbi.feature.proverb.presentation.navigation.ProverbKey
 import com.arrazyfathan.kbbi.feature.words.presentation.navigation.WordsKey
 import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.bookmarks_title
@@ -59,6 +60,7 @@ internal val navigationSavedStateConfiguration =
                 polymorphic(NavKey::class) {
                     subclass(HomeKey::class, HomeKey.serializer())
                     subclass(WordsKey::class, WordsKey.serializer())
+                    subclass(ProverbKey::class, ProverbKey.serializer())
                     subclass(BookmarksKey::class, BookmarksKey.serializer())
                     subclass(DetailKey::class, DetailKey.serializer())
                 }

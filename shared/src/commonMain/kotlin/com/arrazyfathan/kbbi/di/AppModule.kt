@@ -15,6 +15,10 @@ import com.arrazyfathan.kbbi.feature.home.domain.usecase.SaveBookmarkUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.SearchWordUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.SearchWordWithHistoryUseCase
 import com.arrazyfathan.kbbi.feature.home.presentation.home.HomeViewModel
+import com.arrazyfathan.kbbi.feature.proverb.data.di.proverbRepositoryModule
+import com.arrazyfathan.kbbi.feature.proverb.domain.usecase.GetListProverbsUseCase
+import com.arrazyfathan.kbbi.feature.proverb.domain.usecase.GetProverbMeaningUseCase
+import com.arrazyfathan.kbbi.feature.proverb.presentation.proverb.ProverbViewModel
 import com.arrazyfathan.kbbi.feature.words.presentation.words.WordViewModel
 import com.arrazyfathan.kbbi.platformModule
 import org.koin.core.KoinApplication
@@ -36,6 +40,8 @@ val useCaseModule =
         factoryOf(::CheckWordSavedUseCase)
         factoryOf(::ObserveBookmarksUseCase)
         factoryOf(::GetWordEntriesUseCase)
+        factoryOf(::GetListProverbsUseCase)
+        factoryOf(::GetProverbMeaningUseCase)
     }
 
 val viewModelModule =
@@ -44,6 +50,7 @@ val viewModelModule =
         viewModelOf(::HomeViewModel)
         viewModelOf(::BookmarksViewModel)
         viewModelOf(::WordViewModel)
+        viewModelOf(::ProverbViewModel)
     }
 
 fun initKoin(config: KoinAppDeclaration? = null): KoinApplication {
@@ -53,6 +60,7 @@ fun initKoin(config: KoinAppDeclaration? = null): KoinApplication {
             platformModule,
             databaseModule,
             repositoryModule,
+            proverbRepositoryModule,
             viewModelModule,
             networkModule,
             useCaseModule,
