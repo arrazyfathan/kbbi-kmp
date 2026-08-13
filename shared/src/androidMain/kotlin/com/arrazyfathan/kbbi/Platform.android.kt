@@ -8,6 +8,10 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import com.arrazyfathan.kbbi.core.data.visitor.AndroidVisitorIdStorage
+import com.arrazyfathan.kbbi.core.domain.visitor.StoredVisitorIdProvider
+import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
+import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdStorage
 import com.arrazyfathan.kbbi.core.utils.updateSystemBarStyle
 import com.arrazyfathan.kbbi.feature.home.data.source.local.room.appContext
 import io.ktor.client.engine.HttpClientEngine
@@ -24,6 +28,8 @@ actual fun getPlatform(): Platform = AndroidPlatform()
 actual val platformModule: Module =
     module {
         single<HttpClientEngine> { OkHttp.create() }
+        single<VisitorIdStorage> { AndroidVisitorIdStorage() }
+        single<VisitorIdProvider> { StoredVisitorIdProvider(get()) }
     }
 
 private tailrec fun Context.findActivity(): Activity? =

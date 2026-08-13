@@ -31,6 +31,7 @@ sealed interface DetailAction {
     data class OnBookmarkClick(
         val word: String,
         val wordList: List<WordModel>,
+        val visitorCount: Int?,
     ) : DetailAction
 }
 
@@ -57,7 +58,7 @@ class DetailViewModel(
     fun onAction(action: DetailAction) {
         when (action) {
             is DetailAction.OnStarted -> observeSavedState(action.word)
-            is DetailAction.OnBookmarkClick -> toggleBookmark(action.word, action.wordList)
+            is DetailAction.OnBookmarkClick -> toggleBookmark(action.word, action.wordList, action.visitorCount)
         }
     }
 
@@ -74,6 +75,7 @@ class DetailViewModel(
     private fun toggleBookmark(
         word: String,
         wordList: List<WordModel>,
+        visitorCount: Int?,
     ) {
         if (bookmarkUpdateJob?.isActive == true) return
 
@@ -88,7 +90,7 @@ class DetailViewModel(
                             _events.send(DetailEvent.ShowMessage(Res.string.word_deleted_success))
                         }
                     } else {
-                        if (saveBookmark(word, wordList)) {
+                        if (saveBookmark(word, wordList, visitorCount)) {
                             _state.update { it.copy(isSaved = true) }
                             _events.send(DetailEvent.ShowMessage(Res.string.word_saved_success))
                         }

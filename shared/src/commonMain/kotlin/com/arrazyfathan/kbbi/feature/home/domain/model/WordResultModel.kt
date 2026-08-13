@@ -2,12 +2,10 @@ package com.arrazyfathan.kbbi.feature.home.domain.model
 
 import kotlinx.serialization.Serializable
 
-/**
- * Created by Ar Razy Fathan Rabbani on 17/03/23.
- */
+
 @Serializable
-data class ListWordModel(
+data class WordResultModel(
     val word: String,
-    val listWords: List<WordModel>,
+    val entries: List<WordModel>,
     val visitorCount: Int? = null,
 )
