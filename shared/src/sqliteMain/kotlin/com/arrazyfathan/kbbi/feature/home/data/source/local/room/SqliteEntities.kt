@@ -11,6 +11,7 @@ data class SqliteListWordEntity(
     @PrimaryKey
     val word: String,
     val listWords: List<WordEntity>,
+    val visitorCount: Int?,
     val isSaved: Boolean,
 )
 
@@ -25,6 +26,7 @@ fun ListWordEntity.toSqliteEntity() =
     SqliteListWordEntity(
         word = word,
         listWords = listWords,
+        visitorCount = visitorCount,
         isSaved = isSaved,
     )
 
@@ -32,6 +34,7 @@ fun SqliteListWordEntity.toCommonEntity() =
     ListWordEntity(
         word = word,
         listWords = listWords,
+        visitorCount = visitorCount,
         isSaved = isSaved,
     )
 

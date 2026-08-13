@@ -73,6 +73,7 @@ import kbbi_kmp.shared.generated.resources.bookmark
 import kbbi_kmp.shared.generated.resources.bookmarked
 import kbbi_kmp.shared.generated.resources.copy
 import kbbi_kmp.shared.generated.resources.copy_success
+import kbbi_kmp.shared.generated.resources.visitor_count
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -189,6 +190,16 @@ fun DetailContent(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp),
                 )
+                listWordModel.visitorCount?.let { visitorCount ->
+                    Text(
+                        text = stringResource(Res.string.visitor_count, visitorCount),
+                        color = TextP,
+                        fontSize = 14.sp,
+                        fontFamily = InterFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                    )
+                }
             }
 
             // Word details cards
@@ -263,6 +274,7 @@ fun DetailContent(
                             DetailAction.OnBookmarkClick(
                                 listWordModel.word.lowercase(),
                                 listWordModel.listWords,
+                                listWordModel.visitorCount,
                             ),
                         )
                     }

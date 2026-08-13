@@ -10,5 +10,6 @@ import kotlinx.serialization.Serializable
 data class ListWordEntity(
     val word: String = "",
     val listWords: List<WordEntity>,
+    val visitorCount: Int? = null,
     var isSaved: Boolean = false,
 )

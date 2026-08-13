@@ -17,10 +17,11 @@ class SearchWordUseCase(
 
         return wordSearchRepository
             .getMeaningOfWord(wordToSearch)
-            .map { words ->
+            .map { result ->
                 ListWordModel(
-                    word = wordToSearch,
-                    listWords = words,
+                    word = result.word.ifBlank { wordToSearch },
+                    listWords = result.entries,
+                    visitorCount = result.visitorCount,
                 )
             }
     }

@@ -13,5 +13,15 @@ data class ListWordDto(
     @SerialName("message")
     val message: String,
     @SerialName("data")
-    val data: List<WordDto>,
+    val data: WordResultDto? = null,
+)
+
+@Serializable
+data class WordResultDto(
+    @SerialName("word")
+    val word: String = "",
+    @SerialName("visitorCount")
+    val visitorCount: Int? = null,
+    @SerialName("entries")
+    val entries: List<WordDto> = emptyList(),
 )
