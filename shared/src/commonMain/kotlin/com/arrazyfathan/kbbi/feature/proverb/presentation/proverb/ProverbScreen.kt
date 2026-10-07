@@ -47,6 +47,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -54,7 +55,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -85,7 +86,6 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import com.arrazyfathan.kbbi.showToast
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BluePrimary
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueSecondary
@@ -94,11 +94,12 @@ import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextH1
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
-import com.arrazyfathan.kbbi.core.presentation.ui.asUiText
 import com.arrazyfathan.kbbi.core.presentation.ui.asStringNonComposable
+import com.arrazyfathan.kbbi.core.presentation.ui.asUiText
 import com.arrazyfathan.kbbi.feature.proverb.domain.model.ProverbDetailModel
 import com.arrazyfathan.kbbi.feature.proverb.domain.model.ProverbModel
 import com.arrazyfathan.kbbi.feature.proverb.domain.model.ProverbPagingException
+import com.arrazyfathan.kbbi.showToast
 import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.button_search
 import kbbi_kmp.shared.generated.resources.error_unknown
@@ -131,8 +132,8 @@ private val SEARCH_BAR_IDLE_SHOW_DELAY_MILLIS = 3_000L.milliseconds
 fun ProverbRoot(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ProverbViewModel = koinViewModel(),
 ) {
+    val viewModel: ProverbViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val proverbs = viewModel.proverbs.collectAsLazyPagingItems()
 
@@ -155,7 +156,7 @@ fun ProverbRoot(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProverbScreen(
     state: ProverbState,
@@ -165,7 +166,7 @@ fun ProverbScreen(
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val listState = rememberLazyListState()
     var isSearchVisible by remember { mutableStateOf(true) }

@@ -74,21 +74,21 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting
-        val sqliteMain by creating {
+        val commonMain = getByName("commonMain")
+        val sqliteMain = create("sqliteMain") {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.sqlite.bundled)
             }
         }
-        val iosMain by creating {
+        val iosMain = create("iosMain") {
             dependsOn(sqliteMain)
             dependencies {
                 implementation(libs.ktor.client.darwin)
             }
         }
-        val webMain by creating {
+        val webMain = create("webMain") {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.ktor.client.js)

@@ -1,5 +1,6 @@
 package com.arrazyfathan.kbbi.feature.home.presentation.home
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arrazyfathan.kbbi.core.domain.model.AppResult
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 /**
  * Created by Ar Razy Fathan Rabbani on 19/01/23.
  */
+@Immutable
 data class HomeState(
     val histories: List<HistoryModel> = emptyList(),
     val isLoading: Boolean = false,

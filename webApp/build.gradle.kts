@@ -19,15 +19,16 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting
-        val webMain by creating {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(projects.shared)
-                implementation(libs.compose.ui)
-                implementation(libs.koin.core)
+        val commonMain = getByName("commonMain")
+        val webMain =
+            create("webMain") {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(projects.shared)
+                    implementation(libs.compose.ui)
+                    implementation(libs.koin.core)
+                }
             }
-        }
         getByName("jsMain").dependsOn(webMain)
         getByName("wasmJsMain").dependsOn(webMain)
     }
