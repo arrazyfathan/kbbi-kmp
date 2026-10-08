@@ -287,7 +287,7 @@ fun BookmarkItem(
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.close),
-                            contentDescription = "Cancel",
+                            contentDescription = stringResource(Res.string.cancel),
                             tint = Color.White,
                             modifier = Modifier.size(12.dp),
                         )
@@ -296,7 +296,7 @@ fun BookmarkItem(
                     // Large Trash Can in the Center
                     Icon(
                         painter = painterResource(Res.drawable.ic_delete),
-                        contentDescription = "Delete",
+                        contentDescription = stringResource(Res.string.delete),
                         tint = Color.White,
                         modifier = Modifier.align(Alignment.Center).size(28.dp),
                     )

@@ -1,22 +1,22 @@
 # KBBI KMP Migration State
 
+> Historical snapshot. Use the [live Android-to-KMP parity inventory](plan/parity-inventory.md) for current feature ownership and per-target verification. This document records earlier migration work and build evidence; it is not a claim of current five-target parity.
+
 Last verified: 2026-06-09
 
 Original Android repository:
 [arrazyfathan/kbbi](https://github.com/arrazyfathan/kbbi)
 
 This repository is the Kotlin Multiplatform migration of that Android
-application, targeting Android and iOS with shared Compose Multiplatform UI and
-application logic.
+application, targeting Android, iOS, desktop JVM, browser JavaScript, and
+browser WebAssembly with shared Compose Multiplatform UI and application logic.
 
 ## Current Status
 
-The Android application production code has been migrated to shared Kotlin and
-Compose Multiplatform code for Android and iOS. The iOS application compiles,
-links, and builds through Xcode.
-
-The migration is functionally complete, but it is not a literal 100% migration
-of every source-project file.
+The prior audit recorded shared Kotlin and Compose Multiplatform coverage for
+several Android features and successful Android/iOS build checks. Feature
+coverage and target verification are tracked in the live inventory; the old
+audit did not establish parity across all five targets.
 
 ## iOS Fixes
 
@@ -54,7 +54,6 @@ Migrated:
 Not migrated:
 
 - The original substantive unit tests:
-  - `NetworkLogFormatterTest`
   - `WordMappersTest`
   - `FakeWordRepository`
   - `WordUseCasesTest`

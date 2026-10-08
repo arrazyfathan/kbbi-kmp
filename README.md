@@ -94,8 +94,10 @@ kbbi-kmp/
 
 - Android Studio or IntelliJ IDEA with Kotlin Multiplatform support
 - Xcode for the iOS application
-- A compatible JDK for Gradle, Android, and desktop builds
-- Node.js tooling managed by the Kotlin Gradle plugin for web builds
+- JDK 17 for Gradle, Android, and desktop builds
+- Android SDK 37 for the configured compile/target SDK
+- Xcode 27 for iOS builds
+- Node.js for Kotlin/JS and Kotlin/Wasm browser builds (the Kotlin Gradle plugin manages its build tooling)
 
 ### Command Reference
 
@@ -164,7 +166,7 @@ Then edit `local.properties`:
 BASE_URL=https://kbbi-api-green.vercel.app/
 ```
 
-`local.properties` is ignored by Git, so developer-specific URLs stay out of the committed codebase. CI can also provide the same value with a `BASE_URL` environment variable. If neither value is set, the build falls back to the production API URL.
+`local.properties` is ignored by Git. The current Gradle configuration reads `BASE_URL` from this file; it does not read an environment variable or supply a fallback. Configure this property before running any build. CI must create `local.properties` (or the build configuration must be changed to support another secure input) before invoking Gradle.
 
 Example values:
 
