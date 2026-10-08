@@ -36,8 +36,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -87,13 +86,12 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
-import com.arrazyfathan.kbbi.core.presentation.designsystem.BluePrimary
-import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueSecondary
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextH1
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
+import com.arrazyfathan.kbbi.core.presentation.designsystem.components.AppPrimaryButton
 import com.arrazyfathan.kbbi.core.presentation.ui.asStringNonComposable
 import com.arrazyfathan.kbbi.core.presentation.ui.asUiText
 import com.arrazyfathan.kbbi.feature.proverb.domain.model.ProverbDetailModel
@@ -285,8 +283,8 @@ private fun ProverbTopAppBar(
         },
         colors =
             TopAppBarDefaults.topAppBarColors(
-                containerColor = BluePrimary,
-                scrolledContainerColor = BluePrimary,
+                containerColor = MaterialTheme.colorScheme.primary,
+                scrolledContainerColor = MaterialTheme.colorScheme.primary,
                 titleContentColor = Color.White,
             ),
         scrollBehavior = scrollBehavior,
@@ -322,7 +320,7 @@ private fun BoxScope.FloatingProverbSearchField(
     ) {
         Surface(
             shape = CircleShape,
-            color = BlueSecondary,
+            color = MaterialTheme.colorScheme.secondary,
             border = BorderStroke(width = 1.dp, color = Color.White.copy(alpha = 0.18f)),
         ) {
             ProverbSearchField(
@@ -380,8 +378,8 @@ private fun ProverbSearchField(
         shape = CircleShape,
         colors =
             TextFieldDefaults.colors(
-                focusedContainerColor = BlueSecondary,
-                unfocusedContainerColor = BlueSecondary,
+                focusedContainerColor = MaterialTheme.colorScheme.secondary,
+                unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedTextColor = Color.White,
@@ -577,7 +575,7 @@ private fun LetterHeader(letter: String) {
     Surface(
         modifier = Modifier.padding(top = 2.dp, bottom = 2.dp),
         shape = CircleShape,
-        color = BluePrimary,
+        color = MaterialTheme.colorScheme.primary,
         shadowElevation = 0.dp,
     ) {
         Text(
@@ -621,7 +619,7 @@ private fun ProverbCard(
 //                fontFamily = MetropolisFontFamily,
 //                fontWeight = FontWeight.ExtraBold,
 //                fontSize = 18.sp,
-//                color = BluePrimary.copy(alpha = 0.32f),
+//                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.32f),
 //                modifier = Modifier.padding(start = 12.dp),
 //            )
         }
@@ -649,7 +647,7 @@ private fun ProverbMeaningSheet(
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.ExtraBold,
             fontSize = 14.sp,
-            color = BluePrimary,
+            color = MaterialTheme.colorScheme.primary,
         )
         Spacer(modifier = Modifier.height(12.dp))
         if (isLoading) {
@@ -660,7 +658,7 @@ private fun ProverbMeaningSheet(
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
                     strokeWidth = 2.dp,
-                    color = BluePrimary,
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
                     text = stringResource(Res.string.proverb_meaning_loading),
@@ -729,7 +727,7 @@ private fun NumberedMeaningItem(
         verticalAlignment = Alignment.Top,
     ) {
         Box(
-            modifier = Modifier.size(26.dp).clip(CircleShape).background(BluePrimary),
+            modifier = Modifier.size(26.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -788,16 +786,14 @@ private fun ErrorState(
             overflow = TextOverflow.Ellipsis,
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Button(
+        AppPrimaryButton(
             onClick = onRetry,
-            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
-            shape = RoundedCornerShape(10.dp),
         ) {
             Text(
                 text = stringResource(Res.string.retry),
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
             )
         }
     }

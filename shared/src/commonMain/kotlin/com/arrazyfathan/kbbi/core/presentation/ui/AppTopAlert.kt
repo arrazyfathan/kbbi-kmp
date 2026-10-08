@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
-import com.arrazyfathan.kbbi.core.presentation.designsystem.TextH1
 
 enum class AppAlertType {
     Warning,
@@ -41,13 +41,14 @@ fun AppTopAlert(
     val containerColor =
         when (state.type) {
             AppAlertType.Warning -> Color(0xFFFFF3CD)
-            AppAlertType.Success -> TextH1
-            AppAlertType.Failed -> Color(0xFFF3254F)
+            AppAlertType.Success -> MaterialTheme.colorScheme.primary
+            AppAlertType.Failed -> MaterialTheme.colorScheme.error
         }
     val contentColor =
         when (state.type) {
             AppAlertType.Warning -> Color(0xFF6B4E00)
-            AppAlertType.Success, AppAlertType.Failed -> Color.White
+            AppAlertType.Success -> MaterialTheme.colorScheme.onPrimary
+            AppAlertType.Failed -> MaterialTheme.colorScheme.onError
         }
 
     Box(

@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
-import com.arrazyfathan.kbbi.core.presentation.designsystem.BluePrimary
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.core.presentation.ui.LocalAppLoadingController
@@ -185,7 +185,7 @@ private fun WordListScreenContent(
                         Modifier
                             .fillMaxWidth()
                             .height(headerHeight.value)
-                            .background(BluePrimary)
+                            .background(MaterialTheme.colorScheme.primary)
                             .statusBarsPadding(),
                     contentAlignment = Alignment.CenterStart,
                 ) {
@@ -237,8 +237,8 @@ private fun WordListScreenContent(
                     shape = RoundedCornerShape(0.dp),
                     colors =
                         TextFieldDefaults.colors(
-                            focusedContainerColor = BluePrimary,
-                            unfocusedContainerColor = BluePrimary,
+                            focusedContainerColor = MaterialTheme.colorScheme.primary,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                             focusedTextColor = Color.White,

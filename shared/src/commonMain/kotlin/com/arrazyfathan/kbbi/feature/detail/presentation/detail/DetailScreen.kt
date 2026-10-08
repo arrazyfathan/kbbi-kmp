@@ -24,11 +24,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -59,6 +58,7 @@ import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextH1
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
+import com.arrazyfathan.kbbi.core.presentation.designsystem.components.AppPrimaryButton
 import com.arrazyfathan.kbbi.core.presentation.ui.AppAlertState
 import com.arrazyfathan.kbbi.core.presentation.ui.AppAlertType
 import com.arrazyfathan.kbbi.core.presentation.ui.AppTopAlert
@@ -264,7 +264,7 @@ fun DetailContent(
                         clip = false,
                     )
                     .clip(RoundedCornerShape(100.dp))
-                    .background(if (state.isSaved) TextH1 else Color.White)
+                    .background(if (state.isSaved) MaterialTheme.colorScheme.primary else Color.White)
                     .clickable(
                         enabled = !state.isBookmarkUpdating,
                         interactionSource = bookmarkInteractionSource,
@@ -288,7 +288,7 @@ fun DetailContent(
                         resource = if (state.isSaved) Res.drawable.book_solid else Res.drawable.book,
                     ),
                 contentDescription = stringResource(Res.string.bookmark),
-                tint = if (state.isSaved) Color.White else TextH1,
+                tint = if (state.isSaved) MaterialTheme.colorScheme.onPrimary else TextH1,
                 modifier = Modifier.size(20.dp),
             )
             Spacer(modifier = Modifier.width(10.dp))
@@ -297,7 +297,7 @@ fun DetailContent(
                     stringResource(
                         if (state.isSaved) Res.string.bookmarked else Res.string.bookmark,
                     ),
-                color = if (state.isSaved) Color.White else TextH1,
+                color = if (state.isSaved) MaterialTheme.colorScheme.onPrimary else TextH1,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
@@ -385,24 +385,21 @@ fun WordEntryCard(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.BottomEnd,
             ) {
-                Button(
+                AppPrimaryButton(
                     onClick = onCopyClick,
-                    shape = RoundedCornerShape(100.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = TextH1),
-                    contentPadding = PaddingValues(horizontal = 24.dp),
                     modifier = Modifier.height(44.dp),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             painter = painterResource(Res.drawable.copy),
                             contentDescription = stringResource(Res.string.copy),
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(14.dp),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = stringResource(Res.string.copy),
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 12.sp,

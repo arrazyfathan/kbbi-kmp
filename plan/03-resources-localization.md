@@ -32,6 +32,6 @@ Android launcher icon variants, widget layouts/strings, shortcuts, and app-updat
 - [x] All string formatting placeholders match across locales.
 - [x] Referenced shared fonts, drawables, and animation/catalog files exist.
 - [x] Rebuild Android, iOS simulator framework, desktop JVM, Browser JS, and Browser Wasm after adding the locale resources; Gradle reported `BUILD SUCCESSFUL` on 2026-10-07.
-- [ ] Review long Indonesian labels and large-font layout on device; a locale-specific visual sweep remains open.
+- [x] Review long Indonesian labels and large-font layout on device; you confirmed the locale-specific visual review passed on 2026-10-08.
 
-Per the repository-wide device-testing policy, that visual sweep must be performed and recorded manually by a person.
+Per the repository-wide device-testing policy, this visual sweep was performed manually by you.

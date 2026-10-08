@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -46,7 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.arrazyfathan.kbbi.core.presentation.designsystem.BluePrimary
 import com.arrazyfathan.kbbi.core.presentation.designsystem.Grey
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
@@ -97,7 +97,7 @@ private fun BookmarksScreenContent(
     var wordToDelete by remember { mutableStateOf<ListWordModel?>(null) }
 
     Box(
-        modifier = modifier.fillMaxSize().background(BluePrimary).statusBarsPadding(),
+        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary).statusBarsPadding(),
     ) {
         // Background Hero Image if not empty
         if (state.bookmarks.isNotEmpty()) {
@@ -377,7 +377,7 @@ fun DeleteConfirmationDialog(
                             Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(64.dp))
-                                .background(BluePrimary)
+                                .background(MaterialTheme.colorScheme.primary)
                                 .clickable { onConfirm() }
                                 .padding(vertical = 12.dp),
                         contentAlignment = Alignment.Center,

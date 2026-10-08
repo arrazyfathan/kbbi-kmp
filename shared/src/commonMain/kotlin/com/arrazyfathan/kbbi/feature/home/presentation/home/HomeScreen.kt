@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,8 +63,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
-import com.arrazyfathan.kbbi.core.presentation.designsystem.BluePrimary
-import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueSecondary
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.SpaceGroteskFontFamily
@@ -166,7 +165,7 @@ fun HomeContent(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(BluePrimary)
+                .background(MaterialTheme.colorScheme.primary)
                 .statusBarsPadding()
                 .pointerInput(Unit) {
                     awaitPointerEventScope {
@@ -296,7 +295,7 @@ fun HomeContent(
                             unfocusedIndicatorColor = Color.Transparent,
                             focusedTextColor = TextH1,
                             unfocusedTextColor = TextH1,
-                            cursorColor = BluePrimary,
+                            cursorColor = MaterialTheme.colorScheme.primary,
                         ),
                 )
 
@@ -316,7 +315,7 @@ fun HomeContent(
                         },
                         modifier = Modifier.size(55.dp),
                         shape = RoundedCornerShape(10.dp),
-                        color = BlueSecondary,
+                        color = MaterialTheme.colorScheme.secondary,
                     ) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -511,7 +510,7 @@ private fun HomeMenuCard(
                     Icon(
                         painter = painterResource(icon),
                         contentDescription = null,
-                        tint = BluePrimary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp),
                     )
                 }
