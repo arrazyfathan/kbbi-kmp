@@ -12,4 +12,5 @@ data class ListWordEntity(
     val listWords: List<WordEntity>,
     val visitorCount: Int? = null,
     var isSaved: Boolean = false,
+    val aiGenerated: Boolean = false,
 )

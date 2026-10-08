@@ -1,6 +1,7 @@
 package com.arrazyfathan.kbbi.feature.home.data.source.local.room
 
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
+import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.CachedTopWordEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.ListWordEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,11 @@ class LocalStorageWordDao(
     private val histories = MutableStateFlow(readHistories())
 
     override fun getAllWords(): Flow<List<ListWordEntity>> = words
+
+    override fun getSavedWords(): Flow<List<ListWordEntity>> = words.map { current -> current.filter { it.isSaved } }
+
+    override suspend fun getWord(word: String): ListWordEntity? =
+        words.value.firstOrNull { it.word.trim().equals(word.trim(), ignoreCase = true) }
 
     override suspend fun insertWord(listWordEntity: ListWordEntity): Long {
         val updatedWords =
@@ -38,8 +44,8 @@ class LocalStorageWordDao(
         return deletedCount
     }
 
-    override fun checkWordIsExist(word: String): Flow<Boolean> =
-        words.map { current -> current.any { it.word.equals(word, ignoreCase = true) } }
+    override fun checkWordIsSaved(word: String): Flow<Boolean> =
+        words.map { current -> current.any { it.isSaved && it.word.trim().equals(word.trim(), ignoreCase = true) } }
 
     override suspend fun insertHistory(historyEntity: HistoryEntity) {
         val updatedHistories =
@@ -65,6 +71,19 @@ class LocalStorageWordDao(
             current.sortedWith(compareByDescending<HistoryEntity> { it.searchedAt }.thenByDescending { it.word })
         }
 
+    override suspend fun clearHistory() {
+        if (write(HISTORIES_KEY, emptyList<HistoryEntity>())) histories.value = emptyList()
+    }
+
+    override suspend fun getTopWords(): List<CachedTopWordEntity> =
+        runCatching {
+            localStorage.getItem(TOP_WORDS_KEY)?.let { json.decodeFromString<List<CachedTopWordEntity>>(it) }
+        }.getOrNull().orEmpty().sortedBy { it.position }
+
+    override suspend fun replaceTopWords(topWords: List<CachedTopWordEntity>) {
+        write(TOP_WORDS_KEY, topWords)
+    }
+
     private fun readBookmarks(): List<ListWordEntity> =
         runCatching {
             localStorage.getItem(BOOKMARKS_KEY)?.let { json.decodeFromString<List<ListWordEntity>>(it) }
@@ -86,5 +105,6 @@ class LocalStorageWordDao(
     private companion object {
         const val BOOKMARKS_KEY = "kbbi.bookmarks.v1"
         const val HISTORIES_KEY = "kbbi.search-history.v1"
+        const val TOP_WORDS_KEY = "kbbi.top-words.v1"
     }
 }

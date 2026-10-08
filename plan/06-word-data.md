@@ -7,13 +7,15 @@
 
 ## Implementation
 
-1. Compare source `feature/home` domain/data with KMP; add missing top words, suggestions, did-you-mean, translation, visitor count, history clearing, and request fields.
-2. Keep endpoint-specific routes and envelope validation; map malformed responses to `DataError`, not empty success.
-3. Preserve remote-first lookup, cached fallback, saved state, and the difference between `entries.json` index and definitions.
-4. Keep DTOs, domain models, and entities separate; add missing mappers and Koin bindings.
-5. Normalize input in use cases and cancel superseded searches.
+1. [x] Compare source `feature/home` domain/data with KMP; add top words, suggestions/did-you-mean, translation, visitor metadata, history clearing, and request fields.
+2. [x] Keep endpoint-specific routes and envelope validation; map malformed responses to `DataError`, not empty success.
+3. [x] Preserve remote-first word lookup, cached fallback, saved state, and the separate `entries.json` word index and API definitions.
+4. [x] Keep DTOs, domain models, and entities separate; add mappers and Koin bindings.
+5. [x] Trim search/translation inputs; superseded searches continue to be cancelled by the home ViewModel.
 
 ## Verification
 
-- MockEngine tests cover valid, empty, malformed, not-found, failure, and cancellation responses.
-- Use-case tests cover suggestions, translations, visitor metadata, and history; all targets compile.
+- [x] MockEngine tests cover valid, empty, malformed, not-found, failure, and cancellation responses (`:shared:jvmTest`, 2026-10-08).
+- [x] Use-case tests cover suggestions, translations, visitor metadata, and history (`:shared:jvmTest`, 2026-10-08).
+- [x] Android debug APK, iOS simulator framework source, desktop JVM, Browser JS, and Browser Wasm compile (2026-10-08).
+- [ ] Device and simulator behavior is manually verified by a person.

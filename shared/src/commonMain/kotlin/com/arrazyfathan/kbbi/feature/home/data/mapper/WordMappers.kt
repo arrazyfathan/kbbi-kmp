@@ -1,17 +1,24 @@
 package com.arrazyfathan.kbbi.feature.home.data.mapper
 
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
+import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.CachedTopWordEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.ListWordEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.MeaningEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.WordEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.remote.dto.MeaningDto
 import com.arrazyfathan.kbbi.feature.home.data.source.remote.dto.WordDto
 import com.arrazyfathan.kbbi.feature.home.data.source.remote.dto.WordResultDto
+import com.arrazyfathan.kbbi.feature.home.data.source.remote.dto.TopWordDto
+import com.arrazyfathan.kbbi.feature.home.data.source.remote.dto.TranslateDataDto
 import com.arrazyfathan.kbbi.feature.home.domain.model.HistoryModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.MeaningModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.WordModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.WordResultModel
+import com.arrazyfathan.kbbi.feature.home.domain.model.TopWordModel
+import com.arrazyfathan.kbbi.feature.home.domain.model.TranslateModel
+import com.arrazyfathan.kbbi.feature.home.domain.model.TranslatedMeaningModel
+import com.arrazyfathan.kbbi.feature.home.domain.model.TranslatedWordModel
 
 fun WordDto.toDomain(): WordModel = WordModel(
     entry = entry,
@@ -22,7 +29,41 @@ fun WordResultDto.toDomain(): WordResultModel = WordResultModel(
     word = word,
     entries = entries.map { it.toDomain() },
     visitorCount = visitorCount,
+    aiGenerated = aiGenerated == true,
 )
+
+fun TopWordDto.toDomain(): TopWordModel = TopWordModel(word = word, visitorCount = visitorCount)
+
+fun TopWordDto.toCachedEntity(position: Int): CachedTopWordEntity =
+    CachedTopWordEntity(word = word, visitorCount = visitorCount, position = position)
+
+fun TopWordModel.toCachedEntity(position: Int): CachedTopWordEntity =
+    CachedTopWordEntity(word = word, visitorCount = visitorCount, position = position)
+
+fun CachedTopWordEntity.toDomain(): TopWordModel = TopWordModel(word = word, visitorCount = visitorCount)
+
+fun TranslateDataDto.toDomain(): TranslateModel =
+    TranslateModel(
+        word = word,
+        translation = translation,
+        from = from,
+        to = to,
+        provider = provider,
+        entries =
+            entries.map { entry ->
+                TranslatedWordModel(
+                    headword = entry.headword,
+                    meanings =
+                        entry.definitions.map { definition ->
+                            TranslatedMeaningModel(
+                                wordClass = definition.wordClass,
+                                description = definition.description,
+                                translation = definition.translation,
+                            )
+                        },
+                )
+            },
+    )
 
 
 fun List<WordDto>.toWordModels(): List<WordModel> = map { it.toDomain() }
@@ -36,7 +77,16 @@ fun ListWordEntity.toDomain(): ListWordModel = ListWordModel(
     word = word,
     listWords = listWords.map { it.toDomain() },
     visitorCount = visitorCount,
+    aiGenerated = aiGenerated,
 )
+
+fun ListWordEntity.toWordResultDomain(): WordResultModel =
+    WordResultModel(
+        word = word,
+        entries = listWords.map { it.toDomain() },
+        visitorCount = visitorCount,
+        aiGenerated = aiGenerated,
+    )
 
 fun List<HistoryEntity>.toHistoryModels(): List<HistoryModel> = map { it.toDomain() }
 

@@ -24,4 +24,6 @@ data class WordResultDto(
     val visitorCount: Int? = null,
     @SerialName("entries")
     val entries: List<WordDto> = emptyList(),
+    @SerialName("aiGenerated")
+    val aiGenerated: Boolean? = null,
 )

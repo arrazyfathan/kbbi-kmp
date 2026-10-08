@@ -18,6 +18,7 @@ import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
+import io.ktor.serialization.JsonConvertException
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 import kotlin.coroutines.cancellation.CancellationException
@@ -132,6 +133,8 @@ suspend inline fun <reified T : Any> readSuccessBody(response: HttpResponse): Ap
         AppResult.Success(response.body<T>())
     } catch (e: CancellationException) {
         throw e
+    } catch (_: JsonConvertException) {
+        AppResult.Error(DataError.Serialization)
     } catch (e: SerializationException) {
         AppResult.Error(DataError.Serialization)
     } catch (e: IllegalArgumentException) {

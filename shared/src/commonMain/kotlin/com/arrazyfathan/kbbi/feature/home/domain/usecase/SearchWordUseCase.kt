@@ -22,6 +22,7 @@ class SearchWordUseCase(
                     word = result.word.ifBlank { wordToSearch },
                     listWords = result.entries,
                     visitorCount = result.visitorCount,
+                    aiGenerated = result.aiGenerated,
                 )
             }
     }

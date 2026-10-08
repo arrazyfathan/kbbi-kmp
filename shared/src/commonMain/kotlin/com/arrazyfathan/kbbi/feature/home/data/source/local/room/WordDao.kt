@@ -1,6 +1,7 @@
 package com.arrazyfathan.kbbi.feature.home.data.source.local.room
 
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
+import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.CachedTopWordEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.ListWordEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -11,11 +12,15 @@ import kotlinx.coroutines.flow.Flow
 interface WordDao {
     fun getAllWords(): Flow<List<ListWordEntity>>
 
+    fun getSavedWords(): Flow<List<ListWordEntity>>
+
+    suspend fun getWord(word: String): ListWordEntity?
+
     suspend fun insertWord(listWordEntity: ListWordEntity): Long
 
     suspend fun deleteWord(word: String): Int
 
-    fun checkWordIsExist(word: String): Flow<Boolean>
+    fun checkWordIsSaved(word: String): Flow<Boolean>
 
     suspend fun insertHistory(historyEntity: HistoryEntity)
 
@@ -30,4 +35,10 @@ interface WordDao {
     }
 
     fun getListHistory(): Flow<List<HistoryEntity>>
+
+    suspend fun clearHistory()
+
+    suspend fun getTopWords(): List<CachedTopWordEntity>
+
+    suspend fun replaceTopWords(topWords: List<CachedTopWordEntity>)
 }

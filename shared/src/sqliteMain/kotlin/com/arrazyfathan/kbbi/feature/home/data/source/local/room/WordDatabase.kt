@@ -15,10 +15,11 @@ import com.arrazyfathan.kbbi.feature.proverb.data.source.local.room.SqliteCached
     entities = [
         SqliteListWordEntity::class,
         SqliteHistoryEntity::class,
+        SqliteTopWordCacheEntity::class,
         SqliteCachedProverbEntity::class,
         SqliteCachedProverbDetailEntity::class,
     ],
-    version = 10,
+    version = 11,
     exportSchema = false,
 )
 @TypeConverters(SqliteConverters::class)
@@ -38,7 +39,7 @@ expect fun getDatabaseBuilder(): RoomDatabase.Builder<WordDatabase>
 
 fun getDatabase(builder: RoomDatabase.Builder<WordDatabase>): WordDatabase =
     builder
-        .addMigrations(MIGRATION_9_10)
+        .addMigrations(MIGRATION_9_10, MIGRATION_10_11)
         .fallbackToDestructiveMigration(dropAllTables = true)
         .build()
 
@@ -48,5 +49,21 @@ private val MIGRATION_9_10 =
             connection
                 .prepare("ALTER TABLE word_table ADD COLUMN visitorCount INTEGER")
                 .use { statement -> statement.step() }
+        }
+    }
+
+private val MIGRATION_10_11 =
+    object : Migration(10, 11) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection
+                .prepare("ALTER TABLE word_table ADD COLUMN aiGenerated INTEGER NOT NULL DEFAULT 0")
+                .use { statement -> statement.step() }
+            connection
+                .prepare(
+                    "CREATE TABLE IF NOT EXISTS cached_top_word_table (" +
+                        "word TEXT NOT NULL PRIMARY KEY, " +
+                        "visitorCount INTEGER NOT NULL, " +
+                        "position INTEGER NOT NULL)",
+                ).use { statement -> statement.step() }
         }
     }

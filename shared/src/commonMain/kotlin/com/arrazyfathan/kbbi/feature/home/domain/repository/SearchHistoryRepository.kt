@@ -6,5 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface SearchHistoryRepository {
     suspend fun addToHistory(history: HistoryModel)
 
+    suspend fun clearHistory()
+
     fun getAllHistories(): Flow<List<HistoryModel>>
 }

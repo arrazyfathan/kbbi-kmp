@@ -8,4 +8,5 @@ data class WordResultModel(
     val word: String,
     val entries: List<WordModel>,
     val visitorCount: Int? = null,
+    val aiGenerated: Boolean = false,
 )
