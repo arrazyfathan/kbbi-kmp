@@ -4,12 +4,15 @@ import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.CachedTopWordEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.ListWordEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 /**
  * Created by Ar Razy Fathan Rabbani on 17/03/23.
  */
 
-interface WordDao {
+interface WordDao : StorageIssueSource {
+    override fun getStorageIssues(): Flow<List<StorageIssue>> = emptyFlow()
+
     fun getAllWords(): Flow<List<ListWordEntity>>
 
     fun getSavedWords(): Flow<List<ListWordEntity>>

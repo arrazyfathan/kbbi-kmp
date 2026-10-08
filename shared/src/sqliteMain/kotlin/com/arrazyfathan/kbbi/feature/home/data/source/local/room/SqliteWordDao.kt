@@ -24,7 +24,7 @@ interface RoomWordDao {
     @Upsert
     suspend fun insertWord(entity: SqliteListWordEntity): Long
 
-    @Query("DELETE FROM word_table WHERE TRIM(word) = TRIM(:word) COLLATE NOCASE")
+    @Query("UPDATE word_table SET isSaved = 0 WHERE TRIM(word) = TRIM(:word) COLLATE NOCASE AND isSaved = 1")
     suspend fun deleteWord(word: String): Int
 
     @Query("SELECT EXISTS (SELECT * FROM word_table WHERE TRIM(word) = TRIM(:word) COLLATE NOCASE AND isSaved = 1)")

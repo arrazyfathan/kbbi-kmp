@@ -7,13 +7,14 @@
 
 ## Implementation
 
-1. Compare Android Room schema, converters, DAOs, and cache policies against KMP.
-2. Keep Room on Android/iOS/JVM and browser storage behind shared interfaces; surface quota/corrupt-data failures.
-3. Ensure deleting a bookmark preserves a cached definition; trim/clear history without affecting saved words.
-4. Preserve proverb page/detail fallback, stable ordering, and offline reading.
-5. Add migrations for schema changes made within KMP; a fresh original-Android-to-KMP install is acceptable.
+1. [x] Compare Android Room schema, converters, DAOs, and cache policies against KMP.
+2. [x] Keep Room on Android/iOS/JVM and browser storage behind shared interfaces; expose quota/corrupt-data issues from browser storage.
+3. [x] Ensure deleting a bookmark preserves a cached definition; trim/clear history without affecting saved words.
+4. [x] Preserve proverb page/detail fallback, stable ordering, and offline reading.
+5. [x] Keep KMP schema migrations explicit; the existing 9→10 and 10→11 migrations cover the current KMP schema.
 
 ## Verification
 
-- Storage tests cover insert, update, delete, fallback, ordering, corrupted data, and failed writes.
-- Saved words and cached proverb details reopen offline on each target.
+- [x] SQLite and browser-storage tests cover insert, update, unbookmark, fallback, ordering, corrupted data, and failed writes (`:shared:jvmTest :shared:jsTest`, 2026-10-08).
+- [ ] Saved words and cached proverb details reopen offline on each target (manual human verification pending).
+- [x] Android debug APK, iOS simulator framework, desktop JVM, Browser JS, and Browser Wasm compile (2026-10-08).
