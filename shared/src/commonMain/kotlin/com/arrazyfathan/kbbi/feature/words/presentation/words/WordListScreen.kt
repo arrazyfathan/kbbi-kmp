@@ -17,12 +17,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -46,18 +48,24 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
+import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.core.presentation.ui.LocalAppLoadingController
 import com.arrazyfathan.kbbi.core.presentation.ui.asStringNonComposable
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.showToast
 import kbbi_kmp.shared.generated.resources.Res
+import kbbi_kmp.shared.generated.resources.retry
 import kbbi_kmp.shared.generated.resources.search_word_list_hint
+import kbbi_kmp.shared.generated.resources.word_list_empty
+import kbbi_kmp.shared.generated.resources.word_list_load_error
+import kbbi_kmp.shared.generated.resources.word_list_loading
 import kbbi_kmp.shared.generated.resources.word_list_title
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -68,8 +76,8 @@ private const val WORD_LIST_SEARCH_LOADING_SOURCE = "word_list_search"
 fun WordListScreen(
     modifier: Modifier = Modifier,
     onNavigateToDetail: (ListWordModel) -> Unit,
-    viewModel: WordViewModel = koinViewModel(),
 ) {
+    val viewModel: WordViewModel = koinViewModel()
     val loadingController = LocalAppLoadingController.current
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -133,7 +141,8 @@ private fun WordListScreenContent(
                 ): Offset {
                     val delta = available.y
                     return if (delta < 0) {
-                        val newHeight = (headerHeightPx + delta).coerceIn(minHeaderHeightPx, maxHeaderHeightPx)
+                        val newHeight =
+                            (headerHeightPx + delta).coerceIn(minHeaderHeightPx, maxHeaderHeightPx)
                         val consumed = newHeight - headerHeightPx
                         headerHeightPx = newHeight
                         Offset(0f, consumed)
@@ -148,10 +157,9 @@ private fun WordListScreenContent(
                     source: NestedScrollSource,
                 ): Offset {
                     val delta = available.y
-                    return if (delta > 0 && lazyListState.firstVisibleItemIndex == 0 &&
-                        lazyListState.firstVisibleItemScrollOffset == 0
-                    ) {
-                        val newHeight = (headerHeightPx + delta).coerceIn(minHeaderHeightPx, maxHeaderHeightPx)
+                    return if (delta > 0 && lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0) {
+                        val newHeight =
+                            (headerHeightPx + delta).coerceIn(minHeaderHeightPx, maxHeaderHeightPx)
                         val consumedHeight = newHeight - headerHeightPx
                         headerHeightPx = newHeight
                         Offset(0f, consumedHeight)
@@ -174,7 +182,10 @@ private fun WordListScreenContent(
         containerColor = BlueBg,
     ) { innerPadding ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(bottom = innerPadding.calculateBottomPadding()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(bottom = innerPadding.calculateBottomPadding()),
         ) {
             Column(
                 modifier = Modifier.fillMaxSize().nestedScroll(nestedScrollConnection),
@@ -185,7 +196,16 @@ private fun WordListScreenContent(
                         Modifier
                             .fillMaxWidth()
                             .height(headerHeight.value)
-                            .background(MaterialTheme.colorScheme.primary)
+                            .background(
+                                brush =
+                                    Brush.verticalGradient(
+                                        colors =
+                                            listOf(
+                                                MaterialTheme.colorScheme.primary,
+                                                MaterialTheme.colorScheme.secondary,
+                                            ),
+                                    ),
+                            )
                             .statusBarsPadding(),
                     contentAlignment = Alignment.CenterStart,
                 ) {
@@ -193,7 +213,7 @@ private fun WordListScreenContent(
                         text = stringResource(Res.string.word_list_title),
                         fontFamily = MetropolisFontFamily,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSecondary,
                         fontSize = 24.sp,
                         modifier = Modifier.padding(start = 16.dp),
                     )
@@ -212,7 +232,7 @@ private fun WordListScreenContent(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium,
                             fontSize = 14.sp,
-                            color = Color.White,
+                        color = MaterialTheme.colorScheme.onSecondary,
                         )
                     },
                     textStyle =
@@ -237,43 +257,96 @@ private fun WordListScreenContent(
                     shape = RoundedCornerShape(0.dp),
                     colors =
                         TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.primary,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+                            focusedContainerColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            cursorColor = Color.White,
+                            focusedTextColor = MaterialTheme.colorScheme.onSecondary,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSecondary,
+                            cursorColor = MaterialTheme.colorScheme.onSecondary,
                         ),
                 )
 
-                // Words LazyColumn
-                LazyColumn(
-                    state = lazyListState,
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp),
-                ) {
-                    items(state.filteredWords, key = { it }) { word ->
-                        Card(
-                            modifier =
-                                Modifier.fillMaxWidth().padding(top = 4.dp).clickable {
-                                    onAction(WordListAction.OnWordClicked(word))
-                                },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            elevation = CardDefaults.cardElevation(0.dp),
+                when {
+                    state.loadError -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
                         ) {
-                            Text(
-                                text = word,
-                                fontFamily = InterFontFamily,
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 16.sp,
-                                color = Color(0xFF090B1E),
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 18.dp),
-                            )
+                            Text(stringResource(Res.string.word_list_load_error), color = Color.White)
+                            TextButton(onClick = { onAction(WordListAction.OnRetryLoad) }) {
+                                Text(stringResource(Res.string.retry), color = Color.White)
+                            }
+                        }
+                    }
+
+                    state.isLoading -> {
+                        Box(
+                            Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(stringResource(Res.string.word_list_loading), color = Color.White)
+                        }
+                    }
+
+                    state.filteredWords.isEmpty() -> {
+                        Box(
+                            Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(stringResource(Res.string.word_list_empty), color = Color.White)
+                        }
+                    }
+
+                    else -> {
+                        LazyColumn(
+                            state = lazyListState,
+                            modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp),
+                        ) {
+                            items(state.filteredWords, key = { it }) { word ->
+                                Card(
+                                    modifier =
+                                        Modifier.fillMaxWidth().padding(top = 4.dp).clickable {
+                                            onAction(WordListAction.OnWordClicked(word))
+                                        },
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    elevation = CardDefaults.cardElevation(0.dp),
+                                ) {
+                                    Text(
+                                        text = word,
+                                        fontFamily = InterFontFamily,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 16.sp,
+                                        color = Color(0xFF090B1E),
+                                        modifier =
+                                            Modifier.padding(
+                                                horizontal = 14.dp,
+                                                vertical = 18.dp,
+                                            ),
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun WordListScreenPreview() {
+    KBBITheme {
+        WordListScreenContent(
+            state =
+                WordListState(
+                    words = listOf("bahasa", "beranda", "belajar"),
+                    filteredWords = listOf("bahasa", "beranda", "belajar"),
+                ),
+            onAction = {},
+        )
     }
 }

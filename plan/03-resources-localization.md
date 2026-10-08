@@ -5,6 +5,8 @@
 
 **Device testing:** Device and simulator checks must be performed manually by a person, not by an agent. Agents may build and prepare reproducible steps, but must leave device verification for a human.
 
+**1:1 source parity:** Treat `/Users/macintosh/Personal/Android/Samples/kbbi` as the behavioral and visual source of truth. Port the complete relevant feature, including its screens, states, interactions, copy, assets, layout, typography, colors, motion, accessibility behavior, and edge cases. Do not leave simplified, placeholder, or intentionally different UI. On targets where an OS-specific API differs, use the native equivalent while preserving the same user-visible behavior. Verify against the source at equivalent screen sizes and with the same scenarios.**
+
 ## Resource audit
 
 The migrated shared screens are home/search, word list, word detail, bookmarks, splash, and proverbs. All 57 shared string IDs now have English and Indonesian values in Compose Multiplatform resources. Existing text formatting placeholders match in both locales. The existing visitor count uses a localized `%1$d` string; notification plurals remain with the Android reminder feature until task 20 is ported.
@@ -27,6 +29,8 @@ Android launcher icon variants, widget layouts/strings, shortcuts, and app-updat
 - Kept API data and sample proverb content as content, not UI labels subject to locale translation.
 
 ## Verification
+
+- [ ] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
 
 - [x] English and Indonesian files contain the same 57 resource IDs.
 - [x] All string formatting placeholders match across locales.

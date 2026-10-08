@@ -5,6 +5,8 @@
 
 **Device testing:** Device and simulator checks must be performed manually by a person, not by an agent. Agents may build and prepare reproducible steps, but must leave device verification for a human.
 
+**1:1 source parity:** Treat `/Users/macintosh/Personal/Android/Samples/kbbi` as the behavioral and visual source of truth. Port the complete relevant feature, including its screens, states, interactions, copy, assets, layout, typography, colors, motion, accessibility behavior, and edge cases. Do not leave simplified, placeholder, or intentionally different UI. On targets where an OS-specific API differs, use the native equivalent while preserving the same user-visible behavior. Verify against the source at equivalent screen sizes and with the same scenarios.**
+
 ## Implementation
 
 1. Define focused interfaces for share text, open URL, locale, haptics, speech, notification permission, alternate icon, and incoming launch request.
@@ -27,6 +29,8 @@
 Share success means the platform share UI was opened; it does not mean the user completed sharing. JVM and browser text sharing remain unavailable and should use an in-app copy path.
 
 ## Verification
+
+- [ ] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
 
 - [x] All registered target builds compile: Android debug APK, iOS simulator framework, desktop JVM, browser JS, and browser Wasm (2026-10-08).
 - [ ] Koin resolves the adapter graph at runtime on each target (JVM, Android host, and Browser JS passed; Wasm runner failed; iOS simulator runtime remains for manual review).

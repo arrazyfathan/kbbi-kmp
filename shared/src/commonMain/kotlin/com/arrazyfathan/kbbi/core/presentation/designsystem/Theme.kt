@@ -10,12 +10,12 @@ internal fun colorSchemeFor(theme: AppTheme) =
     with(theme.palette) {
         lightColorScheme(
             primary = primary,
-            onPrimary = onPrimary,
             secondary = secondary,
-            onSecondary = onSecondary,
             background = BlueBg,
             surface = Color.White,
             surfaceTint = Color.Transparent,
+            onPrimary = Color.White,
+            onSecondary = Color.White,
             onBackground = TextPrimary,
             onSurface = TextPrimary,
             outlineVariant = BlueBg,

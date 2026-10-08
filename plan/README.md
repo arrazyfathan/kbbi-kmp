@@ -6,6 +6,8 @@ Tasks are numbered in implementation order, approximately easy to hard. Complete
 
 **Device testing:** Device and simulator checks must be performed manually by a person, not by an agent. Agents may build and prepare reproducible steps, but must leave device verification for a human.
 
+**1:1 source parity is the completion bar for every plan:** `/Users/macintosh/Personal/Android/Samples/kbbi` is the source of truth. Each planned feature must reproduce the complete relevant source UI and behavior: screens, layouts, typography, colors, assets, animations, gestures, accessibility, copy, state transitions, navigation, errors, and edge cases. No simplified, placeholder, or intentionally different screen counts as complete. At equivalent viewport sizes, compare the KMP result directly with the source. Where a target requires a platform-specific API, use its native equivalent and preserve the same user-visible result and behavior. Each plan must leave explicit source-comparison checks in its verification section; code presence or successful compilation alone does not establish parity.
+
 Decisions: cover app behavior and release operations; use native OS equivalents where supported and an in-app path otherwise; fresh Android installation is acceptable; browser custom-AI keys are session-only. Keep reusable logic and UI in `:shared`, with OS adapters in platform source sets or apps. Do not copy Android-only libraries into `commonMain`.
 
 ## Ordered tasks
@@ -43,11 +45,11 @@ Live status and platform evidence: [parity inventory](parity-inventory.md).
 
 | Target | Required evidence |
 | --- | --- |
-| Android | Debug build, focused tests, fresh-install smoke, intents/widgets/notifications |
-| iOS | Simulator framework and Xcode build, launch/navigation, native integrations |
-| Desktop JVM | JVM build and app launch, window/keyboard behavior, OS adapters |
-| Browser JS | Production bundle and HTTPS browser smoke, routing/storage/service worker |
-| Browser Wasm | Production bundle and HTTPS browser smoke, routing/storage/service worker |
+| Android | Debug build, focused tests, fresh-install smoke, 1:1 source UI/behavior comparison, intents/widgets/notifications |
+| iOS | Simulator framework and Xcode build, launch/navigation, 1:1 source UI/behavior comparison, native integrations |
+| Desktop JVM | JVM build and app launch, window/keyboard behavior, 1:1 source UI/behavior comparison, OS adapters |
+| Browser JS | Production bundle and HTTPS browser smoke, routing/storage/service worker, 1:1 source UI/behavior comparison |
+| Browser Wasm | Production bundle and HTTPS browser smoke, routing/storage/service worker, 1:1 source UI/behavior comparison |
 
 Device builds may be automated, but all device and simulator interaction/acceptance checks are manual human checks. Do not use an agent to operate devices or claim device verification.
 

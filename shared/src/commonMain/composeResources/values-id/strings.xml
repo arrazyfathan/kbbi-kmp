@@ -14,6 +14,17 @@
     <string name="button_search">Tombol cari</string>
     <string name="navigate_back">Kembali</string>
     <string name="history_label">Pencarian Terbaru</string>
+    <string name="top_words_label">Kata Teratas</string>
+    <string name="top_words_loading">Memuat kata populer…</string>
+    <string name="empty_top_words">Kata populer belum tersedia.</string>
+    <string name="search_suggestions_label">Saran kata</string>
+    <string name="did_you_mean_label">Mungkin maksud Anda?</string>
+    <string name="random_word">Kata acak</string>
+    <string name="explore_title">Jelajahi</string>
+    <string name="error_random_word_unavailable">Kata acak sedang tidak tersedia.</string>
+    <string name="word_list_empty">Kata yang cocok tidak ditemukan.</string>
+    <string name="word_list_load_error">Daftar kata tidak dapat dimuat.</string>
+    <string name="word_list_loading">Memuat daftar kata…</string>
     <string name="home_menu_title">Menu</string>
     <string name="home_menu_subtitle">Temukan fitur lainnya</string>
     <string name="proverb_menu_title">Peribahasa</string>

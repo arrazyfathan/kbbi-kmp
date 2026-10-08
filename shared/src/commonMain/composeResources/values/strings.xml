@@ -13,6 +13,17 @@
     <string name="button_search">Search</string>
     <string name="navigate_back">Kembali</string>
     <string name="history_label">Recent Searches</string>
+    <string name="top_words_label">Top Words</string>
+    <string name="top_words_loading">Loading popular words…</string>
+    <string name="empty_top_words">Popular words are not available yet.</string>
+    <string name="search_suggestions_label">Suggestions</string>
+    <string name="did_you_mean_label">Did you mean?</string>
+    <string name="random_word">Random word</string>
+    <string name="explore_title">Explore</string>
+    <string name="error_random_word_unavailable">Random word is unavailable right now.</string>
+    <string name="word_list_empty">No matching words.</string>
+    <string name="word_list_load_error">The word list could not be loaded.</string>
+    <string name="word_list_loading">Loading words…</string>
     <string name="home_menu_title">Menu</string>
     <string name="home_menu_subtitle">Discover more features</string>
     <string name="proverb_menu_title">Peribahasa</string>

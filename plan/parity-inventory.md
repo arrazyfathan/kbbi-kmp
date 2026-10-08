@@ -2,13 +2,15 @@
 
 Audit baseline: Android source `7183b268cd260bcfb78830b00ef680ab3aa3e1ff` and KMP target `65eee5ab0fd3ed721ab241010ee9b520b92a41a1`, inspected 2026-10-07. Both working trees were clean. Source: `/Users/macintosh/Personal/Android/Samples/kbbi`; target: this repository.
 
-This is a code inventory, not a full runtime acceptance report. `present` means a corresponding implementation is visible in the inspected KMP tree; it does not assert behavioral parity. Task 02's build and core entry-path evidence is recorded below; feature-level parity still needs target-specific verification. Shared UI and logic are intended for each target, but platform-specific behavior still needs target-level confirmation.
+This is a code inventory and runtime acceptance tracker. `present` means the corresponding implementation matches the Android source UI and behavior; it does not assert platform runtime acceptance until evidence is recorded. Task 02's build and core entry-path evidence is recorded below; feature-level parity still needs target-specific verification. Shared UI and logic are intended for each target, but platform-specific behavior still needs target-level confirmation.
 
 **Device testing:** Device and simulator checks must be performed manually by a person, not by an agent. Agents may build and prepare reproducible steps, but must leave device verification for a human.
 
+**1:1 source parity:** Treat `/Users/macintosh/Personal/Android/Samples/kbbi` as the behavioral and visual source of truth. Port the complete relevant feature, including its screens, states, interactions, copy, assets, layout, typography, colors, motion, accessibility behavior, and edge cases. Do not leave simplified, placeholder, or intentionally different UI. On targets where an OS-specific API differs, use the native equivalent while preserving the same user-visible behavior. Verify against the source at equivalent screen sizes and with the same scenarios.**
+
 ## Status key
 
-- **Implementation:** `present`, `partial`, or `missing` in the inspected KMP revision.
+- **Implementation:** `present` means the relevant implementation has 1:1 source UI and behavior parity; `partial` means some source UI, behavior, or edge cases remain; `missing` means no implementation exists. Build success alone does not qualify as `present`.
 - **Platform:** `unverified`, `failed`, `verified`, or `n/a`. `unverified` is the initial state; attach command/scenario, result, date, and revision when changed.
 - Each row has one primary roadmap owner. Later tasks update this file and attach evidence before claiming completion.
 
@@ -58,6 +60,14 @@ The source repository contains production modules for `app`, `core` (app update,
 
 The target tree inspected contains shared home, words, detail, bookmarks, proverb, and splash code; shared navigation, design system, core network/error/logging, native SQLite persistence and a browser DAO; and Android/iOS/JVM/web entry points. Figure, settings, voice, AI, reminders, external entry adapters, widgets, campaigns, reporting, and app update have no corresponding target feature implementation at this revision and are owned by their roadmap tasks. Task 02 verifies the core startup/search/detail path on Android, iOS, JS, and Wasm, with the limitations recorded in the evidence log; feature-level parity remains to be checked by each owning task.
 
+## Plans 01–08 UI parity audit (2026-10-08)
+
+- **Plan 04 design system:** KMP had changed Android's all-white `onPrimary`/`onSecondary` roles; restored the source roles. The shared word-list header/search also used a solid primary color; changed it to the Android vertical primary-to-secondary gradient. The existing human visual review predates the newly required 1:1 source comparison, so this plan's source comparison remains unchecked.
+- **Plan 08 home:** KMP had a visible random-word button absent from the Android home, a separate bottom history section, horizontal top-word cards, and the old swipe prompt/modal menu. Removed the visible random button and duplicate history section, moved recent searches alongside search, switched top words to the two-row chip grid, and added the Explore control and source gradient. Source microphone/voice behavior, the full animated Explore expansion, and its figure/settings/AI destinations remain unimplemented pending their later roadmap features; Home is still partial.
+- **Plan 08 word list:** KMP used a solid header and primary-color search field. Changed both to the source gradient header and secondary-color search field, including the source foreground color roles. User manually confirmed the Home and word-list visual match on 2026-10-08; remaining open items are behavior checks and later-plan-dependent controls.
+- **Plan 08 visual acceptance:** User manually reviewed Home and word-list appearance against the Android source, including moving suggestions below the search field, and confirmed the visual match on 2026-10-08. Behavior parity checks remain open.
+- **Other existing screens included in Plan 04's shared design-system sweep:** Detail lacks source AI study/notice surfaces (feature parity in Plans 09/18); bookmarks lacks the source layout toggle, grid/list treatment, and swipe-to-delete interaction (feature parity in Plan 09); proverb lacks its source AI meaning notice (feature parity in Plans 10/18). The Plan 04 theme/component sweep does not close these feature-specific visual and behavior gaps; the screens remain partial.
+
 ## Evidence log
 
 | Date | Revision | Target | Scenario or command | Result |
@@ -78,3 +88,4 @@ The target tree inspected contains shared home, words, detail, bookmarks, prover
 | 2026-10-08 | target worktree after task 06 | Word API and use-case contracts | `./gradlew --no-daemon :shared:jvmTest --console=plain` | Passed: MockEngine valid, empty, malformed, not-found, HTTP failure, and cancellation cases; use-case suggestions, translations, top-word limits, visitor metadata, and history clearing. JVM common tests only; manual target acceptance remains open |
 | 2026-10-08 | target worktree after task 07 | SQLite and browser word persistence | `./gradlew --no-daemon :shared:jvmTest :shared:jsTest --console=plain` | Passed: SQLite insert/update/unbookmark, history trim/clear, stable proverb pages, word/proverb offline fallback; Browser JS corrupted-data and quota-write reporting tests passed |
 | 2026-10-08 | target worktree after task 07 | Android, iOS simulator framework, desktop JVM, Browser JS, Browser Wasm | `./gradlew --no-daemon :androidApp:assembleDebug :shared:linkDebugFrameworkIosSimulatorArm64 :desktopApp:compileKotlin :shared:compileKotlinJs :shared:compileKotlinWasmJs :webApp:compileKotlinJs :webApp:compileKotlinWasmJs --console=plain` | All requested target compilation tasks passed; runtime offline persistence checks on devices/simulators remain for a person |
+| 2026-10-08 | target worktree after task 08 | Home and word-list ViewModels | `./gradlew --no-daemon :shared:jvmTest :shared:jsTest :androidApp:assembleDebug :shared:linkDebugFrameworkIosSimulatorArm64 :desktopApp:compileKotlin :shared:compileKotlinJs :shared:compileKotlinWasmJs :webApp:compileKotlinJs :webApp:compileKotlinWasmJs --console=plain` | JVM and Browser JS tests passed; Android APK, iOS simulator framework, desktop JVM, Browser JS, and Browser Wasm compilation passed. Home and word-list runtime smoke checks remain for a person |
