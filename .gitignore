@@ -5,7 +5,10 @@
 xcuserdata
 !src/**/build/
 local.properties
-.idea
+.idea/*
+!.idea/
+!.idea/.name
+!.idea/icon.svg
 .DS_Store
 captures
 .externalNativeBuild
