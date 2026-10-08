@@ -2,6 +2,22 @@ package com.arrazyfathan.kbbi
 
 import androidx.compose.runtime.Composable
 import com.arrazyfathan.kbbi.core.data.visitor.WebVisitorIdStorage
+import com.arrazyfathan.kbbi.core.platform.AlternateAppIcon
+import com.arrazyfathan.kbbi.core.platform.BrowserLocaleProvider
+import com.arrazyfathan.kbbi.core.platform.BrowserUrlOpener
+import com.arrazyfathan.kbbi.core.platform.EmptyIncomingLaunchRequests
+import com.arrazyfathan.kbbi.core.platform.Haptics
+import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
+import com.arrazyfathan.kbbi.core.platform.LocaleProvider
+import com.arrazyfathan.kbbi.core.platform.NotificationPermission
+import com.arrazyfathan.kbbi.core.platform.SpeechInput
+import com.arrazyfathan.kbbi.core.platform.TextShare
+import com.arrazyfathan.kbbi.core.platform.UnsupportedAlternateAppIcon
+import com.arrazyfathan.kbbi.core.platform.UnsupportedHaptics
+import com.arrazyfathan.kbbi.core.platform.UnsupportedNotificationPermission
+import com.arrazyfathan.kbbi.core.platform.UnsupportedSpeechInput
+import com.arrazyfathan.kbbi.core.platform.UnsupportedTextShare
+import com.arrazyfathan.kbbi.core.platform.UrlOpener
 import com.arrazyfathan.kbbi.core.domain.visitor.StoredVisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdStorage
@@ -21,6 +37,14 @@ actual val platformModule: Module =
         single<HttpClientEngine> { Js.create() }
         single<VisitorIdStorage> { WebVisitorIdStorage() }
         single<VisitorIdProvider> { StoredVisitorIdProvider(get()) }
+        single<TextShare> { UnsupportedTextShare }
+        single<UrlOpener> { BrowserUrlOpener() }
+        single<LocaleProvider> { BrowserLocaleProvider() }
+        single<Haptics> { UnsupportedHaptics }
+        single<SpeechInput> { UnsupportedSpeechInput }
+        single<NotificationPermission> { UnsupportedNotificationPermission }
+        single<AlternateAppIcon> { UnsupportedAlternateAppIcon }
+        single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
     }
 
 @Composable
