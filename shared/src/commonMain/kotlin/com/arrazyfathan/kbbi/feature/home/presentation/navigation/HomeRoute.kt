@@ -14,11 +14,13 @@ data object HomeKey : NavKey
 fun EntryProviderScope<NavKey>.homeEntry(
     onNavigateToDetail: (ListWordModel) -> Unit,
     onNavigateToProverb: () -> Unit,
+    onNavigateToFigure: () -> Unit,
 ) {
     entry<HomeKey> {
         HomeRoute(
             onNavigateToDetail = onNavigateToDetail,
             onNavigateToProverb = onNavigateToProverb,
+            onNavigateToFigure = onNavigateToFigure,
         )
     }
 }
@@ -27,11 +29,13 @@ fun EntryProviderScope<NavKey>.homeEntry(
 fun HomeRoute(
     onNavigateToDetail: (ListWordModel) -> Unit,
     onNavigateToProverb: () -> Unit,
+    onNavigateToFigure: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     HomeScreen(
         onNavigateToDetail = onNavigateToDetail,
         onNavigateToProverb = onNavigateToProverb,
+        onNavigateToFigure = onNavigateToFigure,
         modifier = modifier,
     )
 }

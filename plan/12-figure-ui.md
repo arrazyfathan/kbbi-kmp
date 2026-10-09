@@ -17,7 +17,8 @@
 
 ## Verification
 
-- [ ] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
+- [x] Person manually compared the Explore-to-Figure path, list loading and paging, search while scrolling, empty/error/retry states, image loading/fallback, detail article layout, source URL opening, and back restoration against the Android source at equivalent viewport sizes. Device and simulator interaction was performed by a person; review passed.
 
-- Figure list, search, pagination, detail, image failure, and retry work on each target.
-- Repeated search changes cannot show a prior query's page.
+- [x] Shared figure list/detail screens, debounced search, paged loading/retry states, portrait fallback, external URL adapter, and navigation are implemented. Search changes cancel the previous paging flow.
+- [x] Android, iOS Simulator framework, desktop JVM, Browser JS, and Browser Wasm compilation passed.
+- [x] Person manually checked figure list, search, paging, detail, failed images, retry, external URL opening, and back restoration on each supported target; review passed.

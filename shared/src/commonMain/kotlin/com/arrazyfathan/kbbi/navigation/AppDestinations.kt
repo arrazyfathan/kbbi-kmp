@@ -4,6 +4,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.BookmarksKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.DetailKey
+import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureDetailKey
+import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureKey
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
 import com.arrazyfathan.kbbi.feature.proverb.presentation.navigation.ProverbKey
 import com.arrazyfathan.kbbi.feature.words.presentation.navigation.WordsKey
@@ -63,6 +65,8 @@ internal val navigationSavedStateConfiguration =
                     subclass(ProverbKey::class, ProverbKey.serializer())
                     subclass(BookmarksKey::class, BookmarksKey.serializer())
                     subclass(DetailKey::class, DetailKey.serializer())
+                    subclass(FigureKey::class, FigureKey.serializer())
+                    subclass(FigureDetailKey::class, FigureDetailKey.serializer())
                 }
             }
     }

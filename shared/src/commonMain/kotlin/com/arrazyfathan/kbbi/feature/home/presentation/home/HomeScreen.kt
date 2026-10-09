@@ -84,6 +84,8 @@ import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.button_search
 import kbbi_kmp.shared.generated.resources.did_you_mean_label
 import kbbi_kmp.shared.generated.resources.empty_top_words
+import kbbi_kmp.shared.generated.resources.figure_menu_title
+import kbbi_kmp.shared.generated.resources.figure_menu_subtitle
 import kbbi_kmp.shared.generated.resources.explore_title
 import kbbi_kmp.shared.generated.resources.hero_home
 import kbbi_kmp.shared.generated.resources.hero_image_text
@@ -92,6 +94,7 @@ import kbbi_kmp.shared.generated.resources.home_menu_title
 import kbbi_kmp.shared.generated.resources.ic_chevron_down
 import kbbi_kmp.shared.generated.resources.ic_explore
 import kbbi_kmp.shared.generated.resources.ic_explore_selected
+import kbbi_kmp.shared.generated.resources.ic_figure
 import kbbi_kmp.shared.generated.resources.ic_history
 import kbbi_kmp.shared.generated.resources.ic_proverb
 import kbbi_kmp.shared.generated.resources.ic_search
@@ -117,6 +120,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     onNavigateToDetail: (ListWordModel) -> Unit,
     onNavigateToProverb: () -> Unit,
+    onNavigateToFigure: () -> Unit,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val loadingController = LocalAppLoadingController.current
@@ -154,6 +158,7 @@ fun HomeScreen(
         state = state,
         onAction = viewModel::onAction,
         onNavigateToProverb = onNavigateToProverb,
+        onNavigateToFigure = onNavigateToFigure,
         modifier = modifier,
     )
 }
@@ -164,6 +169,7 @@ fun HomeContent(
     state: HomeState,
     onAction: (HomeAction) -> Unit,
     onNavigateToProverb: () -> Unit,
+    onNavigateToFigure: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
@@ -573,9 +579,17 @@ fun HomeContent(
                             modifier = Modifier.weight(1f),
                         )
 
-                        repeat(2) {
-                            HomeMenuPlaceholderCard(modifier = Modifier.weight(1f))
-                        }
+                        HomeMenuCard(
+                            icon = Res.drawable.ic_figure,
+                            title = stringResource(Res.string.figure_menu_title),
+                            subtitle = stringResource(Res.string.figure_menu_subtitle),
+                            onClick = {
+                                showBottomSheet = false
+                                onNavigateToFigure()
+                            },
+                            modifier = Modifier.weight(1f),
+                        )
+                        HomeMenuPlaceholderCard(modifier = Modifier.weight(1f))
                     }
                 }
             }
@@ -601,6 +615,7 @@ private fun HomeContentPreview() {
                 ),
             onAction = {},
             onNavigateToProverb = {},
+            onNavigateToFigure = {},
         )
     }
 }

@@ -4,6 +4,17 @@
     <string name="home_title">Home</string>
     <string name="word_list_tab_title">Word List</string>
     <string name="proverb_title">Proverb</string>
+    <string name="figure_menu_title">Figure</string>
+    <string name="figure_menu_subtitle">Figure in Indonesia</string>
+    <string name="figure_collection_kicker">PEOPLE &amp; IDEAS</string>
+    <string name="figure_collection_title">Indonesian figures</string>
+    <string name="figure_collection_description">Meet the people whose lives and words helped shape Indonesia.</string>
+    <string name="figure_collection_empty">No figures found.</string>
+    <string name="figure_detail_title">Figure</string>
+    <string name="figure_detail_quotes">Quotes</string>
+    <string name="figure_detail_source">SOURCE</string>
+    <string name="figure_detail_photo_description">Portrait of %1$s</string>
+    <string name="search_figure_hint">Search figures …</string>
     <string name="bookmarks_title">Bookmarks</string>
     <string name="welcome_text">Welcome\nto KBBI</string>
     <string name="subtitle_text">Find word definitions from the\nGreat Dictionary of the Indonesian Language.</string>

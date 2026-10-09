@@ -43,6 +43,10 @@ import com.arrazyfathan.kbbi.core.presentation.ui.rememberAppLoadingController
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.bookmarksEntry
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.DetailKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.detailEntry
+import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureDetailKey
+import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.figureDetailEntry
+import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.figureEntry
+import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureKey
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.homeEntry
@@ -65,7 +69,7 @@ fun MainApp() {
         )
     val navigator = remember(navigationState) { Navigator(navigationState) }
     val currentRoute = navigationState.currentRoute
-    val isDetailVisible = currentRoute is DetailKey
+    val isDetailVisible = currentRoute is DetailKey || currentRoute is FigureDetailKey
     val showBottomNavigation = currentRoute in topLevelRoutes
     val loadingController = rememberAppLoadingController()
     val isUiBlocked by remember {
@@ -86,6 +90,9 @@ fun MainApp() {
                     onNavigateToProverb = {
                         navigator.navigate(ProverbKey)
                     },
+                    onNavigateToFigure = {
+                        navigator.navigate(FigureKey)
+                    },
                 )
                 wordsEntry(onNavigateToDetail = navigateToDetail)
                 bookmarksEntry(onNavigateToDetail = navigateToDetail)
@@ -96,6 +103,11 @@ fun MainApp() {
                         }
                     },
                 )
+                figureEntry(
+                    onNavigateBack = { navigator.goBack() },
+                    onNavigateToDetail = { slug -> navigator.navigate(FigureDetailKey(slug)) },
+                )
+                figureDetailEntry(onNavigateBack = { navigator.goBack() })
                 detailEntry()
             },
         )

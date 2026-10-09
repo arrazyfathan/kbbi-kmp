@@ -122,6 +122,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.androidx.paging.common)
             implementation(libs.androidx.paging.compose)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
 
             // Navigation 3
             implementation(libs.androidx.navigation3.runtime)

@@ -7,6 +7,8 @@ import com.arrazyfathan.kbbi.feature.detail.presentation.detail.DetailViewModel
 import com.arrazyfathan.kbbi.feature.figure.data.di.figureDataModule
 import com.arrazyfathan.kbbi.feature.figure.domain.usecase.GetFigureDetailUseCase
 import com.arrazyfathan.kbbi.feature.figure.domain.usecase.GetFiguresUseCase
+import com.arrazyfathan.kbbi.feature.figure.presentation.figure.FigureDetailViewModel
+import com.arrazyfathan.kbbi.feature.figure.presentation.figure.FigureViewModel
 import com.arrazyfathan.kbbi.feature.home.data.di.databaseModule
 import com.arrazyfathan.kbbi.feature.home.data.di.repositoryModule
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.AddSearchHistoryUseCase
@@ -66,6 +68,8 @@ val viewModelModule =
         viewModelOf(::BookmarksViewModel)
         viewModelOf(::WordViewModel)
         viewModelOf(::ProverbViewModel)
+        viewModelOf(::FigureViewModel)
+        viewModelOf(::FigureDetailViewModel)
     }
 
 fun initKoin(config: KoinAppDeclaration? = null): KoinApplication =
