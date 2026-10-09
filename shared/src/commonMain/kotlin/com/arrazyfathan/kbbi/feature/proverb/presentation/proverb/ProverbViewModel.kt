@@ -33,6 +33,10 @@ data class ProverbState(
 )
 
 sealed interface ProverbAction {
+    data class OnSlugRequested(
+        val slug: String,
+    ) : ProverbAction
+
     data class OnSearchQueryChanged(
         val query: String,
     ) : ProverbAction
@@ -45,6 +49,8 @@ sealed interface ProverbAction {
 }
 
 sealed interface ProverbEvent {
+    data object MeaningLoaded : ProverbEvent
+
     data class ShowMessage(
         val message: UiText,
     ) : ProverbEvent
@@ -73,6 +79,10 @@ class ProverbViewModel(
 
     fun onAction(action: ProverbAction) {
         when (action) {
+            is ProverbAction.OnSlugRequested -> {
+                loadMeaningBySlug(action.slug)
+            }
+
             is ProverbAction.OnSearchQueryChanged -> {
                 _state.update { it.copy(searchQuery = action.query) }
             }
@@ -119,6 +129,32 @@ class ProverbViewModel(
                                 isMeaningLoading = false,
                             )
                         }
+                        _events.send(ProverbEvent.MeaningLoaded)
+                    }
+
+                    is AppResult.Error -> {
+                        _state.update { it.copy(isMeaningLoading = false) }
+                        _events.send(ProverbEvent.ShowMessage(result.error.asUiText()))
+                    }
+                }
+            }
+    }
+
+    private fun loadMeaningBySlug(slug: String) {
+        if (slug.isBlank()) return
+        meaningJob?.cancel()
+        meaningJob =
+            viewModelScope.launch {
+                _state.update { it.copy(isMeaningLoading = true) }
+                when (val result = getProverbMeaning(slug)) {
+                    is AppResult.Success -> {
+                        _state.update {
+                            it.copy(
+                                selectedProverb = result.data,
+                                isMeaningLoading = false,
+                            )
+                        }
+                        _events.send(ProverbEvent.MeaningLoaded)
                     }
 
                     is AppResult.Error -> {

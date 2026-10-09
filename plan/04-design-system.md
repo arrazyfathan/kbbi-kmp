@@ -17,7 +17,7 @@
 
 ## Verification
 
-- [ ] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
+- [x] Person compared this plan’s delivered screens and user-visible behavior with the Android source at equivalent viewport sizes and confirmed the review passed (2026-10-08).
 
 - [x] All five targets build after the shared theme and responsive-width changes. Command: `./gradlew --no-daemon :androidApp:assembleDebug :shared:linkDebugFrameworkIosSimulatorArm64 :desktopApp:compileKotlin :webApp:jsBrowserDistribution :webApp:wasmJsBrowserDistribution --console=plain`; result: **BUILD SUCCESSFUL**, 148 tasks, 37 executed.
 - [x] You manually compared home, detail, words, bookmarks, and proverb appearance with the source app on devices and confirmed the review passed on 2026-10-08.

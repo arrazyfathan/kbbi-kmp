@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntOffset
@@ -52,30 +53,36 @@ fun SplashScreen(
             logoTranslationY.animateTo(
                 targetValue = 100f,
                 // Linear
-                animationSpec = tween(durationMillis = 2000, easing = { it }),
+                animationSpec = tween(durationMillis = 300, easing = { it }),
             )
         }
         launch {
             readingAlpha.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(durationMillis = 2000, easing = { it }),
+                animationSpec = tween(durationMillis = 300, easing = { it }),
             )
         }
         launch {
             readingTranslationY.animateTo(
                 targetValue = -80f,
-                animationSpec = tween(durationMillis = 2000, easing = { it }),
+                animationSpec = tween(durationMillis = 300, easing = { it }),
             )
         }
-        delay(3000.milliseconds)
+        delay(2000.milliseconds)
         onTimeout()
     }
 
     Box(
         modifier =
-            modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.primary),
+            modifier.fillMaxSize().background(
+                Brush.verticalGradient(
+                    colors =
+                        listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.secondary,
+                        ),
+                ),
+            ),
     ) {
         Column(
             modifier =
@@ -110,7 +117,6 @@ fun SplashScreen(
                     .align(Alignment.BottomCenter)
                     .offset { IntOffset(0, (readingTranslationY.value + 100).toInt()) }
                     .alpha(readingAlpha.value),
-            iterations = 1,
         )
 
         val versionText =
@@ -127,7 +133,7 @@ fun SplashScreen(
                 Modifier
                     .align(Alignment.BottomCenter)
                     .safeDrawingPadding()
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 24.dp),
         )
     }
 }

@@ -121,7 +121,7 @@ fun MainApp() {
                         Modifier
                             .align(Alignment.BottomCenter)
                             .fillMaxWidth()
-                            .height(70.dp)
+                            .height(80.dp)
                             .shadow(elevation = 16.dp)
                             .background(Color.White),
                     verticalAlignment = Alignment.CenterVertically,
@@ -165,14 +165,17 @@ fun MainApp() {
 private fun BlockingLoadingOverlay() {
     Box(
         modifier =
-            Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)).pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        event.changes.forEach { it.consume() }
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f))
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            event.changes.forEach { it.consume() }
+                        }
                     }
-                }
-            },
+                },
         contentAlignment = Alignment.Center,
     ) {
         Card(

@@ -1,9 +1,11 @@
 package com.arrazyfathan.kbbi.feature.proverb.presentation.proverb
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -15,6 +17,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -22,13 +26,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -36,13 +46,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -60,11 +72,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -72,11 +86,13 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -85,13 +101,13 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextH1
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
-import com.arrazyfathan.kbbi.core.presentation.designsystem.components.AppPrimaryButton
+import com.arrazyfathan.kbbi.core.platform.HapticFeedback
+import com.arrazyfathan.kbbi.core.platform.Haptics
 import com.arrazyfathan.kbbi.core.presentation.ui.asStringNonComposable
 import com.arrazyfathan.kbbi.core.presentation.ui.asUiText
 import com.arrazyfathan.kbbi.feature.proverb.domain.model.ProverbDetailModel
@@ -102,9 +118,12 @@ import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.button_search
 import kbbi_kmp.shared.generated.resources.error_unknown
 import kbbi_kmp.shared.generated.resources.ic_arrow_back
+import kbbi_kmp.shared.generated.resources.ic_auto_awesome
 import kbbi_kmp.shared.generated.resources.ic_search
 import kbbi_kmp.shared.generated.resources.navigate_back
 import kbbi_kmp.shared.generated.resources.proverb_empty_message
+import kbbi_kmp.shared.generated.resources.proverb_ai_meaning_badge
+import kbbi_kmp.shared.generated.resources.proverb_ai_meaning_notice
 import kbbi_kmp.shared.generated.resources.proverb_meaning_empty
 import kbbi_kmp.shared.generated.resources.proverb_meaning_loading
 import kbbi_kmp.shared.generated.resources.proverb_meaning_title
@@ -119,12 +138,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.compose.koinInject
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SEARCH_BAR_SCROLL_VISIBILITY_THRESHOLD = 4f
 private const val PROVERB_SHIMMER_ITEM_COUNT = 8
 private const val PROVERB_APPEND_SHIMMER_ITEM_COUNT = 3
-private val SEARCH_BAR_IDLE_SHOW_DELAY_MILLIS = 3_000L.milliseconds
+private val SEARCH_BAR_IDLE_SHOW_DELAY_MILLIS = 1_000L.milliseconds
 
 @Composable
 fun ProverbRoot(
@@ -132,13 +152,18 @@ fun ProverbRoot(
     modifier: Modifier = Modifier,
 ) {
     val viewModel: ProverbViewModel = koinViewModel()
+    val haptics: Haptics = koinInject()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val proverbs = viewModel.proverbs.collectAsLazyPagingItems()
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
+                ProverbEvent.MeaningLoaded -> {
+                    haptics.perform(HapticFeedback.CONFIRM)
+                }
                 is ProverbEvent.ShowMessage -> {
+                    haptics.perform(HapticFeedback.ERROR)
                     showToast(event.message.asStringNonComposable())
                 }
             }
@@ -164,9 +189,29 @@ fun ProverbScreen(
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
-    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+    val sheetState =
+        rememberBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+        )
+    var savedSearchQuery by rememberSaveable { mutableStateOf(state.searchQuery) }
+    var savedProverbSlug by rememberSaveable { mutableStateOf<String?>(null) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val layoutDirection = LocalLayoutDirection.current
     val listState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        if (savedSearchQuery != state.searchQuery) {
+            onAction(ProverbAction.OnSearchQueryChanged(savedSearchQuery))
+        }
+        savedProverbSlug
+            ?.takeIf { it != state.selectedProverb?.slug }
+            ?.let { onAction(ProverbAction.OnSlugRequested(it)) }
+    }
+
+    LaunchedEffect(state.selectedProverb?.slug) {
+        state.selectedProverb?.slug?.let { savedProverbSlug = it }
+    }
     var isSearchVisible by remember { mutableStateOf(true) }
     val searchBarScrollConnection =
         remember {
@@ -195,7 +240,7 @@ fun ProverbScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = BlueBg,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ProverbTopAppBar(
                 scrollBehavior = scrollBehavior,
@@ -204,18 +249,33 @@ fun ProverbScreen(
         },
     ) { innerPadding ->
         Box(
-            modifier = Modifier.padding(innerPadding).fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(
+                        PaddingValues(
+                            start = innerPadding.calculateStartPadding(layoutDirection),
+                            top = innerPadding.calculateTopPadding(),
+                            end = innerPadding.calculateEndPadding(layoutDirection),
+                        ),
+                    ),
         ) {
             ProverbList(
                 proverbs = proverbs,
-                onProverbClick = { onAction(ProverbAction.OnProverbClicked(it)) },
+                onProverbClick = {
+                    savedProverbSlug = it.slug
+                    onAction(ProverbAction.OnProverbClicked(it))
+                },
                 listState = listState,
                 modifier = Modifier.fillMaxSize().nestedScroll(searchBarScrollConnection),
             )
             FloatingProverbSearchField(
                 visible = isSearchVisible,
-                value = state.searchQuery,
-                onValueChange = { onAction(ProverbAction.OnSearchQueryChanged(it)) },
+                value = savedSearchQuery,
+                onValueChange = {
+                    savedSearchQuery = it
+                    onAction(ProverbAction.OnSearchQueryChanged(it))
+                },
                 onSearch = { focusManager.clearFocus() },
             )
         }
@@ -223,7 +283,10 @@ fun ProverbScreen(
 
     if (state.selectedProverb != null) {
         ModalBottomSheet(
-            onDismissRequest = { onAction(ProverbAction.OnMeaningDismissed) },
+            onDismissRequest = {
+                savedProverbSlug = null
+                onAction(ProverbAction.OnMeaningDismissed)
+            },
             sheetState = sheetState,
             containerColor = Color.White,
             shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp),
@@ -246,12 +309,19 @@ private fun ProverbTopAppBar(
     val isCollapsed = scrollBehavior.state.collapsedFraction > 0.5f
 
     MediumTopAppBar(
+        modifier =
+            Modifier.background(
+                brush =
+                    Brush.verticalGradient(
+                        colors = listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary),
+                    ),
+            ),
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_arrow_back),
                     contentDescription = stringResource(Res.string.navigate_back),
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         },
@@ -261,7 +331,7 @@ private fun ProverbTopAppBar(
                     text = stringResource(Res.string.proverb_screen_title),
                     fontFamily = MetropolisFontFamily,
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = if (isCollapsed) 20.sp else 24.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -271,7 +341,7 @@ private fun ProverbTopAppBar(
                         text = stringResource(Res.string.proverb_screen_subtitle),
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
-                        color = Color.White.copy(alpha = 0.82f),
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.82f),
                         fontSize = 13.sp,
                         lineHeight = 18.sp,
                         maxLines = 2,
@@ -283,9 +353,9 @@ private fun ProverbTopAppBar(
         },
         colors =
             TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                scrolledContainerColor = MaterialTheme.colorScheme.primary,
-                titleContentColor = Color.White,
+                containerColor = Color.Transparent,
+                scrolledContainerColor = Color.Transparent,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary,
             ),
         scrollBehavior = scrollBehavior,
     )
@@ -321,7 +391,6 @@ private fun BoxScope.FloatingProverbSearchField(
         Surface(
             shape = CircleShape,
             color = MaterialTheme.colorScheme.secondary,
-            border = BorderStroke(width = 1.dp, color = Color.White.copy(alpha = 0.18f)),
         ) {
             ProverbSearchField(
                 value = value,
@@ -340,25 +409,43 @@ private fun ProverbSearchField(
     onSearch: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val secondaryColor = MaterialTheme.colorScheme.secondary
+    val gradientAlpha by animateFloatAsState(
+        targetValue = if (isFocused) 0f else 1f,
+        animationSpec = tween(durationMillis = 420, easing = FastOutSlowInEasing),
+        label = "proverb-search-gradient-alpha",
+    )
+
     TextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier,
+        interactionSource = interactionSource,
+        modifier =
+            modifier
+                .clip(CircleShape)
+                .background(secondaryColor)
+                .drawWithCache {
+                    val gradient = Brush.verticalGradient(colors = listOf(secondaryColor, primaryColor))
+                    onDrawBehind { drawRect(brush = gradient, alpha = gradientAlpha) }
+                },
         placeholder = {
             Text(
                 text = stringResource(Res.string.search_proverb_hint),
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
-                color = Color.White.copy(alpha = 0.72f),
+                color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.72f),
             )
         },
         leadingIcon = {
             Icon(
                 painter = painterResource(Res.drawable.ic_search),
                 contentDescription = stringResource(Res.string.button_search),
-                tint = Color.White,
-                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.onSecondary,
+                modifier = Modifier.padding(start = 10.dp).size(20.dp),
             )
         },
         textStyle =
@@ -366,7 +453,7 @@ private fun ProverbSearchField(
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSecondary,
             ),
         keyboardOptions =
             KeyboardOptions(
@@ -378,13 +465,17 @@ private fun ProverbSearchField(
         shape = CircleShape,
         colors =
             TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.secondary,
-                unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                errorContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                cursorColor = Color.White,
+                disabledIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent,
+                focusedTextColor = MaterialTheme.colorScheme.onSecondary,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSecondary,
+                cursorColor = MaterialTheme.colorScheme.onSecondary,
             ),
     )
 }
@@ -409,7 +500,13 @@ private fun ProverbList(
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 112.dp),
+            contentPadding =
+                PaddingValues(
+                    start = 8.dp,
+                    top = 8.dp,
+                    end = 8.dp,
+                    bottom = 112.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
+                ),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             for (index in 0 until proverbs.itemCount) {
@@ -561,9 +658,9 @@ private fun rememberProverbShimmerBrush(): Brush {
     return Brush.linearGradient(
         colors =
             listOf(
-                BlueBg.copy(alpha = 0.72f),
+                MaterialTheme.colorScheme.background.copy(alpha = 0.72f),
                 Color.White,
-                BlueBg.copy(alpha = 0.72f),
+                MaterialTheme.colorScheme.background.copy(alpha = 0.72f),
             ),
         start = Offset(x = translateAnimation - 1_000f, y = 0f),
         end = Offset(x = translateAnimation, y = 0f),
@@ -669,12 +766,56 @@ private fun ProverbMeaningSheet(
                 )
             }
         } else {
+            if (proverb.aiGenerated) {
+                ProverbAiMeaningNotice(modifier = Modifier.padding(bottom = 14.dp))
+            }
             ProverbMeaningContent(
                 meaning = proverb.meaning,
                 emptyText = stringResource(Res.string.proverb_meaning_empty),
             )
         }
         Spacer(modifier = Modifier.height(34.dp))
+    }
+}
+
+@Composable
+private fun ProverbAiMeaningNotice(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Box(
+                modifier = Modifier.size(32.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.09f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_auto_awesome),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    text = stringResource(Res.string.proverb_ai_meaning_badge),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = TextH1,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = stringResource(Res.string.proverb_ai_meaning_notice),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextP,
+                )
+            }
+        }
     }
 }
 
@@ -735,7 +876,7 @@ private fun NumberedMeaningItem(
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 12.sp,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 lineHeight = 13.sp,
             )
         }
@@ -786,8 +927,10 @@ private fun ErrorState(
             overflow = TextOverflow.Ellipsis,
         )
         Spacer(modifier = Modifier.height(12.dp))
-        AppPrimaryButton(
+        Button(
             onClick = onRetry,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            shape = RoundedCornerShape(10.dp),
         ) {
             Text(
                 text = stringResource(Res.string.retry),
@@ -815,10 +958,12 @@ private fun EmptyState(modifier: Modifier = Modifier) {
     }
 }
 
+
+@Preview
 @Composable
 private fun ProverbCardPreview() {
     KBBITheme {
-        Box(modifier = Modifier.background(BlueBg).padding(8.dp)) {
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(8.dp)) {
             ProverbCard(
                 proverb =
                     ProverbModel(
@@ -833,6 +978,7 @@ private fun ProverbCardPreview() {
     }
 }
 
+@Preview
 @Composable
 private fun ProverbScreenPreview() {
     val sampleProverbs =
@@ -856,6 +1002,7 @@ private fun ProverbScreenPreview() {
     }
 }
 
+@Preview
 @Composable
 private fun ProverbScreenWithMeaningPreview() {
     val sampleProverbs =
@@ -885,6 +1032,7 @@ private fun ProverbScreenWithMeaningPreview() {
     }
 }
 
+@Preview
 @Composable
 private fun ProverbMeaningSheetPreview() {
     KBBITheme {
@@ -897,6 +1045,7 @@ private fun ProverbMeaningSheetPreview() {
                         slug = "Air_beriak_tanda_tak_dalam",
                         sourceUrl = null,
                         meaning = "Orang yang sombong biasanya bodoh.; Siapa yang banyak bicara ilmunya.",
+                        aiGenerated = true,
                     ),
                 isLoading = false,
                 modifier = Modifier.padding(20.dp),

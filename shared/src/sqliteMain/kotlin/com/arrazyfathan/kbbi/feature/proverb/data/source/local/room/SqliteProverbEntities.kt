@@ -23,12 +23,13 @@ data class SqliteCachedProverbEntity(
 
 @Entity(tableName = "cached_proverb_detail_table")
 data class SqliteCachedProverbDetailEntity(
-    @PrimaryKey(autoGenerate = false)
-    val slug: String,
+    @PrimaryKey(autoGenerate = false) val slug: String,
     val text: String,
     val letter: String,
     val sourceUrl: String?,
     val meaning: String?,
+    val aiGenerated: Boolean = false,
+    val notice: String? = null,
 )
 
 fun CachedProverbEntity.toSqliteEntity() =
@@ -64,6 +65,8 @@ fun CachedProverbDetailEntity.toSqliteEntity() =
         letter = letter,
         sourceUrl = sourceUrl,
         meaning = meaning,
+        aiGenerated = aiGenerated,
+        notice = notice,
     )
 
 fun SqliteCachedProverbDetailEntity.toCommonEntity() =
@@ -73,4 +76,6 @@ fun SqliteCachedProverbDetailEntity.toCommonEntity() =
         letter = letter,
         sourceUrl = sourceUrl,
         meaning = meaning,
+        aiGenerated = aiGenerated,
+        notice = notice,
     )

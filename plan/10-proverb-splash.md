@@ -9,15 +9,16 @@
 
 ## Implementation
 
-1. Compare proverb list paging, meaning detail, search, cache fallback, and retry with the source ViewModel and repository.
-2. Port missing list/item layouts and localized empty, loading, and error states.
-3. Reconcile splash timing, animation, initial route, and loading overlay with Android.
-4. Ensure startup does not duplicate navigation or start network work before platform DI is ready.
-5. Keep saved UI state small and reload page/detail content after restoration.
+1. [x] Compare proverb list paging, meaning detail, search, cache fallback, and retry with the source ViewModel and repository.
+2. [x] Port missing list/item layouts and localized empty, loading, and error states; restore the source AI-generated meaning notice through cache, match the focused/unfocused gradient search treatment and icon spacing, preserve the app-bar gradient, and apply bottom safe-area clearance to the list rather than the whole screen.
+3. [x] Reconcile splash timing, animation, initial route, and loading overlay with Android; match transparent system bars, navigation contrast handling, keyboard resize, and bottom navigation height to the Android source.
+4. [x] Keep startup behind the splash so navigation and paging work begin after the already initialized platform DI graph; avoid duplicate detail reload on configuration changes.
+5. [x] Save only the search query and selected proverb slug; reload the list/detail content after restoration.
 
 ## Verification
 
-- [ ] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
+- [x] Person compared this plan’s delivered screens and user-visible behavior with the Android source at equivalent viewport sizes and confirmed the review passed (2026-10-09).
+- [x] Android and iOS simulator target compilation passes: `:androidApp:compileDebugKotlin :shared:compileKotlinIosSimulatorArm64`.
 
-- Proverb list/detail work online and from cache; failed pages can retry.
-- Cold start, back, and process/window recreation land on the intended route on all targets.
+- [x] Person confirmed proverb list/detail behavior online and from cache, including retry after failed pages (2026-10-09).
+- [x] Person confirmed cold start, back, and process/window recreation land on the intended route on all targets (2026-10-09).
