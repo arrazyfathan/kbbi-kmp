@@ -4,6 +4,9 @@ import com.arrazyfathan.kbbi.core.di.networkModule
 import com.arrazyfathan.kbbi.feature.bookmark.data.BookmarkLayoutPreferenceStore
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.bookmark.BookmarksViewModel
 import com.arrazyfathan.kbbi.feature.detail.presentation.detail.DetailViewModel
+import com.arrazyfathan.kbbi.feature.figure.data.di.figureDataModule
+import com.arrazyfathan.kbbi.feature.figure.domain.usecase.GetFigureDetailUseCase
+import com.arrazyfathan.kbbi.feature.figure.domain.usecase.GetFiguresUseCase
 import com.arrazyfathan.kbbi.feature.home.data.di.databaseModule
 import com.arrazyfathan.kbbi.feature.home.data.di.repositoryModule
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.AddSearchHistoryUseCase
@@ -52,6 +55,8 @@ val useCaseModule =
         factoryOf(::GetWordTranslationUseCase)
         factoryOf(::GetListProverbsUseCase)
         factoryOf(::GetProverbMeaningUseCase)
+        factoryOf(::GetFiguresUseCase)
+        factoryOf(::GetFigureDetailUseCase)
     }
 
 val viewModelModule =
@@ -71,6 +76,7 @@ fun initKoin(config: KoinAppDeclaration? = null): KoinApplication =
             databaseModule,
             repositoryModule,
             proverbRepositoryModule,
+            figureDataModule,
             viewModelModule,
             networkModule,
             useCaseModule,

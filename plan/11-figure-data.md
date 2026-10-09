@@ -17,7 +17,7 @@
 
 ## Verification
 
-- [ ] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
+- [x] Compared the figure models, endpoint behavior, paging parameters, and empty-page semantics with the Android source implementation. This data-only plan delivers no screens; source UI comparison belongs to Plan 12. Any device or simulator interaction must be done manually by a person.
 
-- MockEngine tests cover first/next/empty pages, query changes, detail, malformed payload, and failures.
-- DI resolves the repository and use cases; all five targets compile.
+- [x] MockEngine tests cover first/next/empty pages, query changes, detail, malformed payload, failures, cancellation, and optional-field handling.
+- [x] Koin resolves the repository and use cases; Android, iOS, JVM desktop, Browser JS, and Browser Wasm compile.
