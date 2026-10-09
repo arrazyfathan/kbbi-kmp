@@ -1,16 +1,17 @@
 package com.arrazyfathan.kbbi.di
 
 import com.arrazyfathan.kbbi.core.di.networkModule
+import com.arrazyfathan.kbbi.feature.bookmark.data.BookmarkLayoutPreferenceStore
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.bookmark.BookmarksViewModel
 import com.arrazyfathan.kbbi.feature.detail.presentation.detail.DetailViewModel
 import com.arrazyfathan.kbbi.feature.home.data.di.databaseModule
 import com.arrazyfathan.kbbi.feature.home.data.di.repositoryModule
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.AddSearchHistoryUseCase
-import com.arrazyfathan.kbbi.feature.home.domain.usecase.ClearSearchHistoryUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.CheckWordSavedUseCase
+import com.arrazyfathan.kbbi.feature.home.domain.usecase.ClearSearchHistoryUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.DeleteBookmarkUseCase
-import com.arrazyfathan.kbbi.feature.home.domain.usecase.GetWordEntriesUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.GetTopWordsUseCase
+import com.arrazyfathan.kbbi.feature.home.domain.usecase.GetWordEntriesUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.GetWordSuggestionsUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.GetWordTranslationUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.ObserveBookmarksUseCase
@@ -35,6 +36,7 @@ import org.koin.dsl.module
 
 val useCaseModule =
     module {
+        single { BookmarkLayoutPreferenceStore() }
         factoryOf(::SearchWordUseCase)
         factoryOf(::SearchWordWithHistoryUseCase)
         factoryOf(::AddSearchHistoryUseCase)
@@ -61,8 +63,8 @@ val viewModelModule =
         viewModelOf(::ProverbViewModel)
     }
 
-fun initKoin(config: KoinAppDeclaration? = null): KoinApplication {
-    return startKoin {
+fun initKoin(config: KoinAppDeclaration? = null): KoinApplication =
+    startKoin {
         includes(config)
         modules(
             platformModule,
@@ -74,4 +76,3 @@ fun initKoin(config: KoinAppDeclaration? = null): KoinApplication {
             useCaseModule,
         )
     }
-}

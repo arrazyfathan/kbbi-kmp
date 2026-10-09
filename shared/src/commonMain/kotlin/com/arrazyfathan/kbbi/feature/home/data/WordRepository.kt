@@ -2,13 +2,12 @@ package com.arrazyfathan.kbbi.feature.home.data
 
 import com.arrazyfathan.kbbi.core.domain.model.AppResult
 import com.arrazyfathan.kbbi.core.domain.model.DataError
-import com.arrazyfathan.kbbi.feature.home.data.mapper.toDomain
 import com.arrazyfathan.kbbi.feature.home.data.mapper.toCachedEntity
+import com.arrazyfathan.kbbi.feature.home.data.mapper.toDomain
 import com.arrazyfathan.kbbi.feature.home.data.mapper.toEntity
 import com.arrazyfathan.kbbi.feature.home.data.mapper.toHistoryModels
-import com.arrazyfathan.kbbi.feature.home.data.mapper.toWordResultDomain
 import com.arrazyfathan.kbbi.feature.home.data.mapper.toWordEntities
-import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.CachedTopWordEntity
+import com.arrazyfathan.kbbi.feature.home.data.mapper.toWordResultDomain
 import com.arrazyfathan.kbbi.feature.home.data.source.local.WordLocalDataSource
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.ListWordEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.remote.TopWordsRemoteDataSource
@@ -47,12 +46,14 @@ class WordRepository(
         val remoteResult = remoteDataSource.getMeaningOfWord(normalizedWord)
 
         if (remoteResult is AppResult.Success) {
-            val remoteWord = remoteResult.data.copy(word = remoteResult.data.word.ifBlank { normalizedWord })
+            val remoteWord =
+                remoteResult.data.copy(word = remoteResult.data.word.ifBlank { normalizedWord })
             try {
                 withContext(Dispatchers.Default) {
                     val existingWord =
-                        localDataSource.getWord(remoteWord.word)
-                            ?: localDataSource.getWord(normalizedWord)
+                        localDataSource.getWord(remoteWord.word) ?: localDataSource.getWord(
+                            normalizedWord,
+                        )
                     localDataSource.insertWord(
                         ListWordEntity(
                             word = remoteWord.word,
@@ -86,6 +87,7 @@ class WordRepository(
         word: String,
         result: List<WordModel>,
         visitorCount: Int?,
+        aiGenerated: Boolean,
     ): Boolean =
         withContext(Dispatchers.Default) {
             val normalizedWord = word.trim().lowercase()
@@ -95,6 +97,7 @@ class WordRepository(
                     listWords = result.toWordEntities(),
                     visitorCount = visitorCount,
                     isSaved = true,
+                    aiGenerated = aiGenerated,
                 ),
             ) != -1L
         }
@@ -126,8 +129,7 @@ class WordRepository(
             it.map { entity -> entity.toDomain() }
         }
 
-    override suspend fun getTranslation(word: String): AppResult<TranslateModel, DataError> =
-        remoteDataSource.translate(word.trim())
+    override suspend fun getTranslation(word: String): AppResult<TranslateModel, DataError> = remoteDataSource.translate(word.trim())
 
     override suspend fun getTopWords(limit: Int): AppResult<List<TopWordModel>, DataError> {
         val remoteResult = topWordsRemoteDataSource.getTopWords(limit)

@@ -1,16 +1,21 @@
 package com.arrazyfathan.kbbi.core.platform
 
+import androidx.compose.runtime.Immutable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
 sealed interface CapabilityResult<out T> {
-    data class Success<T>(val value: T) : CapabilityResult<T>
+    data class Success<T>(
+        val value: T,
+    ) : CapabilityResult<T>
 
     data object Denied : CapabilityResult<Nothing>
 
     data object Unavailable : CapabilityResult<Nothing>
 
-    data class Failed(val reason: FailureReason = FailureReason.UNKNOWN) : CapabilityResult<Nothing>
+    data class Failed(
+        val reason: FailureReason = FailureReason.UNKNOWN,
+    ) : CapabilityResult<Nothing>
 }
 
 enum class FailureReason {
@@ -19,6 +24,7 @@ enum class FailureReason {
     UNKNOWN,
 }
 
+@Immutable
 fun interface TextShare {
     fun share(text: String): CapabilityResult<Unit>
 }
@@ -49,11 +55,15 @@ fun interface NotificationPermission {
     suspend fun request(): CapabilityResult<Unit>
 }
 
-enum class AppIconVariant(val storageKey: String) {
+enum class AppIconVariant(
+    val storageKey: String,
+) {
     DEFAULT("default"),
     ROYAL_OCEAN("royal_ocean"),
     GOLDEN_SUNSET("golden_sunset"),
-    GOLDEN_CORAL_ENERGY("golden_coral_energy"),
+    GOLDEN_CORAL_ENERGY(
+        "golden_coral_energy",
+    ),
     DEEP_FOREST_ENERGY("deep_forest_energy"),
     NEON_VIOLET("neon_violet"),
     BLAZE_ORANGE("blaze_orange"),
