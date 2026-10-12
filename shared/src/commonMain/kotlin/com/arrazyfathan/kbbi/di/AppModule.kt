@@ -38,6 +38,13 @@ import com.arrazyfathan.kbbi.feature.settings.presentation.SettingsViewModel
 import com.arrazyfathan.kbbi.feature.words.presentation.words.WordViewModel
 import com.arrazyfathan.kbbi.feature.wordstudy.data.di.wordStudyDataModule
 import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.GenerateWordStudyUseCase
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.GetAiProvidersUseCase
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.RemoveAiConfigurationUseCase
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.SaveAiConfigurationUseCase
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.SelectAiProviderModeUseCase
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.SelectBackendAiProviderUseCase
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.SelectCustomAiProviderUseCase
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.TestAiConnectionUseCase
 import com.arrazyfathan.kbbi.platformModule
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -71,6 +78,13 @@ val useCaseModule =
         factoryOf(::GetFigureDetailUseCase)
         factoryOf(::ClearSearchHistoryUseCase)
         factoryOf(::GenerateWordStudyUseCase)
+        factoryOf(::GetAiProvidersUseCase)
+        factoryOf(::SaveAiConfigurationUseCase)
+        factoryOf(::SelectAiProviderModeUseCase)
+        factoryOf(::SelectBackendAiProviderUseCase)
+        factoryOf(::SelectCustomAiProviderUseCase)
+        factoryOf(::RemoveAiConfigurationUseCase)
+        factoryOf(::TestAiConnectionUseCase)
     }
 
 val viewModelModule =

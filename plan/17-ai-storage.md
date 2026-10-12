@@ -9,16 +9,23 @@
 
 ## Implementation
 
-1. Port provider add/edit/remove, active mode, model selection, and configuration validation from Android.
-2. Use Android Keystore, iOS Keychain, and a supported OS credential store per desktop package; persist non-secret metadata separately.
-3. On browser JS/Wasm, retain custom API keys in memory only; clear them on close/reload and explain re-entry in the UI.
-4. Add a stateless same-origin forwarding endpoint for browser providers whose CORS policy blocks direct requests. Send credentials per request; do not store, log, or return them.
-5. Restrict proxy targets to HTTPS public hosts, reject local/private addresses and redirects to them, cap payload/time/rate, and deploy it alongside web assets.
-6. Keep backend-selected provider mode usable when custom credentials are absent.
+Completed in shared common code:
+
+- Added provider add/edit/remove, backend/custom mode selection, model selection, connection testing, and configuration validation use cases. Plan 18 owns their UI.
+- Added platform configuration storage. Android encrypts credentials with an AES-GCM key held in Android Keystore; iOS stores credentials in Keychain; macOS/Linux desktop use the OS credential store; browser JS/Wasm keep credentials in a module memory map. Provider metadata is stored separately and never contains API keys.
+- Custom provider mode remains unavailable until a valid credential is present; backend mode remains the default and works without custom credentials.
+- Credential-store write failures are returned instead of reporting a successful save.
+
+Not implemented: a same-origin browser proxy. This repository has no server module or web-host deployment configuration, so there is no defined runtime in which to install or deploy that endpoint. Plan 26 already owns web hosting; choose the deployment runtime there before implementing the proxy. The Plan 18 browser settings UI must explain that custom keys are cleared on reload and request re-entry.
 
 ## Verification
 
-- [ ] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
+- [x] Configuration use-case tests cover HTTPS-only URL validation, userinfo/query/completion-path rejection, and rejecting invalid settings before persistence. `./gradlew --no-daemon :shared:jvmTest --tests '*AiConfigurationUseCasesTest' --console=plain` passed.
+- [ ] Person verifies native keys survive restart and are absent from ordinary preferences/logs; browser keys clear on reload. Device and Simulator checks must be done manually by a person; browser runtime review also remains manual.
+- [ ] Compare Plan 18’s delivered configuration screens and behavior directly with the Android source at equivalent viewport sizes. Device or Simulator interaction must be done manually by a person.
+- [ ] Proxy tests cover valid request, blocked target, redirects, oversized body, timeout, and no credential logging after the hosting runtime is selected and endpoint is added.
+
+Android debug build, iOS Simulator framework, Desktop JVM, browser JS/Wasm shared and web source, and iOS/JS/Wasm test-source compilation passed. Final compile/test log: `/tmp/kbbi-plan17-final-check.log`. No app/device/browser interaction was performed.
 
 - Native keys survive restart and are absent from ordinary preference files/logs; browser keys do not survive reload.
 - Proxy tests cover valid request, blocked target, redirect, oversized body, timeout, and no credential logging.
