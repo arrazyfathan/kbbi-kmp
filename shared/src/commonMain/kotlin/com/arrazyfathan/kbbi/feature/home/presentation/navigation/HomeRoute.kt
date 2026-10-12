@@ -6,9 +6,12 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.feature.home.presentation.home.HomeScreen
+import com.arrazyfathan.kbbi.navigation.DestinationParser
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@SerialName("home")
 data object HomeKey : NavKey
 
 fun EntryProviderScope<NavKey>.homeEntry(
@@ -17,7 +20,7 @@ fun EntryProviderScope<NavKey>.homeEntry(
     onNavigateToFigure: () -> Unit,
     onNavigateToSettings: () -> Unit,
 ) {
-    entry<HomeKey> {
+    entry<HomeKey>(clazzContentKey = DestinationParser::path) {
         HomeRoute(
             onNavigateToDetail = onNavigateToDetail,
             onNavigateToProverb = onNavigateToProverb,

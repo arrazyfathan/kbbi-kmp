@@ -101,13 +101,13 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import com.arrazyfathan.kbbi.core.platform.HapticFeedback
+import com.arrazyfathan.kbbi.core.platform.Haptics
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextH1
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
-import com.arrazyfathan.kbbi.core.platform.HapticFeedback
-import com.arrazyfathan.kbbi.core.platform.Haptics
 import com.arrazyfathan.kbbi.core.presentation.ui.asStringNonComposable
 import com.arrazyfathan.kbbi.core.presentation.ui.asUiText
 import com.arrazyfathan.kbbi.feature.proverb.domain.model.ProverbDetailModel
@@ -121,9 +121,9 @@ import kbbi_kmp.shared.generated.resources.ic_arrow_back
 import kbbi_kmp.shared.generated.resources.ic_auto_awesome
 import kbbi_kmp.shared.generated.resources.ic_search
 import kbbi_kmp.shared.generated.resources.navigate_back
-import kbbi_kmp.shared.generated.resources.proverb_empty_message
 import kbbi_kmp.shared.generated.resources.proverb_ai_meaning_badge
 import kbbi_kmp.shared.generated.resources.proverb_ai_meaning_notice
+import kbbi_kmp.shared.generated.resources.proverb_empty_message
 import kbbi_kmp.shared.generated.resources.proverb_meaning_empty
 import kbbi_kmp.shared.generated.resources.proverb_meaning_loading
 import kbbi_kmp.shared.generated.resources.proverb_meaning_title
@@ -137,8 +137,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SEARCH_BAR_SCROLL_VISIBILITY_THRESHOLD = 4f
@@ -150,11 +150,15 @@ private val SEARCH_BAR_IDLE_SHOW_DELAY_MILLIS = 1_000L.milliseconds
 fun ProverbRoot(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
+    initialSlug: String? = null,
 ) {
     val viewModel: ProverbViewModel = koinViewModel()
     val haptics: Haptics = koinInject()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val proverbs = viewModel.proverbs.collectAsLazyPagingItems()
+    LaunchedEffect(initialSlug) {
+        initialSlug?.let { viewModel.onAction(ProverbAction.OnSlugRequested(it)) }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -162,6 +166,7 @@ fun ProverbRoot(
                 ProverbEvent.MeaningLoaded -> {
                     haptics.perform(HapticFeedback.CONFIRM)
                 }
+
                 is ProverbEvent.ShowMessage -> {
                     haptics.perform(HapticFeedback.ERROR)
                     showToast(event.message.asStringNonComposable())
@@ -230,12 +235,14 @@ fun ProverbScreen(
         }
 
     LaunchedEffect(listState) {
-        snapshotFlow { listState.isScrollInProgress }.distinctUntilChanged().collectLatest { isScrolling ->
-            if (!isScrolling) {
-                delay(SEARCH_BAR_IDLE_SHOW_DELAY_MILLIS)
-                isSearchVisible = true
+        snapshotFlow { listState.isScrollInProgress }
+            .distinctUntilChanged()
+            .collectLatest { isScrolling ->
+                if (!isScrolling) {
+                    delay(SEARCH_BAR_IDLE_SHOW_DELAY_MILLIS)
+                    isSearchVisible = true
+                }
             }
-        }
     }
 
     Scaffold(
@@ -250,15 +257,13 @@ fun ProverbScreen(
     ) { innerPadding ->
         Box(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(
-                        PaddingValues(
-                            start = innerPadding.calculateStartPadding(layoutDirection),
-                            top = innerPadding.calculateTopPadding(),
-                            end = innerPadding.calculateEndPadding(layoutDirection),
-                        ),
+                Modifier.fillMaxSize().padding(
+                    PaddingValues(
+                        start = innerPadding.calculateStartPadding(layoutDirection),
+                        top = innerPadding.calculateTopPadding(),
+                        end = innerPadding.calculateEndPadding(layoutDirection),
                     ),
+                ),
         ) {
             ProverbList(
                 proverbs = proverbs,
@@ -313,7 +318,11 @@ private fun ProverbTopAppBar(
             Modifier.background(
                 brush =
                     Brush.verticalGradient(
-                        colors = listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary),
+                        colors =
+                            listOf(
+                                MaterialTheme.colorScheme.secondary,
+                                MaterialTheme.colorScheme.primary,
+                            ),
                     ),
             ),
         navigationIcon = {
@@ -424,13 +433,10 @@ private fun ProverbSearchField(
         onValueChange = onValueChange,
         interactionSource = interactionSource,
         modifier =
-            modifier
-                .clip(CircleShape)
-                .background(secondaryColor)
-                .drawWithCache {
-                    val gradient = Brush.verticalGradient(colors = listOf(secondaryColor, primaryColor))
-                    onDrawBehind { drawRect(brush = gradient, alpha = gradientAlpha) }
-                },
+            modifier.clip(CircleShape).background(secondaryColor).drawWithCache {
+                val gradient = Brush.verticalGradient(colors = listOf(secondaryColor, primaryColor))
+                onDrawBehind { drawRect(brush = gradient, alpha = gradientAlpha) }
+            },
         placeholder = {
             Text(
                 text = stringResource(Res.string.search_proverb_hint),
@@ -505,14 +511,19 @@ private fun ProverbList(
                     start = 8.dp,
                     top = 8.dp,
                     end = 8.dp,
-                    bottom = 112.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
+                    bottom =
+                        112.dp +
+                            WindowInsets.navigationBars
+                                .asPaddingValues()
+                                .calculateBottomPadding(),
                 ),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             for (index in 0 until proverbs.itemCount) {
                 val item = proverbs.peek(index)
                 val letter = item?.letter.orEmpty()
-                val previousLetter = if (index > 0) proverbs.peek(index - 1)?.letter.orEmpty() else ""
+                val previousLetter =
+                    if (index > 0) proverbs.peek(index - 1)?.letter.orEmpty() else ""
 
                 if (letter.isNotEmpty() && letter != previousLetter) {
                     stickyHeader(key = "letter-$letter-$index") {
@@ -791,7 +802,11 @@ private fun ProverbAiMeaningNotice(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.Top,
         ) {
             Box(
-                modifier = Modifier.size(32.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.09f)),
+                modifier =
+                    Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.09f)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -868,7 +883,11 @@ private fun NumberedMeaningItem(
         verticalAlignment = Alignment.Top,
     ) {
         Box(
-            modifier = Modifier.size(26.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary),
+            modifier =
+                Modifier
+                    .size(26.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -957,7 +976,6 @@ private fun EmptyState(modifier: Modifier = Modifier) {
         )
     }
 }
-
 
 @Preview
 @Composable

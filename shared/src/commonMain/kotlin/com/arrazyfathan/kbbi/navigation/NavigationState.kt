@@ -1,6 +1,7 @@
 package com.arrazyfathan.kbbi.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,11 +9,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
-import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 
 @Composable
@@ -37,7 +38,18 @@ internal fun rememberNavigationState(
         }
     val backStacks =
         topLevelRoutes.associateWith { key ->
-            rememberNavBackStack(navigationSavedStateConfiguration, key)
+            val stackSaver =
+                remember(key) {
+                    Saver<NavBackStack<NavKey>, String>(
+                        save = { stack -> NavigationCodec.encodeStack(stack.toList()) },
+                        restore = { encoded ->
+                            NavBackStack(
+                                *NavigationCodec.decodeStack(encoded, key).toTypedArray(),
+                            )
+                        },
+                    )
+                }
+            rememberSaveable(key, saver = stackSaver) { NavBackStack<NavKey>(key) }
         }
 
     return remember(startRoute, topLevelRoutes, topLevelRoute, backStacks) {
@@ -49,6 +61,7 @@ internal fun rememberNavigationState(
     }
 }
 
+@Immutable
 internal class NavigationState(
     val startRoute: NavKey,
     topLevelRoute: MutableState<NavKey>,
@@ -69,6 +82,7 @@ internal class NavigationState(
         )
 
     fun restore(snapshot: NavigationSnapshot) {
+        if (!snapshot.isValid()) return
         backStacks.forEach { (route, stack) ->
             val restoredStack = snapshot.backStacks[route] ?: listOf(route)
             stack.clear()
@@ -86,6 +100,7 @@ internal class NavigationState(
                     entryDecorators =
                         listOf(
                             rememberSaveableStateHolderNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator(),
                         ),
                     entryProvider = entryProvider,
                 )
@@ -102,7 +117,17 @@ internal class NavigationState(
         }
 }
 
+@kotlinx.serialization.Serializable
 internal data class NavigationSnapshot(
     val topLevelRoute: NavKey,
     val backStacks: Map<NavKey, List<NavKey>>,
 )
+
+internal fun NavigationSnapshot.isValid(): Boolean =
+    topLevelRoute in topLevelRoutes && backStacks.keys == topLevelRoutes.toSet() && backStacks.values.sumOf { it.size } <= 96 &&
+        backStacks.all { (root, entries) ->
+            entries.isNotEmpty() && entries.size <= 32 && entries.first() == root &&
+                entries
+                    .drop(1)
+                    .none { it in topLevelRoutes } && entries.all(DestinationParser::isAvailable)
+        }

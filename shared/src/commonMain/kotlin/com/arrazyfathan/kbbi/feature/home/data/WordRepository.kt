@@ -41,6 +41,15 @@ class WordRepository(
     SearchHistoryRepository,
     TranslateRepository,
     TopWordsRepository {
+    override suspend fun getCachedWord(word: String): WordResultModel? =
+        withContext(Dispatchers.Default) {
+            (
+                localDataSource.getWord(word.trim()) ?: localDataSource.getWord(
+                    word.trim().lowercase(),
+                )
+            )?.toWordResultDomain()
+        }
+
     override suspend fun getMeaningOfWord(word: String): AppResult<WordResultModel, DataError> {
         val normalizedWord = word.trim()
         val remoteResult = remoteDataSource.getMeaningOfWord(normalizedWord)

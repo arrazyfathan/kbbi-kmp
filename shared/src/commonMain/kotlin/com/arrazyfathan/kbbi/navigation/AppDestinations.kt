@@ -8,8 +8,8 @@ import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureDetail
 import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureKey
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
 import com.arrazyfathan.kbbi.feature.proverb.presentation.navigation.ProverbKey
-import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.SettingsKey
 import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.LegalDocumentKey
+import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.SettingsKey
 import com.arrazyfathan.kbbi.feature.words.presentation.navigation.WordsKey
 import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.bookmarks_title
@@ -21,6 +21,8 @@ import kbbi_kmp.shared.generated.resources.saved_selected
 import kbbi_kmp.shared.generated.resources.word
 import kbbi_kmp.shared.generated.resources.word_list_tab_title
 import kbbi_kmp.shared.generated.resources.word_selected
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.jetbrains.compose.resources.DrawableResource
@@ -71,6 +73,17 @@ internal val navigationSavedStateConfiguration =
                     subclass(FigureDetailKey::class, FigureDetailKey.serializer())
                     subclass(SettingsKey::class, SettingsKey.serializer())
                     subclass(LegalDocumentKey::class, LegalDocumentKey.serializer())
+                    subclass(AiSettingsKey::class, AiSettingsKey.serializer())
+                    subclass(AppUpdateKey::class, AppUpdateKey.serializer())
                 }
             }
     }
+
+// Reserved route identities; their destination UIs are owned by Plans 18 and 25.
+@Serializable
+@SerialName("ai-settings")
+internal data object AiSettingsKey : NavKey
+
+@Serializable
+@SerialName("update")
+internal data object AppUpdateKey : NavKey

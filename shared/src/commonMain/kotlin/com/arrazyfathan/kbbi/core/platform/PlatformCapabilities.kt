@@ -95,10 +95,18 @@ fun interface AlternateAppIcon {
 data class IncomingLaunchRequest(
     val uri: String? = null,
     val sharedText: String? = null,
+    // Hosts must reuse this identity while redelivering the same OS request.
+    val requestId: String =
+        kotlin.random.Random
+            .nextLong()
+            .toString(),
 )
 
 fun interface IncomingLaunchRequests {
     fun observe(): Flow<IncomingLaunchRequest>
+
+    /** Hosts remove the acknowledged request from their pending launch queue. */
+    fun acknowledge(requestId: String) {}
 }
 
 object UnsupportedSpeechInput : SpeechInput {

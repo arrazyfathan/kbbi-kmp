@@ -1,6 +1,8 @@
 package com.arrazyfathan.kbbi.navigation
 
-import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -59,9 +61,6 @@ import com.arrazyfathan.kbbi.feature.words.presentation.navigation.wordsEntry
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-private const val IOS_NAVIGATION_TRANSITION_DURATION_MILLIS = 350
-private const val IOS_NAVIGATION_PARALLAX_DIVISOR = 3
-private const val BOTTOM_NAVIGATION_TRANSITION_DURATION_MILLIS = 220
 
 @Composable
 internal fun MainApp(navigationState: NavigationState) {
@@ -75,18 +74,17 @@ internal fun MainApp(navigationState: NavigationState) {
     }
 
     BindSystemBarColor(isDetailVisible = isDetailVisible)
-    BindBrowserNavigation(navigationState)
 
     val entries =
         navigationState.toDecoratedEntries(
             entryProvider {
                 val navigateToDetail: (ListWordModel) -> Unit = { word ->
-                    navigator.navigate(DetailKey(word))
+                    navigator.navigate(DetailKey(word.word))
                 }
                 homeEntry(
                     onNavigateToDetail = navigateToDetail,
                     onNavigateToProverb = {
-                        navigator.navigate(ProverbKey)
+                        navigator.navigate(ProverbKey())
                     },
                     onNavigateToFigure = {
                         navigator.navigate(FigureKey)
@@ -111,7 +109,7 @@ internal fun MainApp(navigationState: NavigationState) {
                     onBack = { navigator.goBack() },
                     onOpenLegal = { document -> navigator.navigate(LegalDocumentKey(document)) },
                 )
-                detailEntry()
+                detailEntry(onNavigateBack = navigator::goBack)
             },
         )
 
@@ -125,48 +123,46 @@ internal fun MainApp(navigationState: NavigationState) {
                     }
                 },
                 modifier = Modifier.fillMaxSize(),
-                transitionSpec = { appNavigationTransition(showBottomNavigation) },
-                popTransitionSpec = { appPopNavigationTransition(showBottomNavigation) },
-                predictivePopTransitionSpec = { appPopNavigationTransition(showBottomNavigation) },
+                transitionSpec = {
+                    appNavigationTransition(resolveAppNavigationMotion(
+                        initialContentKey = initialState.entries.lastOrNull()?.contentKey,
+                        targetContentKey = targetState.entries.lastOrNull()?.contentKey,
+                        isPop = false,
+                    ))
+                },
+                popTransitionSpec = {
+                    appNavigationTransition(resolveAppNavigationMotion(
+                        initialContentKey = initialState.entries.lastOrNull()?.contentKey,
+                        targetContentKey = targetState.entries.lastOrNull()?.contentKey,
+                        isPop = true,
+                    ))
+                },
+                predictivePopTransitionSpec = {
+                    appNavigationTransition(resolveAppNavigationMotion(
+                        initialContentKey = initialState.entries.lastOrNull()?.contentKey,
+                        targetContentKey = targetState.entries.lastOrNull()?.contentKey,
+                        isPop = true,
+                    ))
+                },
             )
 
-            if (showBottomNavigation) {
-                Row(
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .height(80.dp)
-                            .shadow(elevation = 16.dp)
-                            .background(Color.White),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    topLevelDestinations.forEach { destination ->
-                        val isSelected = navigationState.topLevelRoute == destination.key
-                        Box(
-                            modifier =
-                                Modifier.weight(1f).fillMaxHeight().clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(bounded = false, radius = 24.dp),
-                                ) {
-                                    if (!isUiBlocked && !isSelected) {
-                                        navigator.navigate(destination.key)
-                                    }
-                                },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(24.dp),
-                                painter =
-                                    painterResource(
-                                        resource = if (isSelected) destination.selectedIcon else destination.icon,
-                                    ),
-                                contentDescription = stringResource(destination.title),
-                                tint = Color.Unspecified,
-                            )
-                        }
-                    }
-                }
+            AnimatedVisibility(
+                visible = showBottomNavigation,
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
+                enter = slideInVertically(
+                    animationSpec = tween(durationMillis = 200, delayMillis = 80),
+                    initialOffsetY = { it },
+                ) + fadeIn(animationSpec = tween(durationMillis = 160, delayMillis = 80)),
+                exit = slideOutVertically(
+                    animationSpec = tween(durationMillis = 140),
+                    targetOffsetY = { it },
+                ) + fadeOut(animationSpec = tween(durationMillis = 100)),
+            ) {
+                BottomNavigation(
+                    selectedScreen = navigationState.topLevelRoute,
+                    isUiBlocked = isUiBlocked,
+                    onScreenSelected = navigator::navigate,
+                )
             }
 
             if (isUiBlocked) {
@@ -205,50 +201,4 @@ private fun BlockingLoadingOverlay() {
             )
         }
     }
-}
-
-private fun appNavigationTransition(showBottomNavigation: Boolean): ContentTransform =
-    if (showBottomNavigation) {
-        bottomNavigationTransition()
-    } else {
-        iosNavigationTransition()
-    }
-
-private fun appPopNavigationTransition(showBottomNavigation: Boolean): ContentTransform =
-    if (showBottomNavigation) {
-        bottomNavigationTransition()
-    } else {
-        iosPopNavigationTransition()
-    }
-
-private fun bottomNavigationTransition(): ContentTransform {
-    val animationSpec = tween<Float>(durationMillis = BOTTOM_NAVIGATION_TRANSITION_DURATION_MILLIS)
-
-    return fadeIn(animationSpec = animationSpec) togetherWith fadeOut(animationSpec = animationSpec)
-}
-
-private fun iosNavigationTransition(): ContentTransform {
-    val animationSpec = tween<IntOffset>(durationMillis = IOS_NAVIGATION_TRANSITION_DURATION_MILLIS)
-
-    return slideInHorizontally(
-        animationSpec = animationSpec,
-        initialOffsetX = { fullWidth -> fullWidth },
-    ) togetherWith
-        slideOutHorizontally(
-            animationSpec = animationSpec,
-            targetOffsetX = { fullWidth -> -fullWidth / IOS_NAVIGATION_PARALLAX_DIVISOR },
-        )
-}
-
-private fun iosPopNavigationTransition(): ContentTransform {
-    val animationSpec = tween<IntOffset>(durationMillis = IOS_NAVIGATION_TRANSITION_DURATION_MILLIS)
-
-    return slideInHorizontally(
-        animationSpec = animationSpec,
-        initialOffsetX = { fullWidth -> -fullWidth / IOS_NAVIGATION_PARALLAX_DIVISOR },
-    ) togetherWith
-        slideOutHorizontally(
-            animationSpec = animationSpec,
-            targetOffsetX = { fullWidth -> fullWidth },
-        )
 }

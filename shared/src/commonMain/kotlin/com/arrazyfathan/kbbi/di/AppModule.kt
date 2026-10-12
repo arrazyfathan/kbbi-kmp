@@ -1,9 +1,12 @@
 package com.arrazyfathan.kbbi.di
 
 import com.arrazyfathan.kbbi.core.di.networkModule
+import com.arrazyfathan.kbbi.core.platform.Haptics
+import com.arrazyfathan.kbbi.core.platform.SettingsAwareHaptics
 import com.arrazyfathan.kbbi.feature.bookmark.data.BookmarkLayoutPreferenceStore
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.bookmark.BookmarksViewModel
 import com.arrazyfathan.kbbi.feature.detail.presentation.detail.DetailViewModel
+import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.WordDetailRouteViewModel
 import com.arrazyfathan.kbbi.feature.figure.data.di.figureDataModule
 import com.arrazyfathan.kbbi.feature.figure.domain.usecase.GetFigureDetailUseCase
 import com.arrazyfathan.kbbi.feature.figure.domain.usecase.GetFiguresUseCase
@@ -21,6 +24,7 @@ import com.arrazyfathan.kbbi.feature.home.domain.usecase.GetWordSuggestionsUseCa
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.GetWordTranslationUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.ObserveBookmarksUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.ObserveSearchHistoryUseCase
+import com.arrazyfathan.kbbi.feature.home.domain.usecase.RestoreWordUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.SaveBookmarkUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.SearchWordUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.SearchWordWithHistoryUseCase
@@ -31,8 +35,6 @@ import com.arrazyfathan.kbbi.feature.proverb.domain.usecase.GetProverbMeaningUse
 import com.arrazyfathan.kbbi.feature.proverb.presentation.proverb.ProverbViewModel
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
 import com.arrazyfathan.kbbi.feature.settings.presentation.SettingsViewModel
-import com.arrazyfathan.kbbi.core.platform.Haptics
-import com.arrazyfathan.kbbi.core.platform.SettingsAwareHaptics
 import com.arrazyfathan.kbbi.feature.words.presentation.words.WordViewModel
 import com.arrazyfathan.kbbi.platformModule
 import org.koin.core.KoinApplication
@@ -49,6 +51,7 @@ val useCaseModule =
         single { SettingsPreferenceStore(get(), get()) }
         single<Haptics> { SettingsAwareHaptics(get()) { get<SettingsPreferenceStore>().preferences.value.hapticsEnabled } }
         factoryOf(::SearchWordUseCase)
+        factoryOf(::RestoreWordUseCase)
         factoryOf(::SearchWordWithHistoryUseCase)
         factoryOf(::AddSearchHistoryUseCase)
         factoryOf(::ObserveSearchHistoryUseCase)
@@ -70,6 +73,7 @@ val useCaseModule =
 val viewModelModule =
     module {
         viewModelOf(::DetailViewModel)
+        viewModelOf(::WordDetailRouteViewModel)
         viewModelOf(::HomeViewModel)
         viewModelOf(::BookmarksViewModel)
         viewModelOf(::WordViewModel)

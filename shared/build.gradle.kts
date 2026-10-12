@@ -121,6 +121,7 @@ kotlin {
             implementation(libs.compose.components.resources)
             implementation(libs.compottie.lite)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.viewmodel.navigation3)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.androidx.paging.common)
             implementation(libs.androidx.paging.compose)
@@ -184,4 +185,9 @@ buildkonfig {
     defaultConfigs {
         buildConfigField(Type.STRING, "BASE_URL", apiBaseUrl)
     }
+}
+
+// Export remains opt-in; if requested with a build, package the refreshed catalogue.
+tasks.matching { it.name == "copyNonXmlValueResourcesForCommonMain" }.configureEach {
+    mustRunAfter(tasks.named("exportLibraryDefinitions"))
 }
