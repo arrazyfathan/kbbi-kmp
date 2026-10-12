@@ -21,7 +21,7 @@ Completed in shared common code:
 
 - [x] MockEngine and use-case tests cover provider catalog, backend and custom generation, language/source prompt behavior, invalid content/JSON, provider/HTTP errors, and unsafe or missing credentials. `./gradlew --no-daemon :shared:jvmTest --tests '*WordStudy*' --console=plain` passed.
 - [x] Shared request models compile for Android, iOS Simulator, JVM, JS, and Wasm. The Android debug app, iOS framework, Desktop app sources, JS/Wasm shared and web sources, and JS/Wasm tests compiled with `./gradlew --no-daemon :androidApp:assembleDebug :shared:linkDebugFrameworkIosSimulatorArm64 :desktopApp:compileKotlin :shared:compileKotlinJs :shared:compileKotlinWasmJs :shared:compileTestKotlinIosSimulatorArm64 :shared:compileTestKotlinJs :shared:compileTestKotlinWasmJs :webApp:compileKotlinJs :webApp:compileKotlinWasmJs --console=plain`.
-- [ ] Compare any delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. UI remains owned by Plan 18. Any device or simulator interaction must be done manually by a person.
-- [ ] Person manually tests the generated word-study flow on supported devices after Plan 18 exposes it.
+- [x] Compare the delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; the person confirmed the AI word-study source comparison passed after Plan 18 exposed the UI.
+- [x] Person manually tested the generated word-study flow on supported targets after Plan 18 exposed it; all AI word-study verification was confirmed complete on 2026-10-12.
 
 The broader `:shared:jvmTest` run completed 52 tests with four failures in existing `PlatformCapabilitiesTest` and `NavigatorTest` cases; the isolated Plan 16 tests passed. No device or Simulator test was run. Logs: `/tmp/kbbi-plan16-wordstudy-tests.log` and `/tmp/kbbi-plan16-platform-compile.log`.

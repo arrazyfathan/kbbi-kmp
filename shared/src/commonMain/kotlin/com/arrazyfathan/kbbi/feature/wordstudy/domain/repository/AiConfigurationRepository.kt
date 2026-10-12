@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.Flow
 
 /** Storage contract implemented by Plan 17; keys are returned only for a request in progress. */
 interface AiConfigurationRepository {
+    val credentialsAreSessionOnly: Boolean get() = false
+
     val configuration: Flow<AiConfigurationModel>
 
     suspend fun saveCustomProvider(

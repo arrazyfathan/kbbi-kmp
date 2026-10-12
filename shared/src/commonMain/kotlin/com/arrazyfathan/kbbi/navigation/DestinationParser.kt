@@ -101,7 +101,7 @@ internal object DestinationParser {
 
     fun isAvailable(key: NavKey): Boolean =
         when (key) {
-            HomeKey, WordsKey, BookmarksKey, FigureKey, SettingsKey -> true
+            HomeKey, WordsKey, BookmarksKey, FigureKey, SettingsKey, AiSettingsKey -> true
             is DetailKey -> validArgument(key.word)
             is FigureDetailKey -> validArgument(key.slug)
             is ProverbKey -> key.slug == null || validArgument(key.slug)

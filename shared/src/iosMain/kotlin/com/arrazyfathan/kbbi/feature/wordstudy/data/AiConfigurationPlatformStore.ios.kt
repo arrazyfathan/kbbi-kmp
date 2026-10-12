@@ -7,6 +7,7 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.usePinned
 import platform.CoreFoundation.CFDataCreate
@@ -22,10 +23,13 @@ import platform.CoreFoundation.CFTypeRefVar
 import platform.CoreFoundation.kCFAllocatorDefault
 import platform.CoreFoundation.kCFBooleanTrue
 import platform.CoreFoundation.kCFStringEncodingUTF8
+import platform.CoreFoundation.kCFTypeDictionaryKeyCallBacks
+import platform.CoreFoundation.kCFTypeDictionaryValueCallBacks
 import platform.Foundation.NSUserDefaults
 import platform.Security.SecItemAdd
 import platform.Security.SecItemCopyMatching
 import platform.Security.SecItemDelete
+import platform.Security.SecItemUpdate
 import platform.Security.errSecItemNotFound
 import platform.Security.errSecSuccess
 import platform.Security.kSecAttrAccessible
@@ -41,6 +45,8 @@ import platform.Security.kSecValueData
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 internal actual object AiConfigurationPlatformStore {
+    actual fun credentialsAreSessionOnly() = false
+
     actual fun isSecretStoreAvailable() = true
 
     private fun metadataKey(key: String) = "kbbi.ai.$key"
@@ -65,10 +71,12 @@ internal actual object AiConfigurationPlatformStore {
                 val result = allocArray<CFTypeRefVar>(1)
                 if (SecItemCopyMatching(search, result) != errSecSuccess) return@memScoped null
                 val value = result[0] ?: return@memScoped null
-                val pointer = CFDataGetBytePtr(value.reinterpret()) ?: return@memScoped null
-                ByteArray(CFDataGetLength(value.reinterpret()).toInt()) { pointer[it].toByte() }
-                    .decodeToString()
-                    .also { CFRelease(value) }
+                try {
+                    val pointer = CFDataGetBytePtr(value.reinterpret()) ?: return@memScoped null
+                    ByteArray(CFDataGetLength(value.reinterpret()).toInt()) { pointer[it].toByte() }.decodeToString()
+                } finally {
+                    CFRelease(value)
+                }
             }
         } finally {
             CFRelease(search as CFTypeRef)
@@ -85,16 +93,25 @@ internal actual object AiConfigurationPlatformStore {
                 val status = SecItemDelete(query)
                 return status == errSecSuccess || status == errSecItemNotFound
             }
-            SecItemDelete(query)
             val data = value.encodeToByteArray().toCFData()
-            CFDictionaryAddValue(query, kSecValueData, data)
+            val updates = dictionary()
+            try {
+                CFDictionaryAddValue(updates, kSecValueData, data)
+                val updated = SecItemUpdate(query, updates)
+                if (updated != errSecItemNotFound) return updated == errSecSuccess
+            } finally {
+                CFRelease(updates)
+                CFRelease(data)
+            }
+            val newData = value.encodeToByteArray().toCFData()
+            CFDictionaryAddValue(query, kSecValueData, newData)
             CFDictionaryAddValue(
                 query,
                 kSecAttrAccessible,
                 kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
             )
             val status = SecItemAdd(query, null)
-            CFRelease(data)
+            CFRelease(newData)
             return status == errSecSuccess
         } finally {
             CFRelease(query as CFTypeRef)
@@ -105,14 +122,7 @@ internal actual object AiConfigurationPlatformStore {
         key: String,
         includeData: Boolean = false,
     ): CFDictionaryRef =
-        requireNotNull(
-            CFDictionaryCreateMutable(
-                kCFAllocatorDefault,
-                7,
-                null,
-                null,
-            ),
-        ).also { dictionary ->
+        dictionary().also { dictionary ->
             CFDictionaryAddValue(dictionary, kSecClass, kSecClassGenericPassword)
             addString(dictionary, kSecAttrService as CFTypeRef, "com.arrazyfathan.kbbi.ai")
             addString(dictionary, kSecAttrAccount as CFTypeRef, key)
@@ -121,6 +131,16 @@ internal actual object AiConfigurationPlatformStore {
                 CFDictionaryAddValue(dictionary, kSecMatchLimit, kSecMatchLimitOne)
             }
         }
+
+    private fun dictionary(): CFDictionaryRef =
+        requireNotNull(
+            CFDictionaryCreateMutable(
+                kCFAllocatorDefault,
+                0,
+                kCFTypeDictionaryKeyCallBacks.ptr,
+                kCFTypeDictionaryValueCallBacks.ptr,
+            ),
+        )
 
     private fun addString(
         dictionary: CFDictionaryRef,

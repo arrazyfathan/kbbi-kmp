@@ -3,6 +3,8 @@ package com.arrazyfathan.kbbi.feature.wordstudy.data
 import web.storage.sessionStorage
 
 internal actual object AiConfigurationPlatformStore {
+    actual fun credentialsAreSessionOnly() = true
+
     actual fun isSecretStoreAvailable() = true
 
     private val transientSecrets = mutableMapOf<String, String>()

@@ -45,6 +45,7 @@ import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.SelectAiProviderMo
 import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.SelectBackendAiProviderUseCase
 import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.SelectCustomAiProviderUseCase
 import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.TestAiConnectionUseCase
+import com.arrazyfathan.kbbi.feature.wordstudy.presentation.ai.AiSettingsViewModel
 import com.arrazyfathan.kbbi.platformModule
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -90,6 +91,7 @@ val useCaseModule =
 val viewModelModule =
     module {
         viewModelOf(::DetailViewModel)
+        viewModelOf(::AiSettingsViewModel)
         viewModelOf(::WordDetailRouteViewModel)
         viewModelOf(::HomeViewModel)
         viewModelOf(::BookmarksViewModel)

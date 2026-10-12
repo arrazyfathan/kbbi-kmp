@@ -1,29 +1,19 @@
 package com.arrazyfathan.kbbi.navigation
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
@@ -31,10 +21,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
@@ -46,21 +34,18 @@ import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.bookmarksE
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.DetailKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.detailEntry
 import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureDetailKey
+import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureKey
 import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.figureDetailEntry
 import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.figureEntry
-import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureKey
-import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.SettingsKey
-import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.LegalDocumentKey
-import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.settingsEntry
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
-import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.homeEntry
 import com.arrazyfathan.kbbi.feature.proverb.presentation.navigation.ProverbKey
 import com.arrazyfathan.kbbi.feature.proverb.presentation.navigation.proverbEntry
+import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.LegalDocumentKey
+import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.SettingsKey
+import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.settingsEntry
 import com.arrazyfathan.kbbi.feature.words.presentation.navigation.wordsEntry
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
-
+import com.arrazyfathan.kbbi.feature.wordstudy.presentation.ai.AiSettingsRoute
 
 @Composable
 internal fun MainApp(navigationState: NavigationState) {
@@ -90,6 +75,7 @@ internal fun MainApp(navigationState: NavigationState) {
                         navigator.navigate(FigureKey)
                     },
                     onNavigateToSettings = { navigator.navigate(SettingsKey) },
+                    onNavigateToAiSettings = { navigator.navigate(AiSettingsKey) },
                 )
                 wordsEntry(onNavigateToDetail = navigateToDetail)
                 bookmarksEntry(onNavigateToDetail = navigateToDetail)
@@ -109,7 +95,13 @@ internal fun MainApp(navigationState: NavigationState) {
                     onBack = { navigator.goBack() },
                     onOpenLegal = { document -> navigator.navigate(LegalDocumentKey(document)) },
                 )
-                detailEntry(onNavigateBack = navigator::goBack)
+                detailEntry(
+                    onNavigateBack = navigator::goBack,
+                    onNavigateToAiSettings = { navigator.navigate(AiSettingsKey) },
+                )
+                entry<AiSettingsKey>(clazzContentKey = DestinationParser::path) {
+                    AiSettingsRoute(onNavigateBack = navigator::goBack)
+                }
             },
         )
 
@@ -124,39 +116,47 @@ internal fun MainApp(navigationState: NavigationState) {
                 },
                 modifier = Modifier.fillMaxSize(),
                 transitionSpec = {
-                    appNavigationTransition(resolveAppNavigationMotion(
-                        initialContentKey = initialState.entries.lastOrNull()?.contentKey,
-                        targetContentKey = targetState.entries.lastOrNull()?.contentKey,
-                        isPop = false,
-                    ))
+                    appNavigationTransition(
+                        resolveAppNavigationMotion(
+                            initialContentKey = initialState.entries.lastOrNull()?.contentKey,
+                            targetContentKey = targetState.entries.lastOrNull()?.contentKey,
+                            isPop = false,
+                        ),
+                    )
                 },
                 popTransitionSpec = {
-                    appNavigationTransition(resolveAppNavigationMotion(
-                        initialContentKey = initialState.entries.lastOrNull()?.contentKey,
-                        targetContentKey = targetState.entries.lastOrNull()?.contentKey,
-                        isPop = true,
-                    ))
+                    appNavigationTransition(
+                        resolveAppNavigationMotion(
+                            initialContentKey = initialState.entries.lastOrNull()?.contentKey,
+                            targetContentKey = targetState.entries.lastOrNull()?.contentKey,
+                            isPop = true,
+                        ),
+                    )
                 },
                 predictivePopTransitionSpec = {
-                    appNavigationTransition(resolveAppNavigationMotion(
-                        initialContentKey = initialState.entries.lastOrNull()?.contentKey,
-                        targetContentKey = targetState.entries.lastOrNull()?.contentKey,
-                        isPop = true,
-                    ))
+                    appNavigationTransition(
+                        resolveAppNavigationMotion(
+                            initialContentKey = initialState.entries.lastOrNull()?.contentKey,
+                            targetContentKey = targetState.entries.lastOrNull()?.contentKey,
+                            isPop = true,
+                        ),
+                    )
                 },
             )
 
             AnimatedVisibility(
                 visible = showBottomNavigation,
                 modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-                enter = slideInVertically(
-                    animationSpec = tween(durationMillis = 200, delayMillis = 80),
-                    initialOffsetY = { it },
-                ) + fadeIn(animationSpec = tween(durationMillis = 160, delayMillis = 80)),
-                exit = slideOutVertically(
-                    animationSpec = tween(durationMillis = 140),
-                    targetOffsetY = { it },
-                ) + fadeOut(animationSpec = tween(durationMillis = 100)),
+                enter =
+                    slideInVertically(
+                        animationSpec = tween(durationMillis = 200, delayMillis = 80),
+                        initialOffsetY = { it },
+                    ) + fadeIn(animationSpec = tween(durationMillis = 160, delayMillis = 80)),
+                exit =
+                    slideOutVertically(
+                        animationSpec = tween(durationMillis = 140),
+                        targetOffsetY = { it },
+                    ) + fadeOut(animationSpec = tween(durationMillis = 100)),
             ) {
                 BottomNavigation(
                     selectedScreen = navigationState.topLevelRoute,

@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,6 +74,7 @@ import com.arrazyfathan.kbbi.core.presentation.ui.UiText
 import com.arrazyfathan.kbbi.core.utils.setPlainText
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.WordModel
+import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
 import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.ai_definition_compact_badge
 import kbbi_kmp.shared.generated.resources.ai_definition_notice
@@ -104,10 +106,16 @@ private const val DETAIL_ALERT_DURATION_MILLIS = 2_200L
 private val WORD_CLASS_ANNOTATION_REGEX = Regex("""\s*\[(.*?)\]\s*""")
 
 @Composable
-fun DetailScreen(listWordModel: ListWordModel) {
+fun DetailScreen(
+    listWordModel: ListWordModel,
+    onNavigateToAiSettings: () -> Unit = {},
+) {
     val viewModel: DetailViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val textShare: TextShare = koinInject()
+    val settings: SettingsPreferenceStore = koinInject()
+    val preferences by settings.preferences.collectAsStateWithLifecycle()
+    val navigateToAiSettings by rememberUpdatedState(onNavigateToAiSettings)
     var alertState by remember { mutableStateOf<AppAlertState?>(null) }
     var alertKey by remember { mutableIntStateOf(0) }
 
@@ -119,13 +127,17 @@ fun DetailScreen(listWordModel: ListWordModel) {
         alertKey++
     }
 
-    LaunchedEffect(listWordModel.word) {
-        viewModel.onAction(DetailAction.OnStarted(listWordModel.word.lowercase()))
+    LaunchedEffect(listWordModel, preferences.language) {
+        viewModel.onAction(DetailAction.OnStarted(listWordModel, preferences.language.tag))
     }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
+                DetailEvent.NavigateToAiSettings -> {
+                    navigateToAiSettings()
+                }
+
                 is DetailEvent.ShowMessage -> {
                     showAlert(
                         UiText.StringResource(event.messageRes),
@@ -288,6 +300,14 @@ fun DetailContent(
                             }
                         }
                     },
+                )
+            }
+            item(key = "ai-word-study") {
+                AiWordStudyCard(
+                    state,
+                    listWordModel.aiGenerated,
+                    onAction,
+                    Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 )
             }
         }

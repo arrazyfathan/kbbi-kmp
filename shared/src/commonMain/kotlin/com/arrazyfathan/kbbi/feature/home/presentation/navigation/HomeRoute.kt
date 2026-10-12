@@ -19,6 +19,7 @@ fun EntryProviderScope<NavKey>.homeEntry(
     onNavigateToProverb: () -> Unit,
     onNavigateToFigure: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToAiSettings: () -> Unit,
 ) {
     entry<HomeKey>(clazzContentKey = DestinationParser::path) {
         HomeRoute(
@@ -26,6 +27,7 @@ fun EntryProviderScope<NavKey>.homeEntry(
             onNavigateToProverb = onNavigateToProverb,
             onNavigateToFigure = onNavigateToFigure,
             onNavigateToSettings = onNavigateToSettings,
+            onNavigateToAiSettings = onNavigateToAiSettings,
         )
     }
 }
@@ -36,6 +38,7 @@ fun HomeRoute(
     onNavigateToProverb: () -> Unit,
     onNavigateToFigure: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToAiSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     HomeScreen(
@@ -43,6 +46,7 @@ fun HomeRoute(
         onNavigateToProverb = onNavigateToProverb,
         onNavigateToFigure = onNavigateToFigure,
         onNavigateToSettings = onNavigateToSettings,
+        onNavigateToAiSettings = onNavigateToAiSettings,
         modifier = modifier,
     )
 }

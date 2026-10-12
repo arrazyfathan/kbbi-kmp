@@ -3,13 +3,27 @@ package com.arrazyfathan.kbbi.feature.detail.presentation.detail
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.arrazyfathan.kbbi.core.domain.model.AppResult
+import com.arrazyfathan.kbbi.core.domain.model.DataError
+import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.TranslateModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.WordModel
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.CheckWordSavedUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.DeleteBookmarkUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.GetWordTranslationUseCase
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.SaveBookmarkUseCase
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.model.AiConfigurationModel
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.model.AiProviderMode
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.model.WordStudyModel
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.repository.AiConfigurationRepository
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.GenerateWordStudyUseCase
 import kbbi_kmp.shared.generated.resources.Res
+import kbbi_kmp.shared.generated.resources.ai_word_study_error_generic
+import kbbi_kmp.shared.generated.resources.ai_word_study_error_invalid_request
+import kbbi_kmp.shared.generated.resources.ai_word_study_error_no_internet
+import kbbi_kmp.shared.generated.resources.ai_word_study_error_rate_limited
+import kbbi_kmp.shared.generated.resources.ai_word_study_error_timeout
+import kbbi_kmp.shared.generated.resources.ai_word_study_error_unavailable
 import kbbi_kmp.shared.generated.resources.translate_failed
 import kbbi_kmp.shared.generated.resources.word_deleted_success
 import kbbi_kmp.shared.generated.resources.word_saved_success
@@ -29,11 +43,22 @@ data class DetailState(
     val isTranslationEnabled: Boolean = false,
     val isTranslationLoading: Boolean = false,
     val translation: TranslateModel? = null,
+    val aiConfiguration: AiConfigurationModel = AiConfigurationModel(),
+    val isWordStudyLoading: Boolean = false,
+    val wordStudy: WordStudyModel? = null,
+    val wordStudyErrorResId: StringResource? = null,
 )
 
 sealed interface DetailAction {
+    data object OnGenerateWordStudy : DetailAction
+
+    data object OnRetryWordStudy : DetailAction
+
+    data object OnConfigureAi : DetailAction
+
     data class OnStarted(
-        val word: String,
+        val word: ListWordModel,
+        val language: String,
     ) : DetailAction
 
     data class OnBookmarkClick(
@@ -50,6 +75,8 @@ sealed interface DetailAction {
 }
 
 sealed interface DetailEvent {
+    data object NavigateToAiSettings : DetailEvent
+
     data class ShowMessage(
         val messageRes: StringResource,
         val isError: Boolean = false,
@@ -61,6 +88,8 @@ class DetailViewModel(
     private val saveBookmark: SaveBookmarkUseCase,
     private val deleteBookmark: DeleteBookmarkUseCase,
     private val getWordTranslation: GetWordTranslationUseCase,
+    private val generateWordStudy: GenerateWordStudyUseCase,
+    private val aiConfigurationRepository: AiConfigurationRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DetailState())
     val state = _state.asStateFlow()
@@ -71,11 +100,83 @@ class DetailViewModel(
     private var savedStateJob: Job? = null
     private var bookmarkUpdateJob: Job? = null
     private var translationJob: Job? = null
+    private var wordStudyJob: Job? = null
+    private var currentWord: ListWordModel? = null
+    private var currentLanguage = "id"
+    private var currentStudyKey: StudyKey? = null
+
+    init {
+        viewModelScope.launch {
+            aiConfigurationRepository.configuration.collect { configuration ->
+                if (state.value.aiConfiguration != configuration) {
+                    invalidateStudy()
+                    _state.update { it.copy(aiConfiguration = configuration) }
+                }
+            }
+        }
+    }
+
+    private fun invalidateStudy() {
+        wordStudyJob?.cancel()
+        currentStudyKey = null
+        _state.update {
+            it.copy(
+                isWordStudyLoading = false,
+                wordStudy = null,
+                wordStudyErrorResId = null,
+            )
+        }
+    }
+
+    private fun generateStudy() {
+        val word = currentWord ?: return
+        val configuration = state.value.aiConfiguration
+        if (configuration.providerMode == AiProviderMode.CUSTOM && !configuration.isCustomConfigurationComplete) {
+            viewModelScope.launch { _events.send(DetailEvent.NavigateToAiSettings) }
+            return
+        }
+        invalidateStudy()
+        val key =
+            StudyKey(word, currentLanguage, configuration.revision, configuration.providerMode)
+        currentStudyKey = key
+        _state.update { it.copy(isWordStudyLoading = true) }
+        wordStudyJob =
+            viewModelScope.launch {
+                val result = generateWordStudy(word.toWordStudySourceModel(), key.language)
+                if (currentStudyKey != key) return@launch
+                when (result) {
+                    is AppResult.Success -> {
+                        _state.update { it.copy(isWordStudyLoading = false, wordStudy = result.data) }
+                    }
+
+                    is AppResult.Error -> {
+                        _state.update {
+                            it.copy(
+                                isWordStudyLoading = false,
+                                wordStudyErrorResId = result.error.toWordStudyErrorResource(),
+                            )
+                        }
+                    }
+                }
+            }
+    }
 
     fun onAction(action: DetailAction) {
         when (action) {
+            DetailAction.OnGenerateWordStudy, DetailAction.OnRetryWordStudy -> {
+                generateStudy()
+            }
+
+            DetailAction.OnConfigureAi -> {
+                viewModelScope.launch { _events.send(DetailEvent.NavigateToAiSettings) }
+            }
+
             is DetailAction.OnStarted -> {
-                observeSavedState(action.word)
+                if (currentWord != action.word || currentLanguage != action.language) invalidateStudy()
+                val wordChanged = currentWord?.word != action.word.word
+                currentWord = action.word
+                currentLanguage = action.language
+                if (wordChanged) observeSavedState(action.word.word.lowercase())
             }
 
             is DetailAction.OnBookmarkClick -> {
@@ -183,3 +284,20 @@ class DetailViewModel(
             }
     }
 }
+
+private data class StudyKey(
+    val word: ListWordModel,
+    val language: String,
+    val revision: Long,
+    val mode: AiProviderMode,
+)
+
+private fun DataError.toWordStudyErrorResource(): StringResource =
+    when (this) {
+        DataError.TooManyRequests -> Res.string.ai_word_study_error_rate_limited
+        DataError.NoInternet -> Res.string.ai_word_study_error_no_internet
+        DataError.RequestTimeout -> Res.string.ai_word_study_error_timeout
+        DataError.BadRequest -> Res.string.ai_word_study_error_invalid_request
+        DataError.ServiceUnavailable, DataError.ServerError, DataError.AiProviderFailure -> Res.string.ai_word_study_error_unavailable
+        else -> Res.string.ai_word_study_error_generic
+    }

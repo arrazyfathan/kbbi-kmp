@@ -3,6 +3,8 @@ package com.arrazyfathan.kbbi.feature.wordstudy.data
 import java.util.prefs.Preferences
 
 internal actual object AiConfigurationPlatformStore {
+    actual fun credentialsAreSessionOnly() = false
+
     private val metadata =
         Preferences.userNodeForPackage(AiConfigurationPlatformStore::class.java).node("ai")
 

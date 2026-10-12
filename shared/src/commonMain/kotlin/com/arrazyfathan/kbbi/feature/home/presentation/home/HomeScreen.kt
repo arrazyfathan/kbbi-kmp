@@ -33,13 +33,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -65,6 +63,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
+import com.arrazyfathan.kbbi.core.platform.Haptics
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme
@@ -79,27 +82,12 @@ import com.arrazyfathan.kbbi.showToast
 import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.did_you_mean_label
 import kbbi_kmp.shared.generated.resources.empty_top_words
-import kbbi_kmp.shared.generated.resources.explore_title
-import kbbi_kmp.shared.generated.resources.figure_menu_subtitle
-import kbbi_kmp.shared.generated.resources.figure_menu_title
 import kbbi_kmp.shared.generated.resources.hero_home
 import kbbi_kmp.shared.generated.resources.hero_image_text
-import kbbi_kmp.shared.generated.resources.home_menu_subtitle
-import kbbi_kmp.shared.generated.resources.home_menu_title
-import kbbi_kmp.shared.generated.resources.ic_chevron_down
-import kbbi_kmp.shared.generated.resources.ic_explore
-import kbbi_kmp.shared.generated.resources.ic_explore_selected
-import kbbi_kmp.shared.generated.resources.ic_figure
 import kbbi_kmp.shared.generated.resources.ic_history
-import kbbi_kmp.shared.generated.resources.ic_proverb
 import kbbi_kmp.shared.generated.resources.ic_search
-import kbbi_kmp.shared.generated.resources.ic_settings
-import kbbi_kmp.shared.generated.resources.proverb_menu_subtitle
-import kbbi_kmp.shared.generated.resources.proverb_menu_title
 import kbbi_kmp.shared.generated.resources.retry
 import kbbi_kmp.shared.generated.resources.search_word_list_hint
-import kbbi_kmp.shared.generated.resources.settings_menu_subtitle
-import kbbi_kmp.shared.generated.resources.settings_menu_title
 import kbbi_kmp.shared.generated.resources.subtitle_text
 import kbbi_kmp.shared.generated.resources.top_words_label
 import kbbi_kmp.shared.generated.resources.top_words_loading
@@ -107,6 +95,7 @@ import kbbi_kmp.shared.generated.resources.welcome_text
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.foundation.lazy.items as lazyColumnItems
 import androidx.compose.foundation.lazy.items as lazyRowItems
@@ -120,8 +109,10 @@ fun HomeScreen(
     onNavigateToProverb: () -> Unit,
     onNavigateToFigure: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToAiSettings: () -> Unit = {},
 ) {
     val viewModel: HomeViewModel = koinViewModel()
+    val haptics: Haptics = koinInject()
     val speechInput = rememberHomeSpeechInput()
     if (isHomeVoiceSearchEnabled) {
         BindHomeSpeechLifecycle { viewModel.onAction(HomeAction.StopVoice) }
@@ -166,32 +157,43 @@ fun HomeScreen(
         onNavigateToProverb = onNavigateToProverb,
         onNavigateToFigure = onNavigateToFigure,
         onNavigateToSettings = onNavigateToSettings,
+        onNavigateToAiSettings = onNavigateToAiSettings,
         modifier = modifier,
         onVoiceSearchClick = {
             if (isHomeVoiceSearchEnabled) viewModel.onAction(HomeAction.StartVoice(speechInput))
         },
         onVoiceSearchCancel = { viewModel.onAction(HomeAction.CancelVoice) },
+        onExploreToggle = { haptics.perform(com.arrazyfathan.kbbi.core.platform.HapticFeedback.TAP) },
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeContent(
+    modifier: Modifier = Modifier,
     state: HomeState,
     onAction: (HomeAction) -> Unit,
     onNavigateToProverb: () -> Unit,
     onNavigateToFigure: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    modifier: Modifier = Modifier,
+    onNavigateToAiSettings: () -> Unit = {},
     onVoiceSearchClick: () -> Unit = {},
     onVoiceSearchCancel: () -> Unit = {},
     voiceSearchEnabled: Boolean = isHomeVoiceSearchEnabled,
+    onExploreToggle: () -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     val searchFocusRequester = remember { FocusRequester() }
-    var showBottomSheet by remember { mutableStateOf(false) }
+    var showExploreMenu by remember { mutableStateOf(false) }
+    val exploreBackState = rememberNavigationEventState(NavigationEventInfo.None)
+    if (LocalNavigationEventDispatcherOwner.current != null) {
+        NavigationBackHandler(
+            state = exploreBackState,
+            isBackEnabled = showExploreMenu,
+            onBackCompleted = { showExploreMenu = false },
+        )
+    }
 
-    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
     val voiceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     LaunchedEffect(state.isSearchFocused) {
@@ -492,40 +494,33 @@ fun HomeContent(
             }
         }
 
-        Surface(
-            onClick = { showBottomSheet = !showBottomSheet },
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 96.dp),
-            shape = RoundedCornerShape(100.dp),
-            color = Color.White,
-            shadowElevation = 2.dp,
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    painter = painterResource(if (showBottomSheet) Res.drawable.ic_explore_selected else Res.drawable.ic_explore),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    stringResource(Res.string.explore_title),
-                    color = TextH1,
-                    fontFamily = InterFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
-                )
-                Spacer(Modifier.width(4.dp))
-                Icon(
-                    painter = painterResource(Res.drawable.ic_chevron_down),
-                    contentDescription = null,
-                    tint = TextP,
-                    modifier = Modifier.size(16.dp),
-                )
-            }
-        }
+        ExploreToggle(
+            isExpanded = showExploreMenu,
+            onToggle = {
+                onExploreToggle()
+                showExploreMenu = !showExploreMenu
+            },
+            onNavigateToProverb = {
+                showExploreMenu = false
+                onNavigateToProverb()
+            },
+            onNavigateToFigure = {
+                showExploreMenu = false
+                onNavigateToFigure()
+            },
+            onNavigateToSettings = {
+                showExploreMenu = false
+                onNavigateToSettings()
+            },
+            onNavigateToAiSettings = {
+                showExploreMenu = false
+                onNavigateToAiSettings()
+            },
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(start = 16.dp, end = 16.dp, bottom = 96.dp),
+        )
 
         if (voiceSearchEnabled && state.isVoiceListening) {
             ModalBottomSheet(
@@ -542,81 +537,6 @@ fun HomeContent(
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                             .padding(bottom = 32.dp),
                 )
-            }
-        }
-
-        // Modal Bottom Sheet Menu
-        if (showBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showBottomSheet = false },
-                sheetState = sheetState,
-                containerColor = Color.White,
-                shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
-            ) {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .padding(bottom = 32.dp),
-                ) {
-                    Text(
-                        text = stringResource(Res.string.home_menu_title),
-                        color = TextH1,
-                        fontSize = 20.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Bold,
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = stringResource(Res.string.home_menu_subtitle),
-                        color = TextP,
-                        fontSize = 14.sp,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Normal,
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        HomeMenuCard(
-                            icon = Res.drawable.ic_proverb,
-                            title = stringResource(Res.string.proverb_menu_title),
-                            subtitle = stringResource(Res.string.proverb_menu_subtitle),
-                            onClick = {
-                                showBottomSheet = false
-                                onNavigateToProverb()
-                            },
-                            modifier = Modifier.weight(1f),
-                        )
-
-                        HomeMenuCard(
-                            icon = Res.drawable.ic_figure,
-                            title = stringResource(Res.string.figure_menu_title),
-                            subtitle = stringResource(Res.string.figure_menu_subtitle),
-                            onClick = {
-                                showBottomSheet = false
-                                onNavigateToFigure()
-                            },
-                            modifier = Modifier.weight(1f),
-                        )
-                        HomeMenuCard(
-                            icon = Res.drawable.ic_settings,
-                            title = stringResource(Res.string.settings_menu_title),
-                            subtitle = stringResource(Res.string.settings_menu_subtitle),
-                            onClick = {
-                                showBottomSheet = false
-                                onNavigateToSettings()
-                            },
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                }
             }
         }
     }

@@ -16,6 +16,8 @@ import kotlinx.serialization.json.Json
 import kotlin.random.Random
 
 internal expect object AiConfigurationPlatformStore {
+    fun credentialsAreSessionOnly(): Boolean
+
     fun isSecretStoreAvailable(): Boolean
 
     fun read(key: String): String?
@@ -36,6 +38,7 @@ internal expect object AiConfigurationPlatformStore {
 class AiConfigurationStore(
     private val json: Json,
 ) : AiConfigurationRepository {
+    override val credentialsAreSessionOnly get() = AiConfigurationPlatformStore.credentialsAreSessionOnly()
     private val mutex = Mutex()
     private val mutableConfiguration = MutableStateFlow(loadConfiguration())
     override val configuration = mutableConfiguration.asStateFlow()
@@ -183,9 +186,7 @@ class AiConfigurationStore(
                         current.selectedCustomProviderId.takeUnless { it == providerId }
                             ?: providers.firstOrNull()?.id,
                     providerMode =
-                        if (providers.isEmpty() &&
-                            current.providerMode == AiProviderMode.CUSTOM
-                        ) {
+                        if (providers.isEmpty() && current.providerMode == AiProviderMode.CUSTOM) {
                             AiProviderMode.BACKEND
                         } else {
                             current.providerMode

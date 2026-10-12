@@ -22,7 +22,7 @@
 - [x] Person opens Home → Words → detail → back, Bookmarks → saved detail → back, and Home → Proverb/Figures/Settings → detail/legal → back; checks tab selection, list position, and independent stacks.
 - [x] Person checks English → Indonesian while on Settings and confirms navigation remains on Settings; checks screen restoration after background/process recreation on native targets.
 - [x] Person cold-opens and refreshes browser `#/word/bahasa`, `#/figure/<existing-slug>`, `#/proverb/<existing-slug>`, `#/settings`, `#/privacy`, `#/terms`, and `#/licenses`; checks back/forward restores the previous tab and detail.
-- [x] Person checks `#/unknown`, `#/word/%ZZ`, oversized arguments, and reserved `#/ai-settings`/`#/update` return to Home without crashes; opening the same available route does not duplicate it.
+- [x] Person checks `#/unknown`, `#/word/%ZZ`, oversized arguments, and reserved `#/update` return to Home without crashes; opening the same available route does not duplicate it.
 - [x] Person checks cached word detail opens offline after reload and uncached failures offer retry/back.
 - [ ] Person checks native/shared incoming-request delivery and acknowledgement when Plan 21 supplies the platform adapters; repeats the same request identity to confirm it is consumed once.
 - [x] Android, iOS Simulator framework, desktop JVM, Browser JS and Browser Wasm compilation passed on 2026-10-12 (including both web app shells). No agent device or browser interaction performed; the person confirmed the six manual checks above on 2026-10-12.
@@ -36,3 +36,5 @@ Every implemented source destination is wired. Full AI Settings and update UI re
 ## Manual acceptance
 
 On 2026-10-12, the person confirmed all six navigation/source-comparison, route restoration, language-switching, browser routing/history, invalid-link and offline-detail checks above passed. Native incoming-request delivery and acknowledgement remain pending Plan 21.
+
+Plan 18 implements `#/ai-settings`; its cold-open/refresh and back-navigation acceptance is now recorded in Plan 18 rather than as a reserved-route fallback. The prior Plan 14 person review predates this destination.

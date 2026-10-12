@@ -5,6 +5,7 @@ import org.koin.core.module.Module
 
 interface Platform {
     val name: String
+    val supportsNativeToast: Boolean get() = false
 }
 
 expect fun getPlatform(): Platform

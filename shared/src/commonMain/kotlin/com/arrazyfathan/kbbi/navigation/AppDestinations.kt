@@ -79,7 +79,7 @@ internal val navigationSavedStateConfiguration =
             }
     }
 
-// Reserved route identities; their destination UIs are owned by Plans 18 and 25.
+// AI settings is implemented; app update remains owned by Plan 25.
 @Serializable
 @SerialName("ai-settings")
 internal data object AiSettingsKey : NavKey

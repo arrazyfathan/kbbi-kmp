@@ -11,6 +11,8 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 internal actual object AiConfigurationPlatformStore {
+    actual fun credentialsAreSessionOnly() = false
+
     actual fun isSecretStoreAvailable() = true
 
     private val metadata

@@ -35,11 +35,15 @@ data class DetailKey(
     val word: String,
 ) : NavKey
 
-fun EntryProviderScope<NavKey>.detailEntry(onNavigateBack: () -> Unit) {
+fun EntryProviderScope<NavKey>.detailEntry(
+    onNavigateBack: () -> Unit,
+    onNavigateToAiSettings: () -> Unit,
+) {
     entry<DetailKey>(clazzContentKey = DestinationParser::path) { key ->
         WordDetailRoot(
             key.word,
             onNavigateBack,
+            onNavigateToAiSettings,
         )
     }
 }
@@ -48,13 +52,14 @@ fun EntryProviderScope<NavKey>.detailEntry(onNavigateBack: () -> Unit) {
 private fun WordDetailRoot(
     word: String,
     onNavigateBack: () -> Unit,
+    onNavigateToAiSettings: () -> Unit,
 ) {
     val viewModel: WordDetailRouteViewModel = koinViewModel(key = "word-detail:$word")
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(word) { viewModel.load(word) }
     val loadedWord = state.word
     if (loadedWord != null) {
-        DetailRoute(loadedWord)
+        DetailRoute(loadedWord, onNavigateToAiSettings)
     } else {
         Column(
             Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(24.dp),
@@ -74,6 +79,9 @@ private fun WordDetailRoot(
 }
 
 @Composable
-fun DetailRoute(listWordModel: ListWordModel) {
-    DetailScreen(listWordModel = listWordModel)
+fun DetailRoute(
+    listWordModel: ListWordModel,
+    onNavigateToAiSettings: () -> Unit = {},
+) {
+    DetailScreen(listWordModel = listWordModel, onNavigateToAiSettings = onNavigateToAiSettings)
 }
