@@ -38,6 +38,15 @@ class HttpClientFactory(
             }
             install(Logging) {
                 level = LogLevel.BODY
+                // Spoken words enter the ordinary lookup/translation path after confirmation.
+                // Keep those URLs and response bodies out of logs for both input methods.
+                filter { request ->
+                    request.url
+                        .build()
+                        .encodedPath
+                        .split('/')
+                        .none { it == "search" || it == "translate" }
+                }
                 logger =
                     object : Logger {
                         override fun log(message: String) {

@@ -1,10 +1,5 @@
 package com.arrazyfathan.kbbi.feature.home.presentation.home
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberBottomSheetState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -81,15 +77,11 @@ import com.arrazyfathan.kbbi.core.presentation.ui.asStringNonComposable
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.showToast
 import kbbi_kmp.shared.generated.resources.Res
-import kbbi_kmp.shared.generated.resources.button_search
 import kbbi_kmp.shared.generated.resources.did_you_mean_label
 import kbbi_kmp.shared.generated.resources.empty_top_words
-import kbbi_kmp.shared.generated.resources.figure_menu_title
-import kbbi_kmp.shared.generated.resources.figure_menu_subtitle
-import kbbi_kmp.shared.generated.resources.settings_menu_title
-import kbbi_kmp.shared.generated.resources.settings_menu_subtitle
-import kbbi_kmp.shared.generated.resources.ic_settings
 import kbbi_kmp.shared.generated.resources.explore_title
+import kbbi_kmp.shared.generated.resources.figure_menu_subtitle
+import kbbi_kmp.shared.generated.resources.figure_menu_title
 import kbbi_kmp.shared.generated.resources.hero_home
 import kbbi_kmp.shared.generated.resources.hero_image_text
 import kbbi_kmp.shared.generated.resources.home_menu_subtitle
@@ -101,10 +93,13 @@ import kbbi_kmp.shared.generated.resources.ic_figure
 import kbbi_kmp.shared.generated.resources.ic_history
 import kbbi_kmp.shared.generated.resources.ic_proverb
 import kbbi_kmp.shared.generated.resources.ic_search
+import kbbi_kmp.shared.generated.resources.ic_settings
 import kbbi_kmp.shared.generated.resources.proverb_menu_subtitle
 import kbbi_kmp.shared.generated.resources.proverb_menu_title
 import kbbi_kmp.shared.generated.resources.retry
 import kbbi_kmp.shared.generated.resources.search_word_list_hint
+import kbbi_kmp.shared.generated.resources.settings_menu_subtitle
+import kbbi_kmp.shared.generated.resources.settings_menu_title
 import kbbi_kmp.shared.generated.resources.subtitle_text
 import kbbi_kmp.shared.generated.resources.top_words_label
 import kbbi_kmp.shared.generated.resources.top_words_loading
@@ -127,6 +122,13 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
+    val speechInput = rememberHomeSpeechInput()
+    if (isHomeVoiceSearchEnabled) {
+        BindHomeSpeechLifecycle { viewModel.onAction(HomeAction.StopVoice) }
+    }
+    DisposableEffect(viewModel) {
+        onDispose { viewModel.onAction(HomeAction.StopVoice) }
+    }
     val loadingController = LocalAppLoadingController.current
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -165,6 +167,10 @@ fun HomeScreen(
         onNavigateToFigure = onNavigateToFigure,
         onNavigateToSettings = onNavigateToSettings,
         modifier = modifier,
+        onVoiceSearchClick = {
+            if (isHomeVoiceSearchEnabled) viewModel.onAction(HomeAction.StartVoice(speechInput))
+        },
+        onVoiceSearchCancel = { viewModel.onAction(HomeAction.CancelVoice) },
     )
 }
 
@@ -177,12 +183,16 @@ fun HomeContent(
     onNavigateToFigure: () -> Unit,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    onVoiceSearchClick: () -> Unit = {},
+    onVoiceSearchCancel: () -> Unit = {},
+    voiceSearchEnabled: Boolean = isHomeVoiceSearchEnabled,
 ) {
     val focusManager = LocalFocusManager.current
     val searchFocusRequester = remember { FocusRequester() }
     var showBottomSheet by remember { mutableStateOf(false) }
 
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+    val voiceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     LaunchedEffect(state.isSearchFocused) {
         if (state.isSearchFocused) searchFocusRequester.requestFocus()
@@ -244,16 +254,17 @@ fun HomeContent(
             Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     // Search Bar Row
-                    Box(
+                    Row(
                         modifier = Modifier.fillMaxWidth().height(55.dp),
-                        contentAlignment = Alignment.CenterEnd,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         TextField(
                             value = state.searchQuery,
                             onValueChange = { onAction(HomeAction.OnSearchQueryChanged(it)) },
                             modifier =
                                 Modifier
-                                    .fillMaxWidth()
+                                    .weight(1f)
                                     .height(55.dp)
                                     .focusRequester(searchFocusRequester)
                                     .onFocusChanged { onAction(HomeAction.OnSearchFocusChanged(it.isFocused)) },
@@ -301,37 +312,18 @@ fun HomeContent(
                                 ),
                         )
 
-                        // Search Button (Slides In / Out)
-                        this@Column.AnimatedVisibility(
-                            visible = state.searchQuery.isNotBlank(),
-                            enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
-                            exit = slideOutHorizontally(targetOffsetX = { it }) + fadeOut(),
-                            modifier = Modifier.align(Alignment.CenterEnd),
-                        ) {
-                            Surface(
-                                onClick = {
-                                    if (state.searchQuery.isNotBlank()) {
-                                        onAction(HomeAction.OnSearchSubmitted(state.searchQuery))
-                                        focusManager.clearFocus()
-                                    }
-                                },
-                                modifier = Modifier.size(55.dp),
-                                shape = RoundedCornerShape(10.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                            ) {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Icon(
-                                        painter = painterResource(Res.drawable.ic_search),
-                                        contentDescription = stringResource(Res.string.button_search),
-                                        tint = Color.White,
-                                        modifier = Modifier.size(24.dp),
-                                    )
-                                }
-                            }
-                        }
+                        HomeSearchVoiceButton(
+                            query = state.searchQuery,
+                            voiceSearchEnabled = voiceSearchEnabled,
+                            onSearch = {
+                                onAction(HomeAction.OnSearchSubmitted(state.searchQuery))
+                                focusManager.clearFocus()
+                            },
+                            onVoiceSearchClick = {
+                                focusManager.clearFocus()
+                                onVoiceSearchClick()
+                            },
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -531,6 +523,24 @@ fun HomeContent(
                     contentDescription = null,
                     tint = TextP,
                     modifier = Modifier.size(16.dp),
+                )
+            }
+        }
+
+        if (voiceSearchEnabled && state.isVoiceListening) {
+            ModalBottomSheet(
+                onDismissRequest = onVoiceSearchCancel,
+                sheetState = voiceSheetState,
+                containerColor = Color.White,
+                shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp),
+            ) {
+                VoiceSearchBottomSheetContent(
+                    partialText = state.voicePartialText,
+                    onCancel = onVoiceSearchCancel,
+                    modifier =
+                        Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(bottom = 32.dp),
                 )
             }
         }

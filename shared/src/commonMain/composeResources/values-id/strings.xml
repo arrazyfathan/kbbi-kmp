@@ -225,4 +225,15 @@
     <string name="time_picker_title">Pilih waktu</string>
     <string name="time_picker_hour_option">Jam %1$02d</string>
     <string name="time_picker_minute_option">Menit %1$02d</string>
+    <string name="button_voice_search">Pencarian suara</string>
+    <string name="voice_search_listening">Mendengarkan …</string>
+    <string name="voice_search_sheet_title">Mendengarkan</string>
+    <string name="voice_search_sheet_subtitle">Ucapkan sebuah kata bahasa Indonesia.</string>
+    <string name="voice_search_detected_label">Terdeteksi</string>
+    <string name="voice_search_unavailable">Pencarian suara tidak tersedia di perangkat ini.</string>
+    <string name="voice_search_permission_denied">Izin mikrofon diperlukan untuk pencarian suara.</string>
+    <string name="voice_search_cancelled">Pencarian suara dibatalkan.</string>
+    <string name="voice_search_empty_result">Tidak ada ucapan yang dikenali. Silakan coba lagi.</string>
+    <string name="voice_search_busy">Pencarian suara sedang mendengarkan.</string>
+    <string name="voice_search_failed">Pencarian suara gagal. Silakan coba lagi.</string>
 </resources>

@@ -41,6 +41,10 @@ Live status and platform evidence: [parity inventory](parity-inventory.md).
 25. [App updates](25-app-update.md)
 26. [Delivery and verification](26-delivery-verification.md)
 
+## Deferred follow-up
+
+- [ ] [Plan 15 — voice search on iOS, desktop JVM, browser JS and Wasm](15-voice-search.md#later-implementation-on-other-platforms): resume the retained iOS/browser adapters, implement a desktop engine, restore platform bindings and voice UI, and obtain manual platform acceptance. Android voice search is already manually accepted; the other platforms are temporarily disabled.
+
 ## Completion gates
 
 | Target | Required evidence |

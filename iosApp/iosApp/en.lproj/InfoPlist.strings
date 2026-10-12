@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "KBBI uses the microphone when you start voice search.";
+"NSSpeechRecognitionUsageDescription" = "KBBI recognizes spoken Indonesian words for voice search.";

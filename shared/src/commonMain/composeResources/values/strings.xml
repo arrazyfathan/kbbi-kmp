@@ -232,4 +232,15 @@
     <string name="time_picker_title">Choose time</string>
     <string name="time_picker_hour_option">Hour %1$02d</string>
     <string name="time_picker_minute_option">Minute %1$02d</string>
+    <string name="button_voice_search">Voice search</string>
+    <string name="voice_search_listening">Listening …</string>
+    <string name="voice_search_sheet_title">Listening</string>
+    <string name="voice_search_sheet_subtitle">Speak an Indonesian word.</string>
+    <string name="voice_search_detected_label">Detected</string>
+    <string name="voice_search_unavailable">Voice search is unavailable on this device.</string>
+    <string name="voice_search_permission_denied">Microphone permission is required for voice search.</string>
+    <string name="voice_search_cancelled">Voice search cancelled.</string>
+    <string name="voice_search_empty_result">No speech was recognized. Please try again.</string>
+    <string name="voice_search_busy">Voice search is already listening.</string>
+    <string name="voice_search_failed">Voice search failed. Please try again.</string>
 </resources>

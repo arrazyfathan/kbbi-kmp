@@ -78,26 +78,29 @@ kotlin {
 
     sourceSets {
         val commonMain = getByName("commonMain")
-        val sqliteMain = create("sqliteMain") {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.androidx.room.runtime)
-                implementation(libs.androidx.sqlite.bundled)
+        val sqliteMain =
+            create("sqliteMain") {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.androidx.room.runtime)
+                    implementation(libs.androidx.sqlite.bundled)
+                }
             }
-        }
-        val iosMain = create("iosMain") {
-            dependsOn(sqliteMain)
-            dependencies {
-                implementation(libs.ktor.client.darwin)
+        val iosMain =
+            create("iosMain") {
+                dependsOn(sqliteMain)
+                dependencies {
+                    implementation(libs.ktor.client.darwin)
+                }
             }
-        }
-        val webMain = create("webMain") {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.ktor.client.js)
-                implementation(libs.wrappers.browser)
+        val webMain =
+            create("webMain") {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.ktor.client.js)
+                    implementation(libs.wrappers.browser)
+                }
             }
-        }
 
         getByName("androidMain").dependsOn(sqliteMain)
         getByName("jvmMain").dependsOn(sqliteMain)
@@ -107,6 +110,7 @@ kotlin {
         getByName("wasmJsMain").dependsOn(webMain)
 
         androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
             implementation(libs.ktor.client.okhttp)

@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arrazyfathan.kbbi.core.domain.model.AppResult
 import com.arrazyfathan.kbbi.core.domain.model.DataError
+import com.arrazyfathan.kbbi.core.platform.CapabilityResult
+import com.arrazyfathan.kbbi.core.platform.FailureReason
+import com.arrazyfathan.kbbi.core.platform.SpeechInput
 import com.arrazyfathan.kbbi.core.presentation.ui.UiText
 import com.arrazyfathan.kbbi.core.presentation.ui.asUiText
 import com.arrazyfathan.kbbi.feature.home.domain.model.HistoryModel
@@ -17,6 +20,12 @@ import com.arrazyfathan.kbbi.feature.home.domain.usecase.ObserveSearchHistoryUse
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.SearchWordWithHistoryUseCase
 import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.error_random_word_unavailable
+import kbbi_kmp.shared.generated.resources.voice_search_busy
+import kbbi_kmp.shared.generated.resources.voice_search_cancelled
+import kbbi_kmp.shared.generated.resources.voice_search_empty_result
+import kbbi_kmp.shared.generated.resources.voice_search_failed
+import kbbi_kmp.shared.generated.resources.voice_search_permission_denied
+import kbbi_kmp.shared.generated.resources.voice_search_unavailable
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -31,6 +40,8 @@ private const val TOP_WORDS_LIMIT = 5
 @Immutable
 data class HomeState(
     val searchQuery: String = "",
+    val isVoiceListening: Boolean = false,
+    val voicePartialText: String = "",
     val histories: List<HistoryModel> = emptyList(),
     val topWords: List<TopWordUi> = emptyList(),
     val suggestions: List<String> = emptyList(),
@@ -54,6 +65,14 @@ enum class HomeSuggestionMode {
 
 sealed interface HomeAction {
     data object OnStarted : HomeAction
+
+    data class StartVoice(
+        val speechInput: SpeechInput,
+    ) : HomeAction
+
+    data object CancelVoice : HomeAction
+
+    data object StopVoice : HomeAction
 
     data class OnSearchQueryChanged(
         val query: String,
@@ -105,6 +124,8 @@ class HomeViewModel(
     private val _events = Channel<HomeEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
+    private var voiceJob: Job? = null
+    private var voiceRequestId = 0L
     private var historiesJob: Job? = null
     private var wordEntriesJob: Job? = null
     private var topWordsJob: Job? = null
@@ -116,6 +137,18 @@ class HomeViewModel(
 
     fun onAction(action: HomeAction) {
         when (action) {
+            is HomeAction.StartVoice -> {
+                startVoice(action.speechInput)
+            }
+
+            HomeAction.CancelVoice -> {
+                cancelVoice(showMessage = true)
+            }
+
+            HomeAction.StopVoice -> {
+                cancelVoice(showMessage = false)
+            }
+
             HomeAction.OnStarted -> {
                 observeHistories()
                 loadWordEntries()
@@ -154,6 +187,86 @@ class HomeViewModel(
                 loadTopWords(force = true)
             }
         }
+    }
+
+    private fun startVoice(speechInput: SpeechInput) {
+        if (voiceJob?.isActive == true || state.value.isLoading) return
+        val requestId = ++voiceRequestId
+        voiceJob =
+            viewModelScope.launch {
+                _state.update { it.copy(voicePartialText = "") }
+                try {
+                    val result =
+                        speechInput.recognizeCandidates(
+                            onReady = {
+                                if (requestId == voiceRequestId) _state.update { it.copy(isVoiceListening = true) }
+                            },
+                        ) { candidates ->
+                            if (requestId == voiceRequestId) {
+                                _state.update {
+                                    it.copy(
+                                        voicePartialText = candidates.firstOrNull().orEmpty(),
+                                    )
+                                }
+                            }
+                        }
+                    if (requestId != voiceRequestId) return@launch
+                    when (result) {
+                        is CapabilityResult.Success -> {
+                            val query = normalizeVoiceSearchCandidates(result.value, wordEntries)
+                            if (query.isBlank()) {
+                                voiceMessage(Res.string.voice_search_empty_result)
+                            } else {
+                                updateSearchQuery(query)
+                            }
+                        }
+
+                        CapabilityResult.Denied -> {
+                            voiceMessage(Res.string.voice_search_permission_denied)
+                        }
+
+                        CapabilityResult.Unavailable -> {
+                            voiceMessage(Res.string.voice_search_unavailable)
+                        }
+
+                        is CapabilityResult.Failed -> {
+                            voiceMessage(
+                                when (result.reason) {
+                                    FailureReason.SPEECH_EMPTY -> Res.string.voice_search_empty_result
+                                    FailureReason.SPEECH_BUSY -> Res.string.voice_search_busy
+                                    else -> Res.string.voice_search_failed
+                                },
+                            )
+                        }
+                    }
+                } catch (cancellation: CancellationException) {
+                    throw cancellation
+                } catch (_: Exception) {
+                    if (requestId == voiceRequestId) voiceMessage(Res.string.voice_search_failed)
+                } finally {
+                    if (requestId == voiceRequestId) {
+                        _state.update {
+                            it.copy(
+                                isVoiceListening = false,
+                                voicePartialText = "",
+                            )
+                        }
+                    }
+                }
+            }
+    }
+
+    private fun cancelVoice(showMessage: Boolean) {
+        val wasListening = state.value.isVoiceListening
+        ++voiceRequestId
+        voiceJob?.cancel()
+        voiceJob = null
+        _state.update { it.copy(isVoiceListening = false, voicePartialText = "") }
+        if (showMessage && wasListening) viewModelScope.launch { voiceMessage(Res.string.voice_search_cancelled) }
+    }
+
+    private suspend fun voiceMessage(resource: org.jetbrains.compose.resources.StringResource) {
+        _events.send(HomeEvent.ShowMessage(UiText.StringResource(resource)))
     }
 
     private fun observeHistories() {
@@ -298,9 +411,7 @@ class HomeViewModel(
                                 it.copy(
                                     suggestions = suggestions,
                                     suggestionMode =
-                                        if (result.error ==
-                                            DataError.NotFound
-                                        ) {
+                                        if (result.error == DataError.NotFound) {
                                             HomeSuggestionMode.DidYouMean
                                         } else {
                                             HomeSuggestionMode.Search

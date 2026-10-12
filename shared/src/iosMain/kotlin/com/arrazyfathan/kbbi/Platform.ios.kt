@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
 package com.arrazyfathan.kbbi
 
 import androidx.compose.runtime.Composable
@@ -27,10 +29,6 @@ import io.ktor.client.engine.darwin.Darwin
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import platform.Foundation.NSBundle
-import platform.UIKit.UIAlertAction
-import platform.UIKit.UIAlertActionStyleDefault
-import platform.UIKit.UIAlertController
-import platform.UIKit.UIAlertControllerStyleAlert
 import platform.UIKit.UIApplication
 import platform.UIKit.UIDevice
 
@@ -60,24 +58,50 @@ actual fun BindSystemBarColor(isDetailVisible: Boolean) {
     // No-op on iOS
 }
 
+private var activeToast: platform.UIKit.UIView? = null
+
 actual fun showToast(message: String) {
-    val keyWindow = UIApplication.sharedApplication.keyWindow
-    val rootViewController = keyWindow?.rootViewController
-    if (rootViewController != null) {
-        val alert =
-            UIAlertController.alertControllerWithTitle(
-                title = null,
-                message = message,
-                preferredStyle = UIAlertControllerStyleAlert,
-            )
-        alert.addAction(
-            UIAlertAction.actionWithTitle(
-                title = "OK",
-                style = UIAlertActionStyleDefault,
-                handler = null,
-            ),
-        )
-        rootViewController.presentViewController(alert, animated = true, completion = null)
+    platform.darwin.dispatch_async(platform.darwin.dispatch_get_main_queue()) {
+        val window = UIApplication.sharedApplication.keyWindow ?: return@dispatch_async
+        activeToast?.removeFromSuperview()
+        val bubble = platform.UIKit.UIView().apply {
+            translatesAutoresizingMaskIntoConstraints = false
+            backgroundColor = platform.UIKit.UIColor.blackColor.colorWithAlphaComponent(0.85)
+            layer.cornerRadius = 12.0
+            userInteractionEnabled = false
+            alpha = 0.0
+        }
+        val label = platform.UIKit.UILabel().apply {
+            translatesAutoresizingMaskIntoConstraints = false
+            text = message
+            textColor = platform.UIKit.UIColor.whiteColor
+            font = platform.UIKit.UIFont.systemFontOfSize(14.0)
+            numberOfLines = 0
+            textAlignment = platform.UIKit.NSTextAlignmentCenter
+        }
+        bubble.addSubview(label)
+        window.addSubview(bubble)
+        platform.UIKit.NSLayoutConstraint.activateConstraints(listOf(
+            bubble.centerXAnchor.constraintEqualToAnchor(window.centerXAnchor),
+            bubble.bottomAnchor.constraintEqualToAnchor(window.safeAreaLayoutGuide.bottomAnchor, constant = -24.0),
+            bubble.leadingAnchor.constraintGreaterThanOrEqualToAnchor(window.leadingAnchor, constant = 20.0),
+            bubble.trailingAnchor.constraintLessThanOrEqualToAnchor(window.trailingAnchor, constant = -20.0),
+            label.leadingAnchor.constraintEqualToAnchor(bubble.leadingAnchor, constant = 16.0),
+            label.trailingAnchor.constraintEqualToAnchor(bubble.trailingAnchor, constant = -16.0),
+            label.topAnchor.constraintEqualToAnchor(bubble.topAnchor, constant = 12.0),
+            label.bottomAnchor.constraintEqualToAnchor(bubble.bottomAnchor, constant = -12.0),
+        ))
+        activeToast = bubble
+        platform.UIKit.UIView.animateWithDuration(0.15, animations = { bubble.alpha = 1.0 })
+        platform.darwin.dispatch_after(
+            platform.darwin.dispatch_time(platform.darwin.DISPATCH_TIME_NOW, 2_000_000_000L),
+            platform.darwin.dispatch_get_main_queue(),
+        ) {
+            platform.UIKit.UIView.animateWithDuration(0.2, animations = { bubble.alpha = 0.0 }, completion = {
+                bubble.removeFromSuperview()
+                if (activeToast === bubble) activeToast = null
+            })
+        }
     }
 }
 

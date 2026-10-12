@@ -24,7 +24,7 @@ import com.arrazyfathan.kbbi.core.platform.SpeechInput
 import com.arrazyfathan.kbbi.core.platform.TextShare
 import com.arrazyfathan.kbbi.core.platform.UnsupportedAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.UnsupportedNotificationPermission
-import com.arrazyfathan.kbbi.core.platform.UnsupportedSpeechInput
+import com.arrazyfathan.kbbi.core.platform.AndroidSpeechInput
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
 import com.arrazyfathan.kbbi.core.domain.visitor.StoredVisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
@@ -51,7 +51,7 @@ actual val platformModule: Module =
         single<UrlOpener> { AndroidUrlOpener() }
         single<LocaleProvider> { AndroidLocaleProvider() }
         single<PlatformHaptics> { AndroidHaptics() }
-        single<SpeechInput> { UnsupportedSpeechInput }
+        single<SpeechInput> { AndroidSpeechInput(appContext) }
         single<NotificationPermission> { UnsupportedNotificationPermission }
         single<AlternateAppIcon> { UnsupportedAlternateAppIcon }
         single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }

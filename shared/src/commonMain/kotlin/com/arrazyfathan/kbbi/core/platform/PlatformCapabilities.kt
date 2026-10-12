@@ -22,6 +22,8 @@ enum class FailureReason {
     INVALID_INPUT,
     PLATFORM_ERROR,
     UNKNOWN,
+    SPEECH_EMPTY,
+    SPEECH_BUSY,
 }
 
 @Immutable
@@ -68,6 +70,20 @@ object UnsupportedPlatformHaptics : PlatformHaptics {
 
 fun interface SpeechInput {
     suspend fun recognize(): CapabilityResult<String>
+
+    /** Session is owned by the calling coroutine; cancellation releases the microphone. */
+    suspend fun recognizeCandidates(
+        onReady: () -> Unit = {},
+        onPartial: (List<String>) -> Unit,
+    ): CapabilityResult<List<String>> {
+        onReady()
+        return when (val result = recognize()) {
+            is CapabilityResult.Success -> CapabilityResult.Success(listOf(result.value))
+            is CapabilityResult.Failed -> result
+            CapabilityResult.Denied -> CapabilityResult.Denied
+            CapabilityResult.Unavailable -> CapabilityResult.Unavailable
+        }
+    }
 }
 
 fun interface NotificationPermission {
@@ -111,6 +127,11 @@ fun interface IncomingLaunchRequests {
 
 object UnsupportedSpeechInput : SpeechInput {
     override suspend fun recognize(): CapabilityResult<String> = CapabilityResult.Unavailable
+
+    override suspend fun recognizeCandidates(
+        onReady: () -> Unit,
+        onPartial: (List<String>) -> Unit,
+    ): CapabilityResult<List<String>> = CapabilityResult.Unavailable
 }
 
 object UnsupportedTextShare : TextShare {
