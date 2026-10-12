@@ -2,6 +2,9 @@ package com.arrazyfathan.kbbi.core.presentation.ui
 
 import com.arrazyfathan.kbbi.core.domain.model.DataError
 import kbbi_kmp.shared.generated.resources.Res
+import kbbi_kmp.shared.generated.resources.ai_invalid_content
+import kbbi_kmp.shared.generated.resources.ai_provider_failure
+import kbbi_kmp.shared.generated.resources.ai_provider_not_configured
 import kbbi_kmp.shared.generated.resources.error_bad_request
 import kbbi_kmp.shared.generated.resources.error_conflict
 import kbbi_kmp.shared.generated.resources.error_empty_body
@@ -34,6 +37,9 @@ fun DataError.asUiText(): UiText =
         DataError.ServiceUnavailable -> UiText.StringResource(Res.string.error_service_unavailable)
         DataError.EmptyBody -> UiText.StringResource(Res.string.error_empty_body)
         DataError.Serialization -> UiText.StringResource(Res.string.error_serialization)
+        DataError.AiProviderNotConfigured -> UiText.StringResource(Res.string.ai_provider_not_configured)
+        DataError.AiInvalidContent -> UiText.StringResource(Res.string.ai_invalid_content)
+        DataError.AiProviderFailure -> UiText.StringResource(Res.string.ai_provider_failure)
         is DataError.Remote -> UiText.DynamicString(message)
         DataError.Unknown -> UiText.StringResource(Res.string.error_unknown)
     }

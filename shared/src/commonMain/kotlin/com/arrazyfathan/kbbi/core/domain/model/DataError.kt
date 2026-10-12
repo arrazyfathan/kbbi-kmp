@@ -29,6 +29,12 @@ sealed interface DataError : AppError {
 
     data object Serialization : DataError
 
+    data object AiProviderNotConfigured : DataError
+
+    data object AiInvalidContent : DataError
+
+    data object AiProviderFailure : DataError
+
     data class Remote(
         val message: String,
     ) : DataError

@@ -41,11 +41,16 @@ class HttpClientFactory(
                 // Spoken words enter the ordinary lookup/translation path after confirmation.
                 // Keep those URLs and response bodies out of logs for both input methods.
                 filter { request ->
-                    request.url
-                        .build()
-                        .encodedPath
-                        .split('/')
-                        .none { it == "search" || it == "translate" }
+                    request.url.build().encodedPath.split('/').none {
+                        it in
+                            setOf(
+                                "search",
+                                "translate",
+                                "chat",
+                                "completions",
+                                "word-study",
+                            )
+                    }
                 }
                 logger =
                     object : Logger {

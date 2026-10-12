@@ -9,15 +9,19 @@
 
 ## Implementation
 
-1. Port `feature/wordstudy` models, provider catalog, repository contracts, and generation use cases.
-2. Implement backend provider discovery/generation and custom chat-completion request/response mapping using shared Ktor.
-3. Preserve source language selection, prompt rules, minimum result validation, and distinction between KBBI and AI-generated definitions.
-4. Return typed errors for missing provider, invalid content, timeout, and provider response failures; preserve coroutine cancellation.
-5. Keep API keys out of URL, logging, reporting, persisted study result, and diagnostic context.
+Completed in shared common code:
+
+- Added word-study/provider models, repository contracts, and `GenerateWordStudyUseCase`; the AI configuration repository interface is available for Plan 17's persistence implementation.
+- Added backend provider discovery and generation, plus OpenAI-compatible custom-provider generation through shared Ktor.
+- Preserved Indonesian/English prompt rules, KBBI/visitor source formatting, provider attribution, and minimum generated-content validation.
+- Added typed provider-not-configured, invalid-content, provider-failure, and timeout errors. Coroutine cancellation propagates.
+- Custom-provider keys are sent only as bearer authorization, excluded from request/response logging, and omitted from generated result models.
 
 ## Verification
 
-- [ ] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
+- [x] MockEngine and use-case tests cover provider catalog, backend and custom generation, language/source prompt behavior, invalid content/JSON, provider/HTTP errors, and unsafe or missing credentials. `./gradlew --no-daemon :shared:jvmTest --tests '*WordStudy*' --console=plain` passed.
+- [x] Shared request models compile for Android, iOS Simulator, JVM, JS, and Wasm. The Android debug app, iOS framework, Desktop app sources, JS/Wasm shared and web sources, and JS/Wasm tests compiled with `./gradlew --no-daemon :androidApp:assembleDebug :shared:linkDebugFrameworkIosSimulatorArm64 :desktopApp:compileKotlin :shared:compileKotlinJs :shared:compileKotlinWasmJs :shared:compileTestKotlinIosSimulatorArm64 :shared:compileTestKotlinJs :shared:compileTestKotlinWasmJs :webApp:compileKotlinJs :webApp:compileKotlinWasmJs --console=plain`.
+- [ ] Compare any delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. UI remains owned by Plan 18. Any device or simulator interaction must be done manually by a person.
+- [ ] Person manually tests the generated word-study flow on supported devices after Plan 18 exposes it.
 
-- MockEngine tests cover catalog, backend generation, custom generation, invalid JSON/content, and errors.
-- The same request model compiles and executes on Android, iOS, JVM, JS, and Wasm.
+The broader `:shared:jvmTest` run completed 52 tests with four failures in existing `PlatformCapabilitiesTest` and `NavigatorTest` cases; the isolated Plan 16 tests passed. No device or Simulator test was run. Logs: `/tmp/kbbi-plan16-wordstudy-tests.log` and `/tmp/kbbi-plan16-platform-compile.log`.

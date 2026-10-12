@@ -243,4 +243,7 @@
     <string name="voice_search_empty_result">No speech was recognized. Please try again.</string>
     <string name="voice_search_busy">Voice search is already listening.</string>
     <string name="voice_search_failed">Voice search failed. Please try again.</string>
+    <string name="ai_provider_not_configured">Choose and configure an AI provider before generating a study.</string>
+    <string name="ai_invalid_content">The AI provider returned invalid study content.</string>
+    <string name="ai_provider_failure">The AI provider could not complete the request. Please try again.</string>
 </resources>

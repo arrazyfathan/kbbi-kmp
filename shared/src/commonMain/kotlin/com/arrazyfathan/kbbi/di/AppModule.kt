@@ -36,6 +36,8 @@ import com.arrazyfathan.kbbi.feature.proverb.presentation.proverb.ProverbViewMod
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
 import com.arrazyfathan.kbbi.feature.settings.presentation.SettingsViewModel
 import com.arrazyfathan.kbbi.feature.words.presentation.words.WordViewModel
+import com.arrazyfathan.kbbi.feature.wordstudy.data.di.wordStudyDataModule
+import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.GenerateWordStudyUseCase
 import com.arrazyfathan.kbbi.platformModule
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -68,6 +70,7 @@ val useCaseModule =
         factoryOf(::GetFiguresUseCase)
         factoryOf(::GetFigureDetailUseCase)
         factoryOf(::ClearSearchHistoryUseCase)
+        factoryOf(::GenerateWordStudyUseCase)
     }
 
 val viewModelModule =
@@ -92,6 +95,7 @@ fun initKoin(config: KoinAppDeclaration? = null): KoinApplication =
             repositoryModule,
             proverbRepositoryModule,
             figureDataModule,
+            wordStudyDataModule,
             viewModelModule,
             networkModule,
             useCaseModule,

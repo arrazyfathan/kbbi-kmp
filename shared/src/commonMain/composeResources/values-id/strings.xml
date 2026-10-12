@@ -236,4 +236,7 @@
     <string name="voice_search_empty_result">Tidak ada ucapan yang dikenali. Silakan coba lagi.</string>
     <string name="voice_search_busy">Pencarian suara sedang mendengarkan.</string>
     <string name="voice_search_failed">Pencarian suara gagal. Silakan coba lagi.</string>
+    <string name="ai_provider_not_configured">Pilih dan atur penyedia AI sebelum membuat materi belajar.</string>
+    <string name="ai_invalid_content">Penyedia AI memberikan materi belajar yang tidak valid.</string>
+    <string name="ai_provider_failure">Penyedia AI tidak dapat menyelesaikan permintaan. Silakan coba lagi.</string>
 </resources>
