@@ -30,7 +30,11 @@ fun interface TextShare {
 }
 
 fun interface UrlOpener {
+    /** Opens the URL; success means the request was accepted by the platform. */
     fun open(url: String): CapabilityResult<Unit>
+
+    /** Waits for the platform's result when launching URLs is asynchronous. */
+    suspend fun openAndAwait(url: String): CapabilityResult<Unit> = open(url)
 }
 
 fun interface LocaleProvider {
@@ -39,12 +43,27 @@ fun interface LocaleProvider {
 
 enum class HapticFeedback {
     TAP,
+    LONG_PRESS,
     CONFIRM,
     ERROR,
 }
 
 fun interface Haptics {
     fun perform(feedback: HapticFeedback): CapabilityResult<Unit>
+}
+
+interface PlatformHaptics : Haptics
+
+class SettingsAwareHaptics(
+    private val delegate: PlatformHaptics,
+    private val enabled: () -> Boolean,
+) : Haptics {
+    override fun perform(feedback: HapticFeedback): CapabilityResult<Unit> =
+        if (enabled()) delegate.perform(feedback) else CapabilityResult.Success(Unit)
+}
+
+object UnsupportedPlatformHaptics : PlatformHaptics {
+    override fun perform(feedback: HapticFeedback): CapabilityResult<Unit> = CapabilityResult.Unavailable
 }
 
 fun interface SpeechInput {

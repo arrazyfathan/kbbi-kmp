@@ -8,6 +8,8 @@ import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureDetail
 import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureKey
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
 import com.arrazyfathan.kbbi.feature.proverb.presentation.navigation.ProverbKey
+import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.SettingsKey
+import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.LegalDocumentKey
 import com.arrazyfathan.kbbi.feature.words.presentation.navigation.WordsKey
 import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.bookmarks_title
@@ -67,6 +69,8 @@ internal val navigationSavedStateConfiguration =
                     subclass(DetailKey::class, DetailKey.serializer())
                     subclass(FigureKey::class, FigureKey.serializer())
                     subclass(FigureDetailKey::class, FigureDetailKey.serializer())
+                    subclass(SettingsKey::class, SettingsKey.serializer())
+                    subclass(LegalDocumentKey::class, LegalDocumentKey.serializer())
                 }
             }
     }

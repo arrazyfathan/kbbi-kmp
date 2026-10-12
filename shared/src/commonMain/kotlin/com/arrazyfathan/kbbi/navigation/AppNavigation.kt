@@ -47,6 +47,9 @@ import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureDetail
 import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.figureDetailEntry
 import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.figureEntry
 import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureKey
+import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.SettingsKey
+import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.LegalDocumentKey
+import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.settingsEntry
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.homeEntry
@@ -61,12 +64,7 @@ private const val IOS_NAVIGATION_PARALLAX_DIVISOR = 3
 private const val BOTTOM_NAVIGATION_TRANSITION_DURATION_MILLIS = 220
 
 @Composable
-fun MainApp() {
-    val navigationState =
-        rememberNavigationState(
-            startRoute = HomeKey,
-            topLevelRoutes = topLevelRoutes,
-        )
+internal fun MainApp(navigationState: NavigationState) {
     val navigator = remember(navigationState) { Navigator(navigationState) }
     val currentRoute = navigationState.currentRoute
     val isDetailVisible = currentRoute is DetailKey || currentRoute is FigureDetailKey
@@ -93,6 +91,7 @@ fun MainApp() {
                     onNavigateToFigure = {
                         navigator.navigate(FigureKey)
                     },
+                    onNavigateToSettings = { navigator.navigate(SettingsKey) },
                 )
                 wordsEntry(onNavigateToDetail = navigateToDetail)
                 bookmarksEntry(onNavigateToDetail = navigateToDetail)
@@ -108,6 +107,10 @@ fun MainApp() {
                     onNavigateToDetail = { slug -> navigator.navigate(FigureDetailKey(slug)) },
                 )
                 figureDetailEntry(onNavigateBack = { navigator.goBack() })
+                settingsEntry(
+                    onBack = { navigator.goBack() },
+                    onOpenLegal = { document -> navigator.navigate(LegalDocumentKey(document)) },
+                )
                 detailEntry()
             },
         )

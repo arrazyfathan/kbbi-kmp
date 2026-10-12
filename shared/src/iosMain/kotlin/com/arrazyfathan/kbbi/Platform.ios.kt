@@ -5,6 +5,7 @@ import com.arrazyfathan.kbbi.core.data.visitor.IosVisitorIdStorage
 import com.arrazyfathan.kbbi.core.platform.AlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.EmptyIncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.Haptics
+import com.arrazyfathan.kbbi.core.platform.PlatformHaptics
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.IosHaptics
 import com.arrazyfathan.kbbi.core.platform.IosLocaleProvider
@@ -47,7 +48,7 @@ actual val platformModule: Module =
         single<TextShare> { IosTextShare() }
         single<UrlOpener> { IosUrlOpener() }
         single<LocaleProvider> { IosLocaleProvider() }
-        single<Haptics> { IosHaptics() }
+        single<PlatformHaptics> { IosHaptics() }
         single<SpeechInput> { UnsupportedSpeechInput }
         single<NotificationPermission> { UnsupportedNotificationPermission }
         single<AlternateAppIcon> { UnsupportedAlternateAppIcon }

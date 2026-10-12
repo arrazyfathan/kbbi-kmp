@@ -7,6 +7,8 @@ import com.arrazyfathan.kbbi.core.platform.BrowserLocaleProvider
 import com.arrazyfathan.kbbi.core.platform.BrowserUrlOpener
 import com.arrazyfathan.kbbi.core.platform.EmptyIncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.Haptics
+import com.arrazyfathan.kbbi.core.platform.PlatformHaptics
+import com.arrazyfathan.kbbi.core.platform.UnsupportedPlatformHaptics
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.LocaleProvider
 import com.arrazyfathan.kbbi.core.platform.NotificationPermission
@@ -40,7 +42,7 @@ actual val platformModule: Module =
         single<TextShare> { UnsupportedTextShare }
         single<UrlOpener> { BrowserUrlOpener() }
         single<LocaleProvider> { BrowserLocaleProvider() }
-        single<Haptics> { UnsupportedHaptics }
+        single<PlatformHaptics> { UnsupportedPlatformHaptics }
         single<SpeechInput> { UnsupportedSpeechInput }
         single<NotificationPermission> { UnsupportedNotificationPermission }
         single<AlternateAppIcon> { UnsupportedAlternateAppIcon }

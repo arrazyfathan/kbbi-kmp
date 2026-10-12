@@ -86,6 +86,9 @@ import kbbi_kmp.shared.generated.resources.did_you_mean_label
 import kbbi_kmp.shared.generated.resources.empty_top_words
 import kbbi_kmp.shared.generated.resources.figure_menu_title
 import kbbi_kmp.shared.generated.resources.figure_menu_subtitle
+import kbbi_kmp.shared.generated.resources.settings_menu_title
+import kbbi_kmp.shared.generated.resources.settings_menu_subtitle
+import kbbi_kmp.shared.generated.resources.ic_settings
 import kbbi_kmp.shared.generated.resources.explore_title
 import kbbi_kmp.shared.generated.resources.hero_home
 import kbbi_kmp.shared.generated.resources.hero_image_text
@@ -121,6 +124,7 @@ fun HomeScreen(
     onNavigateToDetail: (ListWordModel) -> Unit,
     onNavigateToProverb: () -> Unit,
     onNavigateToFigure: () -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val loadingController = LocalAppLoadingController.current
@@ -159,6 +163,7 @@ fun HomeScreen(
         onAction = viewModel::onAction,
         onNavigateToProverb = onNavigateToProverb,
         onNavigateToFigure = onNavigateToFigure,
+        onNavigateToSettings = onNavigateToSettings,
         modifier = modifier,
     )
 }
@@ -170,6 +175,7 @@ fun HomeContent(
     onAction: (HomeAction) -> Unit,
     onNavigateToProverb: () -> Unit,
     onNavigateToFigure: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
@@ -589,7 +595,16 @@ fun HomeContent(
                             },
                             modifier = Modifier.weight(1f),
                         )
-                        HomeMenuPlaceholderCard(modifier = Modifier.weight(1f))
+                        HomeMenuCard(
+                            icon = Res.drawable.ic_settings,
+                            title = stringResource(Res.string.settings_menu_title),
+                            subtitle = stringResource(Res.string.settings_menu_subtitle),
+                            onClick = {
+                                showBottomSheet = false
+                                onNavigateToSettings()
+                            },
+                            modifier = Modifier.weight(1f),
+                        )
                     }
                 }
             }
@@ -616,6 +631,7 @@ private fun HomeContentPreview() {
             onAction = {},
             onNavigateToProverb = {},
             onNavigateToFigure = {},
+            onNavigateToSettings = {},
         )
     }
 }

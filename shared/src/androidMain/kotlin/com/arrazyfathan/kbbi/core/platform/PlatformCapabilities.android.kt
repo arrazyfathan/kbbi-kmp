@@ -50,7 +50,7 @@ internal class AndroidLocaleProvider : LocaleProvider {
     override fun currentLocaleTag(): String = Locale.getDefault().toLanguageTag()
 }
 
-internal class AndroidHaptics : Haptics {
+internal class AndroidHaptics : PlatformHaptics {
     override fun perform(feedback: HapticFeedback): CapabilityResult<Unit> =
         runCatching {
             val vibrator =
@@ -64,11 +64,17 @@ internal class AndroidHaptics : Haptics {
             val durationMillis =
                 when (feedback) {
                     HapticFeedback.TAP -> 12L
+                    HapticFeedback.LONG_PRESS -> 36L
                     HapticFeedback.CONFIRM -> 24L
                     HapticFeedback.ERROR -> 36L
                 }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(durationMillis, VibrationEffect.DEFAULT_AMPLITUDE))
+                vibrator.vibrate(
+                    VibrationEffect.createOneShot(
+                        durationMillis,
+                        VibrationEffect.DEFAULT_AMPLITUDE,
+                    ),
+                )
             } else {
                 @Suppress("DEPRECATION")
                 vibrator.vibrate(durationMillis)

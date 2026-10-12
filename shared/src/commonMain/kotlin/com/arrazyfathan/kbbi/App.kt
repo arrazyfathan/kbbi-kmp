@@ -1,6 +1,7 @@
 package com.arrazyfathan.kbbi
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -16,26 +17,38 @@ import androidx.compose.material3.MaterialTheme
 import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme
 import com.arrazyfathan.kbbi.feature.splash.presentation.navigation.SplashRoute
 import com.arrazyfathan.kbbi.navigation.MainApp
+import com.arrazyfathan.kbbi.navigation.rememberNavigationState
+import com.arrazyfathan.kbbi.navigation.topLevelRoutes
+import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
+import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
+import org.koin.compose.koinInject
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun App() {
-    KBBITheme {
-        Box(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-        ) {
+    val settings: SettingsPreferenceStore = koinInject()
+    val preferences by settings.preferences.collectAsStateWithLifecycle()
+    var isSplashVisible by rememberSaveable { mutableStateOf(true) }
+    val navigationState = rememberNavigationState(HomeKey, topLevelRoutes)
+    // Platform language is applied before preferences emit. Recreate resource
+    // lookups for the new locale while restoring the current navigation state.
+    key(preferences.language) {
+        KBBITheme(theme = preferences.theme) {
             Box(
-                modifier = Modifier.align(Alignment.Center).widthIn(max = 840.dp).fillMaxSize(),
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             ) {
-                var isSplashVisible by rememberSaveable { mutableStateOf(true) }
-
-                if (isSplashVisible) {
-                    SplashRoute(
-                        onTimeout = {
-                            isSplashVisible = false
-                        },
-                    )
-                } else {
-                    MainApp()
+                Box(
+                    modifier = Modifier.align(Alignment.Center).widthIn(max = 840.dp).fillMaxSize(),
+                ) {
+                    if (isSplashVisible) {
+                        SplashRoute(
+                            onTimeout = {
+                                isSplashVisible = false
+                            },
+                        )
+                    } else {
+                        MainApp(navigationState)
+                    }
                 }
             }
         }

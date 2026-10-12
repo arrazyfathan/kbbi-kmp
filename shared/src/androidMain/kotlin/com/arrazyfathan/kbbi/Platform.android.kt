@@ -16,6 +16,7 @@ import com.arrazyfathan.kbbi.core.platform.AndroidUrlOpener
 import com.arrazyfathan.kbbi.core.platform.AlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.EmptyIncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.Haptics
+import com.arrazyfathan.kbbi.core.platform.PlatformHaptics
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.LocaleProvider
 import com.arrazyfathan.kbbi.core.platform.NotificationPermission
@@ -49,7 +50,7 @@ actual val platformModule: Module =
         single<TextShare> { AndroidTextShare() }
         single<UrlOpener> { AndroidUrlOpener() }
         single<LocaleProvider> { AndroidLocaleProvider() }
-        single<Haptics> { AndroidHaptics() }
+        single<PlatformHaptics> { AndroidHaptics() }
         single<SpeechInput> { UnsupportedSpeechInput }
         single<NotificationPermission> { UnsupportedNotificationPermission }
         single<AlternateAppIcon> { UnsupportedAlternateAppIcon }

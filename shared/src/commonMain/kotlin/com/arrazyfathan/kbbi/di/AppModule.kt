@@ -29,6 +29,10 @@ import com.arrazyfathan.kbbi.feature.proverb.data.di.proverbRepositoryModule
 import com.arrazyfathan.kbbi.feature.proverb.domain.usecase.GetListProverbsUseCase
 import com.arrazyfathan.kbbi.feature.proverb.domain.usecase.GetProverbMeaningUseCase
 import com.arrazyfathan.kbbi.feature.proverb.presentation.proverb.ProverbViewModel
+import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
+import com.arrazyfathan.kbbi.feature.settings.presentation.SettingsViewModel
+import com.arrazyfathan.kbbi.core.platform.Haptics
+import com.arrazyfathan.kbbi.core.platform.SettingsAwareHaptics
 import com.arrazyfathan.kbbi.feature.words.presentation.words.WordViewModel
 import com.arrazyfathan.kbbi.platformModule
 import org.koin.core.KoinApplication
@@ -42,10 +46,11 @@ import org.koin.dsl.module
 val useCaseModule =
     module {
         single { BookmarkLayoutPreferenceStore() }
+        single { SettingsPreferenceStore(get(), get()) }
+        single<Haptics> { SettingsAwareHaptics(get()) { get<SettingsPreferenceStore>().preferences.value.hapticsEnabled } }
         factoryOf(::SearchWordUseCase)
         factoryOf(::SearchWordWithHistoryUseCase)
         factoryOf(::AddSearchHistoryUseCase)
-        factoryOf(::ClearSearchHistoryUseCase)
         factoryOf(::ObserveSearchHistoryUseCase)
         factoryOf(::SaveBookmarkUseCase)
         factoryOf(::DeleteBookmarkUseCase)
@@ -59,6 +64,7 @@ val useCaseModule =
         factoryOf(::GetProverbMeaningUseCase)
         factoryOf(::GetFiguresUseCase)
         factoryOf(::GetFigureDetailUseCase)
+        factoryOf(::ClearSearchHistoryUseCase)
     }
 
 val viewModelModule =
@@ -70,6 +76,7 @@ val viewModelModule =
         viewModelOf(::ProverbViewModel)
         viewModelOf(::FigureViewModel)
         viewModelOf(::FigureDetailViewModel)
+        viewModelOf(::SettingsViewModel)
     }
 
 fun initKoin(config: KoinAppDeclaration? = null): KoinApplication =

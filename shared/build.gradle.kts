@@ -17,6 +17,7 @@ val apiBaseUrl =
     ).firstNotNullOf { it?.trim()?.takeIf(String::isNotEmpty) }
 
 plugins {
+    alias(libs.plugins.aboutlibraries)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
@@ -111,6 +112,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
+            implementation(libs.aboutlibraries.compose.m3)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
@@ -158,6 +160,15 @@ kotlin {
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+
+// Commit this generated resource; refresh it after changing dependencies with
+// ./gradlew --no-daemon :shared:exportLibraryDefinitions
+aboutLibraries {
+    export {
+        outputFile = file("src/commonMain/composeResources/files/aboutlibraries.json")
+        prettyPrint = true
+    }
 }
 
 dependencies {

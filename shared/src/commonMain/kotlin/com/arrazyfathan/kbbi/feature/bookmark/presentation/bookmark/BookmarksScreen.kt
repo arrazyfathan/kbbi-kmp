@@ -71,6 +71,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.arrazyfathan.kbbi.core.platform.HapticFeedback
+import com.arrazyfathan.kbbi.core.platform.Haptics
 import com.arrazyfathan.kbbi.core.presentation.designsystem.Grey
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
@@ -101,6 +103,7 @@ import kbbi_kmp.shared.generated.resources.ic_grid_view
 import kbbi_kmp.shared.generated.resources.ic_list_view
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.foundation.lazy.items as listItems
 
@@ -461,9 +464,9 @@ fun BookmarkItem(
     var isDeleteOverlayVisible by remember { mutableStateOf(false) }
     val aiSourceDescription = stringResource(Res.string.ai_definition_badge)
 
-    val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val haptics: Haptics = koinInject()
     val triggerVibration = {
-        haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+        haptics.perform(HapticFeedback.LONG_PRESS)
     }
 
     Box(
