@@ -5,6 +5,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.arrazyfathan.kbbi.core.domain.model.AppResult
+import com.arrazyfathan.kbbi.core.observability.AnalyticsEvent
+import com.arrazyfathan.kbbi.core.observability.AnalyticsReporter
+import com.arrazyfathan.kbbi.core.observability.ContentType
+import com.arrazyfathan.kbbi.core.observability.EventOutcome
+import com.arrazyfathan.kbbi.core.observability.EventSource
+import com.arrazyfathan.kbbi.core.observability.NoOpAnalyticsReporter
 import com.arrazyfathan.kbbi.core.presentation.ui.UiText
 import com.arrazyfathan.kbbi.core.presentation.ui.asUiText
 import com.arrazyfathan.kbbi.feature.proverb.domain.model.ProverbDetailModel
@@ -60,6 +66,7 @@ sealed interface ProverbEvent {
 class ProverbViewModel(
     observeProverbs: GetListProverbsUseCase,
     private val getProverbMeaning: GetProverbMeaningUseCase,
+    private val analyticsReporter: AnalyticsReporter = NoOpAnalyticsReporter,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ProverbState())
     val state = _state.asStateFlow()
@@ -129,10 +136,18 @@ class ProverbViewModel(
                                 isMeaningLoading = false,
                             )
                         }
+                        analyticsReporter.log(AnalyticsEvent.ProverbOpened(EventOutcome.Success))
+                        analyticsReporter.log(
+                            AnalyticsEvent.ContentOpened(
+                                ContentType.Proverb,
+                                EventSource.ProverbList,
+                            ),
+                        )
                         _events.send(ProverbEvent.MeaningLoaded)
                     }
 
                     is AppResult.Error -> {
+                        analyticsReporter.log(AnalyticsEvent.ProverbOpened(EventOutcome.Error))
                         _state.update { it.copy(isMeaningLoading = false) }
                         _events.send(ProverbEvent.ShowMessage(result.error.asUiText()))
                     }
@@ -154,10 +169,18 @@ class ProverbViewModel(
                                 isMeaningLoading = false,
                             )
                         }
+                        analyticsReporter.log(AnalyticsEvent.ProverbOpened(EventOutcome.Success))
+                        analyticsReporter.log(
+                            AnalyticsEvent.ContentOpened(
+                                ContentType.Proverb,
+                                EventSource.ProverbList,
+                            ),
+                        )
                         _events.send(ProverbEvent.MeaningLoaded)
                     }
 
                     is AppResult.Error -> {
+                        analyticsReporter.log(AnalyticsEvent.ProverbOpened(EventOutcome.Error))
                         _state.update { it.copy(isMeaningLoading = false) }
                         _events.send(ProverbEvent.ShowMessage(result.error.asUiText()))
                     }

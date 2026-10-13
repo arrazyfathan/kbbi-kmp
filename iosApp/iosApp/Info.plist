@@ -2,6 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key><false/>
+    <key>FirebaseAutomaticScreenReportingEnabled</key><false/>
+    <key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key><false/>
+    <key>FirebaseCrashlyticsCollectionEnabled</key><false/>
+    <key>firebase_performance_collection_enabled</key><false/>
+    <key>firebase_performance_instrumentation_enabled</key><false/>
+    <key>KBBIEnvironment</key><string>$(KBBI_ENVIRONMENT)</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>KBBI uses the microphone when you start voice search.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

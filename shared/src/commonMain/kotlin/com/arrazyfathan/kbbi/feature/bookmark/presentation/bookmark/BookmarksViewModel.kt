@@ -3,6 +3,11 @@ package com.arrazyfathan.kbbi.feature.bookmark.presentation.bookmark
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.arrazyfathan.kbbi.core.observability.AnalyticsEvent
+import com.arrazyfathan.kbbi.core.observability.AnalyticsReporter
+import com.arrazyfathan.kbbi.core.observability.AnalyticsScreen
+import com.arrazyfathan.kbbi.core.observability.BookmarkAction
+import com.arrazyfathan.kbbi.core.observability.NoOpAnalyticsReporter
 import com.arrazyfathan.kbbi.feature.bookmark.data.BookmarkLayoutPreferenceStore
 import com.arrazyfathan.kbbi.feature.bookmark.domain.BookmarkLayout
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
@@ -34,6 +39,7 @@ class BookmarksViewModel(
     observeBookmarks: ObserveBookmarksUseCase,
     private val deleteBookmark: DeleteBookmarkUseCase,
     private val bookmarkLayoutPreferenceStore: BookmarkLayoutPreferenceStore,
+    private val analyticsReporter: AnalyticsReporter = NoOpAnalyticsReporter,
 ) : ViewModel() {
     val state: StateFlow<BookmarksState> =
         combine(observeBookmarks(), bookmarkLayoutPreferenceStore.layout) { bookmarks, layout ->
@@ -52,7 +58,17 @@ class BookmarksViewModel(
 
             is BookmarksAction.OnDeleteConfirmed -> {
                 viewModelScope.launch {
-                    deleteBookmark(action.word)
+                    if (deleteBookmark(
+                            action.word,
+                        )
+                    ) {
+                        analyticsReporter.log(
+                            AnalyticsEvent.BookmarkChanged(
+                                BookmarkAction.Removed,
+                                AnalyticsScreen.Bookmarks,
+                            ),
+                        )
+                    }
                 }
             }
         }

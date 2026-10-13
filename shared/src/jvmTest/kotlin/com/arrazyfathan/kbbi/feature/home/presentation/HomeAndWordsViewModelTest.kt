@@ -2,6 +2,11 @@ package com.arrazyfathan.kbbi.feature.home.presentation
 
 import com.arrazyfathan.kbbi.core.domain.model.AppResult
 import com.arrazyfathan.kbbi.core.domain.model.DataError
+import com.arrazyfathan.kbbi.core.observability.AnalyticsReporter
+import com.arrazyfathan.kbbi.core.observability.NoOpAnalyticsReporter
+import com.arrazyfathan.kbbi.core.observability.RecordingBackend
+import com.arrazyfathan.kbbi.core.observability.ReportingController
+import com.arrazyfathan.kbbi.core.observability.ReportingPreferences
 import com.arrazyfathan.kbbi.feature.home.domain.model.HistoryModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.TopWordModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.WordResultModel
@@ -58,6 +63,27 @@ class HomeAndWordsViewModelTest {
     fun tearDown() {
         Dispatchers.resetMain()
     }
+
+    @Test
+    fun suggestionReportsOnlyOneResultAndOpeningWithoutQueryContent() =
+        runTest(mainDispatcher) {
+            val backend = RecordingBackend()
+            val reporter =
+                ReportingController(
+                    backend,
+                    { ReportingPreferences(analyticsEnabled = true) },
+                    "https://api.example.test",
+                )
+            val viewModel = createHomeViewModel(reporter = reporter)
+            viewModel.onAction(HomeAction.OnSearchQueryChanged("ka"))
+            assertTrue(backend.events.isEmpty())
+            viewModel.onAction(HomeAction.OnSuggestionClick("kata"))
+            advanceUntilIdle()
+            assertEquals(listOf("search_completed", "content_opened"), backend.events.map { it.first })
+            assertEquals("suggestion", backend.events.first().second["source"])
+            assertEquals("true", backend.events.first().second["suggestion_used"])
+            assertFalse(backend.events.toString().contains("kata"))
+        }
 
     @Test
     fun homeLoadsTopWordsAndSearchSuggestions() =
@@ -160,18 +186,21 @@ class HomeAndWordsViewModelTest {
             )
         }
 
-    private fun createHomeViewModel(repository: FakeWordSearchRepository = FakeWordSearchRepository()) =
-        HomeViewModel(
-            searchWordWithHistory =
-                SearchWordWithHistoryUseCase(
-                    SearchWordUseCase(repository),
-                    AddSearchHistoryUseCase(FakeHistoryRepository()),
-                ),
-            observeSearchHistory = ObserveSearchHistoryUseCase(FakeHistoryRepository()),
-            getWordEntries = GetWordEntriesUseCase(FakeWordCatalogRepository()),
-            getWordSuggestions = GetWordSuggestionsUseCase(),
-            getTopWords = GetTopWordsUseCase(FakeTopWordsRepository()),
-        )
+    private fun createHomeViewModel(
+        repository: FakeWordSearchRepository = FakeWordSearchRepository(),
+        reporter: AnalyticsReporter = NoOpAnalyticsReporter,
+    ) = HomeViewModel(
+        searchWordWithHistory =
+            SearchWordWithHistoryUseCase(
+                SearchWordUseCase(repository),
+                AddSearchHistoryUseCase(FakeHistoryRepository()),
+            ),
+        observeSearchHistory = ObserveSearchHistoryUseCase(FakeHistoryRepository()),
+        getWordEntries = GetWordEntriesUseCase(FakeWordCatalogRepository()),
+        getWordSuggestions = GetWordSuggestionsUseCase(),
+        getTopWords = GetTopWordsUseCase(FakeTopWordsRepository()),
+        analyticsReporter = reporter,
+    )
 
     private fun createWordViewModel() =
         WordViewModel(

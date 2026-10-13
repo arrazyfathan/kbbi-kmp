@@ -27,6 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.arrazyfathan.kbbi.BindSystemBarColor
+import com.arrazyfathan.kbbi.core.observability.AnalyticsEvent
+import com.arrazyfathan.kbbi.core.observability.AnalyticsReporter
+import com.arrazyfathan.kbbi.core.observability.ContentType
+import com.arrazyfathan.kbbi.core.observability.EventSource
 import com.arrazyfathan.kbbi.core.presentation.designsystem.components.AppLottieAnimation
 import com.arrazyfathan.kbbi.core.presentation.ui.LocalAppLoadingController
 import com.arrazyfathan.kbbi.core.presentation.ui.rememberAppLoadingController
@@ -46,10 +50,12 @@ import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.SettingsKe
 import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.settingsEntry
 import com.arrazyfathan.kbbi.feature.words.presentation.navigation.wordsEntry
 import com.arrazyfathan.kbbi.feature.wordstudy.presentation.ai.AiSettingsRoute
+import org.koin.compose.koinInject
 
 @Composable
 internal fun MainApp(navigationState: NavigationState) {
     val navigator = remember(navigationState) { Navigator(navigationState) }
+    val analytics: AnalyticsReporter = koinInject()
     val currentRoute = navigationState.currentRoute
     val isDetailVisible = currentRoute is DetailKey || currentRoute is FigureDetailKey
     val showBottomNavigation = currentRoute in topLevelRoutes
@@ -78,7 +84,17 @@ internal fun MainApp(navigationState: NavigationState) {
                     onNavigateToAiSettings = { navigator.navigate(AiSettingsKey) },
                 )
                 wordsEntry(onNavigateToDetail = navigateToDetail)
-                bookmarksEntry(onNavigateToDetail = navigateToDetail)
+                bookmarksEntry(
+                    onNavigateToDetail = { word ->
+                        analytics.log(
+                            AnalyticsEvent.ContentOpened(
+                                ContentType.Word,
+                                EventSource.Bookmarks,
+                            ),
+                        )
+                        navigateToDetail(word)
+                    },
+                )
                 proverbEntry(
                     onNavigateBack = {
                         if (!isUiBlocked) {
@@ -88,7 +104,15 @@ internal fun MainApp(navigationState: NavigationState) {
                 )
                 figureEntry(
                     onNavigateBack = { navigator.goBack() },
-                    onNavigateToDetail = { slug -> navigator.navigate(FigureDetailKey(slug)) },
+                    onNavigateToDetail = { slug ->
+                        analytics.log(
+                            AnalyticsEvent.ContentOpened(
+                                ContentType.Figure,
+                                EventSource.FigureList,
+                            ),
+                        )
+                        navigator.navigate(FigureDetailKey(slug))
+                    },
                 )
                 figureDetailEntry(onNavigateBack = { navigator.goBack() })
                 settingsEntry(

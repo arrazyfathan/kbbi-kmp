@@ -2,6 +2,10 @@ package com.arrazyfathan.kbbi.core.data.remote.network
 
 import com.arrazyfathan.kbbi.core.logging.AppLogger
 import com.arrazyfathan.kbbi.core.logging.NetworkLogFormatter
+import com.arrazyfathan.kbbi.core.observability.CrashReporter
+import com.arrazyfathan.kbbi.core.observability.NetworkPerformanceReporter
+import com.arrazyfathan.kbbi.core.observability.NoOpCrashReporter
+import com.arrazyfathan.kbbi.core.observability.NoOpNetworkPerformanceReporter
 import com.arrazyfathan.kbbi.shared.BuildKonfig
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
@@ -20,11 +24,12 @@ import kotlinx.serialization.json.Json
 
 private const val NETWORK_TIMEOUT_SECONDS = 120L
 private const val NETWORK_TIMEOUT_MILLIS = NETWORK_TIMEOUT_SECONDS * 1_000L
-private const val API_LOG_TAG = "KBBI-API"
 
 class HttpClientFactory(
     private val json: Json,
     private val engine: HttpClientEngine,
+    private val networkPerformanceReporter: NetworkPerformanceReporter = NoOpNetworkPerformanceReporter,
+    private val crashReporter: CrashReporter = NoOpCrashReporter,
 ) {
     fun build(): HttpClient =
         HttpClient(engine) {
@@ -36,29 +41,16 @@ class HttpClientFactory(
                 requestTimeoutMillis = NETWORK_TIMEOUT_MILLIS
                 socketTimeoutMillis = NETWORK_TIMEOUT_MILLIS
             }
+            install(ObservedRequests) {
+                performance = networkPerformanceReporter
+                crashes = crashReporter
+            }
             install(Logging) {
-                level = LogLevel.BODY
-                // Spoken words enter the ordinary lookup/translation path after confirmation.
-                // Keep those URLs and response bodies out of logs for both input methods.
-                filter { request ->
-                    request.url.build().encodedPath.split('/').none {
-                        it in
-                            setOf(
-                                "search",
-                                "translate",
-                                "chat",
-                                "completions",
-                                "word-study",
-                            )
-                    }
-                }
+                level = LogLevel.ALL
                 logger =
                     object : Logger {
                         override fun log(message: String) {
-                            AppLogger.debug(
-                                tag = API_LOG_TAG,
-                                message = NetworkLogFormatter.format(message),
-                            )
+                            AppLogger.network(NetworkLogFormatter.format(message))
                         }
                     }
             }

@@ -110,6 +110,10 @@ kotlin {
         getByName("wasmJsMain").dependsOn(webMain)
 
         androidMain.dependencies {
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics)
+            implementation(libs.firebase.performance)
             implementation(libs.androidx.activity.compose)
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
@@ -188,6 +192,7 @@ buildkonfig {
 
     defaultConfigs {
         buildConfigField(Type.STRING, "BASE_URL", apiBaseUrl)
+        buildConfigField(Type.STRING, "APP_ENVIRONMENT", providers.gradleProperty("appEnvironment").getOrElse("development"))
     }
 }
 

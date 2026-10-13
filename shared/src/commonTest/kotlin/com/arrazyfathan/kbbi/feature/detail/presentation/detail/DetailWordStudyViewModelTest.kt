@@ -2,6 +2,11 @@ package com.arrazyfathan.kbbi.feature.detail.presentation.detail
 
 import com.arrazyfathan.kbbi.core.domain.model.AppResult
 import com.arrazyfathan.kbbi.core.domain.model.DataError
+import com.arrazyfathan.kbbi.core.observability.AnalyticsReporter
+import com.arrazyfathan.kbbi.core.observability.NoOpAnalyticsReporter
+import com.arrazyfathan.kbbi.core.observability.RecordingBackend
+import com.arrazyfathan.kbbi.core.observability.ReportingController
+import com.arrazyfathan.kbbi.core.observability.ReportingPreferences
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.MeaningModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.TranslateModel
@@ -52,6 +57,31 @@ class DetailWordStudyViewModelTest {
 
     @AfterTest
     fun cleanup() = Dispatchers.resetMain()
+
+    @Test
+    fun studyResultReportsOnceAndContainsNoWordOrProviderContent() =
+        runTest(dispatcher) {
+            val backend = RecordingBackend()
+            val reporter =
+                ReportingController(
+                    backend,
+                    { ReportingPreferences(analyticsEnabled = true) },
+                    "https://api.example.test",
+                )
+            val viewModel = create(FakeAiSettingsConfigurationRepository(), StudyRepository(), reporter)
+            viewModel.onAction(DetailAction.OnStarted(word, "id"))
+            viewModel.onAction(DetailAction.OnStarted(word, "id"))
+            assertTrue(backend.events.isEmpty())
+            viewModel.onAction(DetailAction.OnGenerateWordStudy)
+            assertEquals(listOf("ai_word_study_generated"), backend.events.map { it.first })
+            assertEquals(
+                mapOf("provider_mode" to "backend", "outcome" to "success"),
+                backend.events.single().second,
+            )
+            viewModel.onAction(DetailAction.OnStarted(word, "id"))
+            assertEquals(1, backend.events.size)
+            assertFalse(backend.events.toString().contains("bahasa"))
+        }
 
     @Test
     fun providerRevisionClearsGeneratedStudy() =
@@ -146,6 +176,7 @@ class DetailWordStudyViewModelTest {
     private fun create(
         configuration: FakeAiSettingsConfigurationRepository,
         repository: StudyRepository,
+        reporter: AnalyticsReporter = NoOpAnalyticsReporter,
     ): DetailViewModel {
         val bookmarks =
             object : BookmarkRepository {
@@ -173,6 +204,7 @@ class DetailWordStudyViewModelTest {
             GetWordTranslationUseCase(translations),
             GenerateWordStudyUseCase(configuration, repository),
             configuration,
+            reporter,
         )
     }
 

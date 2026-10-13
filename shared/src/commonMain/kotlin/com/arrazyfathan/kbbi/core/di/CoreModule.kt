@@ -13,6 +13,6 @@ val networkModule =
         }
 
         single {
-            HttpClientFactory(get(), get()).build()
+            HttpClientFactory(get(), get(), get(), get()).build()
         }
     }

@@ -4,6 +4,7 @@ import Shared
 @main
 struct iOSApp: App {
     init() {
+        installFirebaseReporting()
         KoinInitIosKt.doInitKoinIos()
     }
 

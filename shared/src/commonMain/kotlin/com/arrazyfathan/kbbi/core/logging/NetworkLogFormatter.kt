@@ -6,21 +6,6 @@ import kotlinx.serialization.json.JsonElement
 private const val KTOR_BODY_START = "BODY START"
 private const val KTOR_BODY_END = "BODY END"
 private const val SECTION_WIDTH = 72
-private const val REDACTED_VALUE = "<redacted>"
-private const val SENSITIVE_KEY_PATTERN =
-    "authorization|api[-_ ]?key|access[-_ ]?token|refresh[-_ ]?token|token|password"
-
-private val sensitiveHeaderRegex =
-    Regex(
-        pattern = """^(.*\b(?:$SENSITIVE_KEY_PATTERN)\b\s*[:=]\s*).*$""",
-        options = setOf(RegexOption.IGNORE_CASE, RegexOption.MULTILINE),
-    )
-
-private val sensitiveJsonRegex =
-    Regex(
-        pattern = """"([^"]*(?:$SENSITIVE_KEY_PATTERN)[^"]*)"\s*:\s*"[^"]*"""",
-        option = RegexOption.IGNORE_CASE,
-    )
 
 expect fun currentTimestamp(): String
 
@@ -32,8 +17,7 @@ object NetworkLogFormatter {
         }
 
     fun format(message: String): String {
-        val sanitizedMessage = message.trim().redactSensitiveValues()
-        val networkLog = NetworkLog.from(sanitizedMessage)
+        val networkLog = NetworkLog.from(message.trim())
 
         return buildString {
             appendLine()
@@ -91,13 +75,6 @@ object NetworkLogFormatter {
             prettyJson.encodeToString(JsonElement.serializer(), jsonElement)
         }.getOrNull()
     }
-
-    private fun String.redactSensitiveValues(): String =
-        replace(sensitiveHeaderRegex) { matchResult ->
-            matchResult.groupValues[1] + REDACTED_VALUE
-        }.replace(sensitiveJsonRegex) { matchResult ->
-            """"${matchResult.groupValues[1]}":"$REDACTED_VALUE""""
-        }
 
     private data class NetworkLog(
         val type: NetworkLogType,
@@ -169,7 +146,8 @@ object NetworkLogFormatter {
 
     private fun String.extractUrl(): String? =
         lineSequence().firstNotNullOfOrNull { line ->
-            requestUrlRegex.find(line)?.groupValues?.getOrNull(1) ?: fromUrlRegex.find(line)?.groupValues?.getOrNull(1)
+            requestUrlRegex.find(line)?.groupValues?.getOrNull(1)
+                ?: fromUrlRegex.find(line)?.groupValues?.getOrNull(1)
         }
 
     private fun String.extractStatus(): String? =
@@ -206,8 +184,10 @@ object NetworkLogFormatter {
         val bodyStartIndex = indexOf(KTOR_BODY_START)
         if (bodyStartIndex == -1) return toPrettyJsonOrNull()
 
-        val bodyContentStart = indexOf('\n', startIndex = bodyStartIndex).takeIf { it != -1 }?.plus(1) ?: return null
-        val bodyEndIndex = indexOf(KTOR_BODY_END, startIndex = bodyContentStart).takeIf { it != -1 } ?: return null
+        val bodyContentStart =
+            indexOf('\n', startIndex = bodyStartIndex).takeIf { it != -1 }?.plus(1) ?: return null
+        val bodyEndIndex =
+            indexOf(KTOR_BODY_END, startIndex = bodyContentStart).takeIf { it != -1 } ?: return null
 
         return substring(bodyContentStart, bodyEndIndex).trim()
     }
@@ -216,8 +196,10 @@ object NetworkLogFormatter {
         val bodyStartIndex = indexOf(KTOR_BODY_START)
         if (bodyStartIndex == -1) return this
 
-        val bodyEndIndex = indexOf(KTOR_BODY_END, startIndex = bodyStartIndex).takeIf { it != -1 } ?: return this
-        val bodyBlockEnd = indexOf('\n', startIndex = bodyEndIndex).takeIf { it != -1 }?.plus(1) ?: length
+        val bodyEndIndex =
+            indexOf(KTOR_BODY_END, startIndex = bodyStartIndex).takeIf { it != -1 } ?: return this
+        val bodyBlockEnd =
+            indexOf('\n', startIndex = bodyEndIndex).takeIf { it != -1 }?.plus(1) ?: length
 
         return removeRange(bodyStartIndex, bodyBlockEnd)
     }

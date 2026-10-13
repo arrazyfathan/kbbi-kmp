@@ -3,10 +3,13 @@ package com.arrazyfathan.kbbi.feature.settings.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arrazyfathan.kbbi.core.domain.model.AppTheme
+import com.arrazyfathan.kbbi.core.observability.ReportingCapabilities
+import com.arrazyfathan.kbbi.core.observability.ReportingController
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.ClearSearchHistoryUseCase
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
 import com.arrazyfathan.kbbi.feature.settings.domain.AppLanguage
 import com.arrazyfathan.kbbi.feature.settings.domain.ReminderType
+import com.arrazyfathan.kbbi.feature.settings.domain.SettingsPreferences
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -18,13 +21,25 @@ import com.arrazyfathan.kbbi.feature.settings.domain.AppIcon as AppIconModel
 class SettingsViewModel(
     private val preferences: SettingsPreferenceStore,
     private val clearSearchHistory: ClearSearchHistoryUseCase,
+    private val reporting: ReportingController,
 ) : ViewModel() {
     val state: StateFlow<SettingsState> =
-        preferences.preferences.map { SettingsState(it) }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5_000),
-            SettingsState(preferences.preferences.value),
-        )
+        preferences.preferences
+            .map {
+                SettingsState(
+                    it,
+                    reporting.capabilities,
+                    reporting.performanceEligible,
+                )
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                SettingsState(
+                    preferences.preferences.value,
+                    reporting.capabilities,
+                    reporting.performanceEligible,
+                ),
+            )
 
     fun onAction(action: SettingsAction) {
         when (action) {
@@ -46,14 +61,17 @@ class SettingsViewModel(
 
             is SettingsAction.CrashReporting -> {
                 preferences.setCrashReporting(action.enabled)
+                reporting.synchronizeCollection()
             }
 
             is SettingsAction.Analytics -> {
                 preferences.setAnalytics(action.enabled)
+                reporting.synchronizeCollection()
             }
 
             is SettingsAction.PerformanceMonitoring -> {
                 preferences.setPerformanceMonitoring(action.enabled)
+                reporting.synchronizeCollection()
             }
 
             is SettingsAction.Reminder -> {
@@ -77,9 +95,13 @@ class SettingsViewModel(
                 preferences.setAppIcon(action.icon)
             }
 
-            is SettingsAction.CampaignNotifications -> preferences.setCampaignNotifications(action.enabled)
+            is SettingsAction.CampaignNotifications -> {
+                preferences.setCampaignNotifications(action.enabled)
+            }
 
-            is SettingsAction.UpdateNotifications -> preferences.setUpdateNotifications(action.enabled)
+            is SettingsAction.UpdateNotifications -> {
+                preferences.setUpdateNotifications(action.enabled)
+            }
 
             is SettingsAction.ClearHistory -> {
                 viewModelScope.launch { clearSearchHistory() }
@@ -89,7 +111,9 @@ class SettingsViewModel(
 }
 
 data class SettingsState(
-    val preferences: com.arrazyfathan.kbbi.feature.settings.domain.SettingsPreferences,
+    val preferences: SettingsPreferences,
+    val reportingCapabilities: ReportingCapabilities = ReportingCapabilities(),
+    val performanceMonitoringEligible: Boolean = false,
 )
 
 sealed interface SettingsAction {
@@ -136,9 +160,13 @@ sealed interface SettingsAction {
         val icon: AppIconModel,
     ) : SettingsAction
 
-    data class CampaignNotifications(val enabled: Boolean) : SettingsAction
+    data class CampaignNotifications(
+        val enabled: Boolean,
+    ) : SettingsAction
 
-    data class UpdateNotifications(val enabled: Boolean) : SettingsAction
+    data class UpdateNotifications(
+        val enabled: Boolean,
+    ) : SettingsAction
 
     data object ClearHistory : SettingsAction
 }

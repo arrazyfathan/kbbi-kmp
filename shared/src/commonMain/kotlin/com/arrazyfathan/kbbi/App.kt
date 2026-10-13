@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -15,12 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.arrazyfathan.kbbi.core.observability.ReportingCoordinator
 import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
 import com.arrazyfathan.kbbi.feature.splash.presentation.navigation.SplashRoute
 import com.arrazyfathan.kbbi.navigation.BindBrowserNavigation
 import com.arrazyfathan.kbbi.navigation.BindIncomingNavigation
+import com.arrazyfathan.kbbi.navigation.BindReportingNavigation
 import com.arrazyfathan.kbbi.navigation.MainApp
 import com.arrazyfathan.kbbi.navigation.rememberNavigationState
 import com.arrazyfathan.kbbi.navigation.topLevelRoutes
@@ -28,12 +31,15 @@ import org.koin.compose.koinInject
 
 @Composable
 fun App() {
+    val reporting: ReportingCoordinator = koinInject()
+    LaunchedEffect(reporting) { reporting.initialize() }
     val settings: SettingsPreferenceStore = koinInject()
     val preferences by settings.preferences.collectAsStateWithLifecycle()
     var isSplashVisible by rememberSaveable { mutableStateOf(true) }
     val navigationState = rememberNavigationState(HomeKey, topLevelRoutes)
     BindIncomingNavigation(navigationState)
     BindBrowserNavigation(navigationState)
+    BindReportingNavigation(navigationState, !isSplashVisible)
     // Platform language is applied before preferences emit. Recreate resource
     // lookups for the new locale while restoring the current navigation state.
     key(preferences.language) {

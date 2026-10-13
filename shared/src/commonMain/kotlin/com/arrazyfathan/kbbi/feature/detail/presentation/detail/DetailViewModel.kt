@@ -5,6 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arrazyfathan.kbbi.core.domain.model.AppResult
 import com.arrazyfathan.kbbi.core.domain.model.DataError
+import com.arrazyfathan.kbbi.core.observability.AiProviderType
+import com.arrazyfathan.kbbi.core.observability.AnalyticsEvent
+import com.arrazyfathan.kbbi.core.observability.AnalyticsReporter
+import com.arrazyfathan.kbbi.core.observability.AnalyticsScreen
+import com.arrazyfathan.kbbi.core.observability.BookmarkAction
+import com.arrazyfathan.kbbi.core.observability.EventOutcome
+import com.arrazyfathan.kbbi.core.observability.NoOpAnalyticsReporter
+import com.arrazyfathan.kbbi.core.observability.TranslationAction
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.TranslateModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.WordModel
@@ -90,6 +98,7 @@ class DetailViewModel(
     private val getWordTranslation: GetWordTranslationUseCase,
     private val generateWordStudy: GenerateWordStudyUseCase,
     private val aiConfigurationRepository: AiConfigurationRepository,
+    private val analyticsReporter: AnalyticsReporter = NoOpAnalyticsReporter,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DetailState())
     val state = _state.asStateFlow()
@@ -146,10 +155,30 @@ class DetailViewModel(
                 if (currentStudyKey != key) return@launch
                 when (result) {
                     is AppResult.Success -> {
+                        analyticsReporter.log(
+                            AnalyticsEvent.AiWordStudyGenerated(
+                                if (configuration.providerMode == AiProviderMode.CUSTOM) {
+                                    AiProviderType.Custom
+                                } else {
+                                    AiProviderType.Backend
+                                },
+                                EventOutcome.Success,
+                            ),
+                        )
                         _state.update { it.copy(isWordStudyLoading = false, wordStudy = result.data) }
                     }
 
                     is AppResult.Error -> {
+                        analyticsReporter.log(
+                            AnalyticsEvent.AiWordStudyGenerated(
+                                if (configuration.providerMode == AiProviderMode.CUSTOM) {
+                                    AiProviderType.Custom
+                                } else {
+                                    AiProviderType.Backend
+                                },
+                                EventOutcome.Error,
+                            ),
+                        )
                         _state.update {
                             it.copy(
                                 isWordStudyLoading = false,
@@ -218,10 +247,24 @@ class DetailViewModel(
     ) {
         if (!enabled) {
             translationJob?.cancel()
+            analyticsReporter.log(
+                AnalyticsEvent.TranslationChanged(
+                    TranslationAction.Disabled,
+                    EventOutcome.Success,
+                    state.value.translation != null,
+                ),
+            )
             _state.update { it.copy(isTranslationEnabled = false, isTranslationLoading = false) }
             return
         }
         if (state.value.translation != null) {
+            analyticsReporter.log(
+                AnalyticsEvent.TranslationChanged(
+                    TranslationAction.Enabled,
+                    EventOutcome.Success,
+                    true,
+                ),
+            )
             _state.update { it.copy(isTranslationEnabled = true) }
             return
         }
@@ -232,6 +275,13 @@ class DetailViewModel(
             viewModelScope.launch {
                 when (val result = getWordTranslation(word)) {
                     is com.arrazyfathan.kbbi.core.domain.model.AppResult.Success -> {
+                        analyticsReporter.log(
+                            AnalyticsEvent.TranslationChanged(
+                                TranslationAction.Enabled,
+                                EventOutcome.Success,
+                                false,
+                            ),
+                        )
                         _state.update {
                             it.copy(
                                 isTranslationEnabled = true,
@@ -242,6 +292,13 @@ class DetailViewModel(
                     }
 
                     is com.arrazyfathan.kbbi.core.domain.model.AppResult.Error -> {
+                        analyticsReporter.log(
+                            AnalyticsEvent.TranslationChanged(
+                                TranslationAction.Enabled,
+                                EventOutcome.Error,
+                                false,
+                            ),
+                        )
                         _state.update { it.copy(isTranslationLoading = false) }
                         _events.send(
                             DetailEvent.ShowMessage(
@@ -269,11 +326,23 @@ class DetailViewModel(
                 try {
                     if (wasSaved) {
                         if (deleteBookmark(word)) {
+                            analyticsReporter.log(
+                                AnalyticsEvent.BookmarkChanged(
+                                    BookmarkAction.Removed,
+                                    AnalyticsScreen.WordDetail,
+                                ),
+                            )
                             _state.update { it.copy(isSaved = false) }
                             _events.send(DetailEvent.ShowMessage(Res.string.word_deleted_success))
                         }
                     } else {
                         if (saveBookmark(word, wordList, visitorCount, aiGenerated)) {
+                            analyticsReporter.log(
+                                AnalyticsEvent.BookmarkChanged(
+                                    BookmarkAction.Added,
+                                    AnalyticsScreen.WordDetail,
+                                ),
+                            )
                             _state.update { it.copy(isSaved = true) }
                             _events.send(DetailEvent.ShowMessage(Res.string.word_saved_success))
                         }

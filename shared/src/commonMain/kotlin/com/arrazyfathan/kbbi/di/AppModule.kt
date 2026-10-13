@@ -1,6 +1,10 @@
 package com.arrazyfathan.kbbi.di
 
 import com.arrazyfathan.kbbi.core.di.networkModule
+import com.arrazyfathan.kbbi.core.logging.AppLogger
+import com.arrazyfathan.kbbi.core.observability.ReportingBackend
+import com.arrazyfathan.kbbi.core.observability.ReportingController
+import com.arrazyfathan.kbbi.core.observability.observabilityModule
 import com.arrazyfathan.kbbi.core.platform.Haptics
 import com.arrazyfathan.kbbi.core.platform.SettingsAwareHaptics
 import com.arrazyfathan.kbbi.feature.bookmark.data.BookmarkLayoutPreferenceStore
@@ -115,5 +119,15 @@ fun initKoin(config: KoinAppDeclaration? = null): KoinApplication =
             viewModelModule,
             networkModule,
             useCaseModule,
+            observabilityModule,
+        )
+    }.also { application ->
+        val controller = application.koin.get<ReportingController>()
+        controller.synchronizeCollection()
+        AppLogger.installRemoteSink(controller)
+        AppLogger.configureDiagnostics(
+            application.koin
+                .get<ReportingBackend>()
+                .buildInfo.buildType == "debug",
         )
     }

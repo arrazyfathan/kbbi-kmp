@@ -9,6 +9,8 @@
 
 ## Implementation
 
+**Android identity decision (2026-10-13):** The person chose `com.arrazyfathan.kbbi.kmp` as the Android application ID for an independent installation alongside the original app. Preserve this ID when porting source build metadata. Kotlin packages and the Android namespace remain `com.arrazyfathan.kbbi`; Firebase configuration must match the KMP application ID.
+
 1. Port source development/production metadata, versioning, Android signing/distribution, shrink rules, and release notes without copying secrets.
 2. Add iOS archive/export configuration, desktop DMG/MSI/DEB packaging, and web HTTPS hosting for assets, service worker, and stateless AI proxy.
 3. Configure CI gates for common tests, Android debug build/tests, iOS simulator framework and Xcode build, JVM package/launch smoke, JS production bundle, and Wasm production bundle.

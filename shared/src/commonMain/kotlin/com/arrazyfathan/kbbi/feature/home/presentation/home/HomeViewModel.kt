@@ -5,6 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arrazyfathan.kbbi.core.domain.model.AppResult
 import com.arrazyfathan.kbbi.core.domain.model.DataError
+import com.arrazyfathan.kbbi.core.observability.AnalyticsEvent
+import com.arrazyfathan.kbbi.core.observability.AnalyticsReporter
+import com.arrazyfathan.kbbi.core.observability.ContentType
+import com.arrazyfathan.kbbi.core.observability.EventOutcome
+import com.arrazyfathan.kbbi.core.observability.EventSource
+import com.arrazyfathan.kbbi.core.observability.InputMethod
+import com.arrazyfathan.kbbi.core.observability.NoOpAnalyticsReporter
 import com.arrazyfathan.kbbi.core.platform.CapabilityResult
 import com.arrazyfathan.kbbi.core.platform.FailureReason
 import com.arrazyfathan.kbbi.core.platform.SpeechInput
@@ -117,6 +124,7 @@ class HomeViewModel(
     private val getWordEntries: GetWordEntriesUseCase,
     private val getWordSuggestions: GetWordSuggestionsUseCase,
     private val getTopWords: GetTopWordsUseCase,
+    private val analyticsReporter: AnalyticsReporter = NoOpAnalyticsReporter,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
@@ -134,6 +142,8 @@ class HomeViewModel(
     private var searchRequestId = 0L
     private var wordEntries: List<String> = emptyList()
     private var lastSearchQuery: String = ""
+    private var voiceQuery = false
+    private var lastSource = EventSource.TypedSearch
 
     fun onAction(action: HomeAction) {
         when (action) {
@@ -164,15 +174,18 @@ class HomeViewModel(
             }
 
             is HomeAction.OnSearchSubmitted -> {
-                search(action.word)
+                search(
+                    action.word,
+                    if (voiceQuery) EventSource.VoiceSearch else EventSource.TypedSearch,
+                )
             }
 
             is HomeAction.OnSuggestionClick -> {
-                search(action.word)
+                search(action.word, EventSource.Suggestion)
             }
 
             is HomeAction.OnTopWordClick -> {
-                search(action.word)
+                search(action.word, EventSource.TopWords)
             }
 
             HomeAction.OnRandomWordRequested -> {
@@ -180,7 +193,7 @@ class HomeViewModel(
             }
 
             HomeAction.OnRetrySearch -> {
-                lastSearchQuery.takeIf(String::isNotBlank)?.let(::search)
+                lastSearchQuery.takeIf(String::isNotBlank)?.let { search(it, lastSource) }
             }
 
             HomeAction.OnRetryTopWords -> {
@@ -218,6 +231,7 @@ class HomeViewModel(
                                 voiceMessage(Res.string.voice_search_empty_result)
                             } else {
                                 updateSearchQuery(query)
+                                voiceQuery = true
                             }
                         }
 
@@ -326,7 +340,7 @@ class HomeViewModel(
                     throw cancellation
                 } catch (exception: Exception) {
                     if (requestId == topWordsRequestId) {
-                        _state.update { it.copy(topWordsError = UiText.DynamicString(exception.message.orEmpty())) }
+                        _state.update { it.copy(topWordsError = DataError.Unknown.asUiText()) }
                     }
                 } finally {
                     if (requestId == topWordsRequestId) _state.update { it.copy(isTopWordsLoading = false) }
@@ -335,6 +349,7 @@ class HomeViewModel(
     }
 
     private fun updateSearchQuery(query: String) {
+        voiceQuery = false
         val normalizedQuery = query.trimStart()
         _state.update {
             it.copy(
@@ -363,15 +378,26 @@ class HomeViewModel(
             if (randomWord == null) {
                 _events.send(HomeEvent.ShowMessage(UiText.StringResource(Res.string.error_random_word_unavailable)))
             } else {
-                search(randomWord)
+                search(randomWord, EventSource.RandomWord)
             }
         }
     }
 
-    private fun search(word: String) {
+    private fun search(
+        word: String,
+        source: EventSource = EventSource.TypedSearch,
+    ) {
         val normalizedWord = word.trim()
         if (normalizedWord.isBlank()) return
         lastSearchQuery = normalizedWord
+        lastSource = source
+        val input =
+            when (source) {
+                EventSource.VoiceSearch -> InputMethod.Voice
+                EventSource.TopWords, EventSource.RandomWord -> InputMethod.System
+                else -> InputMethod.Text
+            }
+        voiceQuery = false
         val requestId = ++searchRequestId
         searchJob?.cancel()
         searchJob =
@@ -396,11 +422,39 @@ class HomeViewModel(
                     if (requestId != searchRequestId) return@launch
                     when (result) {
                         is AppResult.Success -> {
+                            analyticsReporter.log(
+                                AnalyticsEvent.SearchCompleted(
+                                    source,
+                                    input,
+                                    EventOutcome.Success,
+                                    source == EventSource.Suggestion,
+                                    source == EventSource.RandomWord,
+                                ),
+                            )
+                            analyticsReporter.log(
+                                AnalyticsEvent.ContentOpened(
+                                    ContentType.Word,
+                                    source,
+                                ),
+                            )
                             _state.update { it.copy(searchQuery = "", searchError = null) }
                             _events.send(HomeEvent.NavigateToDetail(result.data))
                         }
 
                         is AppResult.Error -> {
+                            analyticsReporter.log(
+                                AnalyticsEvent.SearchCompleted(
+                                    source,
+                                    input,
+                                    if (result.error == DataError.NotFound) {
+                                        EventOutcome.NotFound
+                                    } else {
+                                        EventOutcome.Error
+                                    },
+                                    source == EventSource.Suggestion,
+                                    source == EventSource.RandomWord,
+                                ),
+                            )
                             val suggestions =
                                 if (result.error == DataError.NotFound) {
                                     getWordSuggestions(normalizedWord, wordEntries)

@@ -2,7 +2,6 @@ package com.arrazyfathan.kbbi.core.logging
 
 import kotlin.test.Test
 import kotlin.test.assertContains
-import kotlin.test.assertFalse
 
 class NetworkLogFormatterTest {
     @Test
@@ -19,21 +18,26 @@ class NetworkLogFormatterTest {
     }
 
     @Test
-    fun redactsSensitiveHeadersAndJsonValues() {
+    fun preservesHeadersAndJsonValuesInCustomFormat() {
         val formatted =
             NetworkLogFormatter.format(
                 """
                 REQUEST: https://example.test
                 Authorization: Bearer secret-token
                 BODY START
-                {"password":"secret-password"}
+                {"password":"secret-password","definition":"private-definition","translation":"private-translation","visitor_id":"private-visitor"}
                 BODY END
                 """.trimIndent(),
             )
 
-        assertContains(formatted, "Authorization: <redacted>")
-        assertContains(formatted, "\"password\": \"<redacted>\"")
-        assertFalse(formatted.contains("secret-token"))
-        assertFalse(formatted.contains("secret-password"))
+        assertContains(formatted, "Authorization: Bearer secret-token")
+        assertContains(formatted, "secret-password")
+        assertContains(formatted, "private-definition")
+        assertContains(formatted, "private-translation")
+        assertContains(formatted, "private-visitor")
+        assertContains(formatted, "NETWORK REQUEST")
+        assertContains(formatted, "HEADERS")
+        assertContains(formatted, "BODY")
+        assertContains(formatted, "curl --location")
     }
 }

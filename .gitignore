@@ -26,3 +26,7 @@ plan/*
 !plan/README.md
 !plan/*.md
 !plan/parity-inventory.md
+
+# Per-project Firebase configuration is supplied by local builds/CI.
+androidApp/google-services.json
+iosApp/iosApp/GoogleService-Info.plist

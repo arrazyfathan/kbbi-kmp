@@ -311,4 +311,6 @@
     <string name="ai_settings_browser_privacy_note">Kunci API di browser hanya disimpan di memori dan dihapus saat halaman dimuat ulang atau ditutup. Masukkan kembali kunci setelah memuat ulang. Kata dan definisi dikirim ke penyedia yang dipilih, yang harus mengizinkan permintaan dari browser.</string>
     <string name="explore_toggle_state_collapsed">Menu tertutup</string>
     <string name="explore_toggle_state_expanded">Menu terbuka</string>
+    <string name="reporting_unavailable">Pelaporan tidak tersedia pada build ini.</string>
+    <string name="performance_release_only">Pemantauan performa hanya tersedia pada build rilis produksi.</string>
 </resources>

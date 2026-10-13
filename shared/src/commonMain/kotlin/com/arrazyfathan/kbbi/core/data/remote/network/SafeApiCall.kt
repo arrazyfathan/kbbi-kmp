@@ -2,6 +2,7 @@ package com.arrazyfathan.kbbi.core.data.remote.network
 
 import com.arrazyfathan.kbbi.core.domain.model.AppResult
 import com.arrazyfathan.kbbi.core.domain.model.DataError
+import com.arrazyfathan.kbbi.core.logging.AppLogger
 import com.arrazyfathan.kbbi.shared.BuildKonfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -133,15 +134,30 @@ suspend inline fun <reified T : Any> readSuccessBody(response: HttpResponse): Ap
         AppResult.Success(response.body<T>())
     } catch (e: CancellationException) {
         throw e
-    } catch (_: JsonConvertException) {
+    } catch (e: JsonConvertException) {
+        AppLogger.error(
+            "KBBI-API",
+            e,
+            "Response body serialization failed",
+        )
         AppResult.Error(DataError.Serialization)
     } catch (e: SerializationException) {
+        AppLogger.error(
+            "KBBI-API",
+            e,
+            "Response body serialization failed",
+        )
         AppResult.Error(DataError.Serialization)
     } catch (e: IllegalArgumentException) {
         AppResult.Error(DataError.Serialization)
     } catch (e: NoSuchElementException) {
         AppResult.Error(DataError.EmptyBody)
     } catch (e: Exception) {
+        AppLogger.error(
+            "KBBI-API",
+            e,
+            "Response body processing failed unexpectedly",
+        )
         AppResult.Error(DataError.Unknown)
     }
 

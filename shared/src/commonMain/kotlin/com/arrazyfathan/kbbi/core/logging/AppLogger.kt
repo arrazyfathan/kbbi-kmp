@@ -1,6 +1,28 @@
 package com.arrazyfathan.kbbi.core.logging
 
+import com.arrazyfathan.kbbi.core.observability.CrashOperation
+import com.arrazyfathan.kbbi.core.observability.CrashReporter
+import com.arrazyfathan.kbbi.core.observability.NoOpCrashReporter
+import com.arrazyfathan.kbbi.core.observability.sanitizedDiagnostic
+
 object AppLogger {
+    private var remote: CrashReporter = NoOpCrashReporter
+    private var diagnosticsEnabled = false
+
+    fun installRemoteSink(reporter: CrashReporter) {
+        remote = reporter
+    }
+
+    fun configureDiagnostics(enabled: Boolean) {
+        diagnosticsEnabled = enabled
+    }
+
+    // Raw Ktor request/response output stays in the local development console.
+    fun network(message: String) {
+        if (!diagnosticsEnabled) return
+        println("[Debug] KBBI-API: $message")
+    }
+
     private enum class LogLevel {
         Verbose,
         Debug,
@@ -11,7 +33,7 @@ object AppLogger {
     }
 
     fun plantDebugTree() {
-        // No-op in multiplatform
+        diagnosticsEnabled = true
     }
 
     fun verbose(
@@ -92,7 +114,45 @@ object AppLogger {
         message: String,
         throwable: Throwable?,
     ) {
-        val logMessage = "[$level] $tag: $message" + (throwable?.let { "\n${it.stackTraceToString()}" } ?: "")
-        println(logMessage)
+        val safeMessage = sanitizedDiagnostic(tag, message)
+        val safeTag =
+            tag.takeIf {
+                it in
+                    setOf(
+                        "KBBI-API",
+                        "KBBI-Speech",
+                        "WidgetRefresh",
+                        "DailyReminder",
+                        "AppIcon",
+                        "WordCatalog",
+                    )
+            } ?: "KBBI"
+        if (diagnosticsEnabled) {
+            println(
+                "[$level] $safeTag: $safeMessage" + (
+                    throwable?.let { " (${it::class.simpleName})" }
+                        ?: ""
+                ),
+            )
+        }
+        if (level >= LogLevel.Warning) remote.breadcrumb(safeMessage)
+        if (level >= LogLevel.Error && throwable != null) {
+            val operation =
+                when {
+                    tag == "KBBI-API" &&
+                        message.contains(
+                            "serialization",
+                            ignoreCase = true,
+                        )
+                    -> CrashOperation.ResponseDeserialization
+
+                    tag == "KBBI-API" -> CrashOperation.NetworkRequest
+
+                    tag == "WordCatalog" -> CrashOperation.LocalDataRead
+
+                    else -> CrashOperation.UnexpectedFailure
+                }
+            remote.recordNonFatal(throwable, operation)
+        }
     }
 }

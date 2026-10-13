@@ -320,4 +320,6 @@
     <string name="ai_settings_browser_privacy_note">Browser API keys stay in memory only and are cleared when you reload or close the page. Re-enter your key after reloading. Your word and definitions are sent to the selected provider, which must allow browser requests.</string>
     <string name="explore_toggle_state_collapsed">Menu collapsed</string>
     <string name="explore_toggle_state_expanded">Menu expanded</string>
+    <string name="reporting_unavailable">Reporting is unavailable in this build.</string>
+    <string name="performance_release_only">Performance monitoring is available only in production release builds.</string>
 </resources>
