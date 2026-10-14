@@ -26,15 +26,15 @@ SDK adapters are compiled into the apps, but no source-project Firebase configur
 
 ## Verification
 
-- [ ] Person compares Settings diagnostics rows, spacing/icons/type, switch feedback, saved preferences and English/Indonesian capability text directly with the Android source at equivalent viewport sizes.
-- [ ] With target Firebase configuration, person enables analytics, opens each available route and exercises search/bookmark/translation/proverb/AI/app-share actions; checks source event names/parameters and one event per action/result or screen change, including locale change and back navigation.
-- [ ] Person switches analytics, crash and performance preferences off while the app is running and confirms collection stops without restart; checks saved choices after restart, crash defaults on and analytics/performance default off.
-- [ ] Person checks performance unavailable in development/Debug and eligible only in a configured production release; checks completed, failed and cancelled requests produce sanitized metrics.
-- [ ] Person checks full request/response details appear in the local development console for dictionary, translation and AI requests; checks dictionary terms, definitions/translations, visitor IDs, API keys and provider editor content remain absent from remote diagnostic payloads; verifies native unavailable and desktop/browser no-op states without configured reporting.
+- [x] Person compares Settings diagnostics rows, spacing/icons/type, switch feedback, saved preferences and English/Indonesian capability text directly with the Android source at equivalent viewport sizes.
+- [x] With target Firebase configuration, person enables analytics, opens each available route and exercises search/bookmark/translation/proverb/AI/app-share actions; checks source event names/parameters and one event per action/result or screen change, including locale change and back navigation.
+- [x] Person switches analytics, crash and performance preferences off while the app is running and confirms collection stops without restart; checks saved choices after restart, crash defaults on and analytics/performance default off.
+- [x] Person checks performance unavailable in development/Debug and eligible only in a configured production release; checks completed, failed and cancelled requests produce sanitized metrics.
+- [x] Person checks full request/response details appear in the local development console for dictionary, translation and AI requests; checks dictionary terms, definitions/translations, visitor IDs, API keys and provider editor content remain absent from remote diagnostic payloads; verifies native unavailable and desktop/browser no-op states without configured reporting.
 - [x] Focused fake reporter/MockEngine tests cover exact names/parameters, defaults/opt-out/capability and production gates, repeated screen observations, URL and diagnostic sanitization, trace closure/idempotence and result-boundary events. **28 focused JVM tests passed on 2026-10-13**.
 - [x] Android APK, iOS framework and Xcode host app, Desktop JVM, Browser JS and Wasm compile; iOS/JS/Wasm test sources compile without running device or Simulator tests. All builds passed on 2026-10-13.
 
-Build/test log: `/tmp/kbbi-plan19-final-build.log`. Xcode host build log: `/tmp/kbbi-plan19-xcode.log`. Device, Simulator, browser UI and live SDK acceptance remain person-only checks; an agent build or unit test does not establish those results.
+Build/test log: `/tmp/kbbi-plan19-final-build.log`. Xcode host build log: `/tmp/kbbi-plan19-xcode.log`. The person confirmed all five manual observability verification checks passed on 2026-10-13, including source UI comparison, live events, preference opt-out/persistence, performance gates and local/remote logging behavior. These results are person-reported; an agent build or unit test does not establish device acceptance.
 
 Native SDK policy references: [Analytics collection](https://firebase.google.com/docs/analytics/ios/configure-data-collection), [Crashlytics collection and unsent reports](https://firebase.google.com/docs/crashlytics/android/customize-crash-reports), and [Performance instrumentation controls](https://firebase.google.com/docs/perf-mon/disable-sdk).
 
@@ -54,7 +54,7 @@ Resolution log: `/tmp/kbbi-firebase-default-resolution.log`. Default-cache build
 
 The Android Studio build was reproduced separately: its DerivedData lives under `~/Library/Caches/Google/AndroidStudio2026.2.1/DerivedData/`, rather than Xcode's default directory. Resolving all 13 dependencies and compiling against that cache succeeded, but the running IDE still failed. Its `.xcactivitylog` reported `Communication with the service was interrupted` for all package repositories, followed by the three missing Firebase products. This matches the package-service failure reported in [JetBrains KMT-2926](https://youtrack.jetbrains.com/issue/KMT-2926).
 
-After resolving the IDE cache, closing and reopening the kbbi-kmp project reset the native build service. Android Studio's **Build 'iosApp'** then completed successfully for iPhone 18 Pro Max / iOS 27.0 Simulator / Debug on 2026-10-13. The app was compiled without launching a Simulator app; person runtime checks remain open.
+After resolving the IDE cache, closing and reopening the kbbi-kmp project reset the native build service. Android Studio's **Build 'iosApp'** then completed successfully for iPhone 18 Pro Max / iOS 27.0 Simulator / Debug on 2026-10-13. The app was compiled without launching a Simulator app; person runtime checks were subsequently confirmed complete on 2026-10-13.
 
 Recovery if this service failure recurs: close and reopen the project before rebuilding. If package downloads are missing, resolve using the IDE's actual DerivedData directory, then reopen the project. A successful command-line build alone does not verify Android Studio's native pipeline.
 
