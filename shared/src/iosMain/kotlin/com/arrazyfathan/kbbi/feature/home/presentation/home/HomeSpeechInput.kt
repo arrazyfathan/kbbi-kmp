@@ -6,11 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
+import com.arrazyfathan.kbbi.core.platform.SpeechInput
+import org.koin.compose.koinInject
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
-import com.arrazyfathan.kbbi.core.platform.SpeechInput
-import org.koin.compose.koinInject
 
 internal actual val isHomeVoiceSearchEnabled: Boolean = false
 
@@ -23,9 +23,12 @@ internal actual fun BindHomeSpeechLifecycle(onBackground: () -> Unit) {
     DisposableEffect(Unit) {
         val center = NSNotificationCenter.defaultCenter
         // Modal Compose layers can change controller appearance without backgrounding the app.
-        val observer = center.addObserverForName(
-            UIApplicationDidEnterBackgroundNotification, null, NSOperationQueue.mainQueue,
-        ) { latestOnBackground() }
+        val observer =
+            center.addObserverForName(
+                UIApplicationDidEnterBackgroundNotification,
+                null,
+                NSOperationQueue.mainQueue,
+            ) { latestOnBackground() }
         onDispose { center.removeObserver(observer) }
     }
 }

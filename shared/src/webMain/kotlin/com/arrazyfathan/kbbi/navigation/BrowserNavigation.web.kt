@@ -5,10 +5,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
-import kotlin.js.JsAny
-import kotlin.js.JsString
-import kotlin.js.toJsString
-import kotlin.js.ExperimentalWasmJsInterop
 import kotlinx.coroutines.flow.distinctUntilChanged
 import web.events.EventHandler
 import web.history.history
@@ -27,7 +23,9 @@ internal actual fun BindBrowserNavigation(navigationState: NavigationState) {
 }
 
 @OptIn(ExperimentalWasmJsInterop::class)
-private class BrowserNavigationController(private val state: NavigationState) {
+private class BrowserNavigationController(
+    private val state: NavigationState,
+) {
     private var currentSnapshot: NavigationSnapshot? = null
     private val previousHandler = window.onpopstate
     private val previousHashHandler = window.onhashchange
@@ -63,11 +61,14 @@ private class BrowserNavigationController(private val state: NavigationState) {
         val snapshot = encoded?.let(NavigationCodec::decode)
         val destination = DestinationParser.parse(window.location.hash)
         if (snapshot != null && snapshot.isValid() &&
-            destination == snapshot.backStacks.getValue(snapshot.topLevelRoute).last()) {
+            destination == snapshot.backStacks.getValue(snapshot.topLevelRoute).last()
+        ) {
             state.restore(snapshot)
         } else {
-            Navigator(state).openExternal(destination?.takeIf(DestinationParser::isAvailable)
-                ?: com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey)
+            Navigator(state).openExternal(
+                destination?.takeIf(DestinationParser::isAvailable)
+                    ?: com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey,
+            )
         }
     }
 

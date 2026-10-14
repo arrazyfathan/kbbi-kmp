@@ -1,11 +1,11 @@
 package com.arrazyfathan.kbbi.core.platform
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import androidx.core.net.toUri
 import com.arrazyfathan.kbbi.feature.home.data.source.local.room.appContext
 import java.util.Locale
 
@@ -29,7 +29,7 @@ internal class AndroidTextShare : TextShare {
 
 internal class AndroidUrlOpener : UrlOpener {
     override fun open(url: String): CapabilityResult<Unit> {
-        val uri = Uri.parse(url)
+        val uri = url.toUri()
         if (uri.scheme !in setOf("http", "https") || uri.host.isNullOrBlank()) {
             return CapabilityResult.Failed(FailureReason.INVALID_INPUT)
         }

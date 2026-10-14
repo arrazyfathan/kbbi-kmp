@@ -98,7 +98,7 @@ class DesktopReminderScheduler(
             }
         val task =
             scope.launch {
-                delay((next.timeInMillis - now.timeInMillis).coerceAtLeast(0))
+                delay((next.timeInMillis - now.timeInMillis).coerceAtLeast(0).milliseconds)
                 while (preferences.preferences.value.reminders
                         .getValue(type)
                         .enabled

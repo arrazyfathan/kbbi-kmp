@@ -12,16 +12,16 @@ interface RoomProverbDao {
     @Query("SELECT * FROM cached_proverb_table ORDER BY slug ASC")
     suspend fun getCachedProverbs(): List<SqliteCachedProverbEntity>
 
-    @Query("SELECT * FROM cached_proverb_table WHERE query = :query AND page = :page ORDER BY position ASC")
+    @Query("SELECT * FROM cached_proverb_table WHERE `query` = :query AND page = :page ORDER BY position ASC")
     suspend fun getProverbs(
         query: String,
         page: Int,
     ): List<SqliteCachedProverbEntity>
 
-    @Query("DELETE FROM cached_proverb_table WHERE query = :query")
+    @Query("DELETE FROM cached_proverb_table WHERE `query` = :query")
     suspend fun deleteProverbsForQuery(query: String)
 
-    @Query("DELETE FROM cached_proverb_table WHERE query = :query AND page = :page")
+    @Query("DELETE FROM cached_proverb_table WHERE `query` = :query AND page = :page")
     suspend fun deleteProverbPage(
         query: String,
         page: Int,

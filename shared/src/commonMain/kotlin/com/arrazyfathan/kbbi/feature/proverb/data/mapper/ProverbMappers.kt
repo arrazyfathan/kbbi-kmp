@@ -1,10 +1,10 @@
 package com.arrazyfathan.kbbi.feature.proverb.data.mapper
 
+import com.arrazyfathan.kbbi.feature.proverb.data.source.local.entity.CachedProverbDetailEntity
+import com.arrazyfathan.kbbi.feature.proverb.data.source.local.entity.CachedProverbEntity
 import com.arrazyfathan.kbbi.feature.proverb.data.source.remote.dto.ProverbDetailDto
 import com.arrazyfathan.kbbi.feature.proverb.data.source.remote.dto.ProverbDto
 import com.arrazyfathan.kbbi.feature.proverb.data.source.remote.dto.ProverbPageDto
-import com.arrazyfathan.kbbi.feature.proverb.data.source.local.entity.CachedProverbDetailEntity
-import com.arrazyfathan.kbbi.feature.proverb.data.source.local.entity.CachedProverbEntity
 import com.arrazyfathan.kbbi.feature.proverb.domain.model.ProverbDetailModel
 import com.arrazyfathan.kbbi.feature.proverb.domain.model.ProverbModel
 import com.arrazyfathan.kbbi.feature.proverb.domain.model.ProverbPageModel

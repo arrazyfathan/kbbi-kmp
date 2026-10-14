@@ -1,13 +1,12 @@
 package com.arrazyfathan.kbbi.feature.home.data.source.local.room
 
-import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.CachedTopWordEntity
+import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.ListWordEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import web.storage.localStorage
 
@@ -64,7 +63,10 @@ class LocalStorageWordDao(
         }
     }
 
-    override suspend fun insertHistoryAndTrim(historyEntity: HistoryEntity, limit: Int) {
+    override suspend fun insertHistoryAndTrim(
+        historyEntity: HistoryEntity,
+        limit: Int,
+    ) {
         val updatedHistories =
             (histories.value.filterNot { it.word.equals(historyEntity.word, ignoreCase = true) } + historyEntity)
                 .sortedWith(compareByDescending<HistoryEntity> { it.searchedAt }.thenByDescending { it.word })
@@ -75,7 +77,8 @@ class LocalStorageWordDao(
 
     override suspend fun trimHistories(limit: Int) {
         val updatedHistories =
-            histories.value.sortedWith(compareByDescending<HistoryEntity> { it.searchedAt }.thenByDescending { it.word })
+            histories.value
+                .sortedWith(compareByDescending<HistoryEntity> { it.searchedAt }.thenByDescending { it.word })
                 .take(limit)
 
         if (write(HISTORIES_KEY, updatedHistories)) {
@@ -99,11 +102,9 @@ class LocalStorageWordDao(
         write(TOP_WORDS_KEY, topWords)
     }
 
-    private fun readBookmarks(): List<ListWordEntity> =
-        read<List<ListWordEntity>>(BOOKMARKS_KEY).orEmpty()
+    private fun readBookmarks(): List<ListWordEntity> = read<List<ListWordEntity>>(BOOKMARKS_KEY).orEmpty()
 
-    private fun readHistories(): List<HistoryEntity> =
-        read<List<HistoryEntity>>(HISTORIES_KEY).orEmpty()
+    private fun readHistories(): List<HistoryEntity> = read<List<HistoryEntity>>(HISTORIES_KEY).orEmpty()
 
     private inline fun <reified T> read(key: String): T? =
         try {
@@ -127,7 +128,11 @@ class LocalStorageWordDao(
             },
         )
 
-    private fun recordIssue(key: String, operation: StorageOperation, exception: Throwable) {
+    private fun recordIssue(
+        key: String,
+        operation: StorageOperation,
+        exception: Throwable,
+    ) {
         mutableStorageIssues.value =
             (mutableStorageIssues.value + StorageIssue(key, operation, exception.message ?: exception::class.simpleName.orEmpty()))
                 .takeLast(MAX_STORAGE_ISSUES)
@@ -136,7 +141,10 @@ class LocalStorageWordDao(
     private object BrowserWordStorage : WordStorage {
         override fun getItem(key: String): String? = localStorage.getItem(key)
 
-        override fun setItem(key: String, value: String) {
+        override fun setItem(
+            key: String,
+            value: String,
+        ) {
             localStorage.setItem(key, value)
         }
     }

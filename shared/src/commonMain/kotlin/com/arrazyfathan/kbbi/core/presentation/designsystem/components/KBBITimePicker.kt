@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
@@ -50,11 +49,10 @@ import kbbi_kmp.shared.generated.resources.done
 import kbbi_kmp.shared.generated.resources.time_picker_hour_option
 import kbbi_kmp.shared.generated.resources.time_picker_minute_option
 import kbbi_kmp.shared.generated.resources.time_picker_title
-import org.jetbrains.compose.resources.stringResource
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.abs
 
 private val PickerItemHeight = 48.dp
@@ -88,16 +86,20 @@ fun KBBIWheelTimePicker(
         ) {
             Box(
                 modifier =
-                    Modifier.fillMaxWidth().height(PickerItemHeight).clip(ShapeDefaults.Small).background(
-                        brush =
-                            Brush.verticalGradient(
-                                colors =
-                                    listOf(
-                                        MaterialTheme.colorScheme.secondary,
-                                        MaterialTheme.colorScheme.primary,
-                                    ),
-                            ),
-                    ),
+                    Modifier
+                        .fillMaxWidth()
+                        .height(PickerItemHeight)
+                        .clip(ShapeDefaults.Small)
+                        .background(
+                            brush =
+                                Brush.verticalGradient(
+                                    colors =
+                                        listOf(
+                                            MaterialTheme.colorScheme.secondary,
+                                            MaterialTheme.colorScheme.primary,
+                                        ),
+                                ),
+                        ),
             )
         }
 
@@ -139,7 +141,8 @@ private fun WheelColumn(
     onValueSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = selectedValue - values.first)
+    val listState =
+        rememberLazyListState(initialFirstVisibleItemIndex = selectedValue - values.first)
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
     val latestOnValueSelected by rememberUpdatedState(onValueSelected)
 
@@ -153,10 +156,9 @@ private fun WheelColumn(
 
     LaunchedEffect(listState, values) {
         snapshotFlow { listState.layoutInfo }
-            .map { layoutInfo ->
+            .mapNotNull { layoutInfo ->
                 layoutInfo.centeredItemIndex()?.let { values.first + it }
-            }.filterNotNull()
-            .distinctUntilChanged()
+            }.distinctUntilChanged()
             .collect { latestOnValueSelected(it) }
     }
 
@@ -262,7 +264,10 @@ private fun TimePickerSheetContent(
         ) {
             TextButton(
                 onClick = onCancel,
-                modifier = Modifier.align(Alignment.CenterStart).testTag(CANCEL_TIME_PICKER_TEST_TAG),
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterStart)
+                        .testTag(CANCEL_TIME_PICKER_TEST_TAG),
             ) {
                 Text(stringResource(Res.string.cancel))
             }
@@ -288,4 +293,3 @@ private fun TimePickerSheetContent(
         )
     }
 }
-

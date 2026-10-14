@@ -1,5 +1,7 @@
 package com.arrazyfathan.kbbi.feature.wordstudy.domain.model
 
+import androidx.compose.runtime.Stable
+
 enum class AiProviderMode {
     BACKEND,
     CUSTOM,
@@ -20,6 +22,7 @@ data class AiConfigurationModel(
         get() = selectedCustomProvider?.isComplete == true
 }
 
+@Stable
 data class AiBackendProviderModel(
     val id: String,
     val defaultModel: String,
@@ -31,6 +34,7 @@ data class AiBackendProviderCatalogModel(
     val providers: List<AiBackendProviderModel>,
 )
 
+@Stable
 data class AiCustomProviderModel(
     val id: String,
     val name: String,
@@ -77,6 +81,7 @@ data class WordStudyRequestModel(
     val aiGenerated: Boolean = false,
 )
 
+@Stable
 data class WordStudyModel(
     val explanation: String,
     val examples: List<String>,

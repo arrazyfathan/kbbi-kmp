@@ -62,7 +62,6 @@ import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.feature.figure.domain.model.FigureModel
 import kbbi_kmp.shared.generated.resources.Res
-import kbbi_kmp.shared.generated.resources.error_unknown
 import kbbi_kmp.shared.generated.resources.figure_collection_kicker
 import kbbi_kmp.shared.generated.resources.figure_detail_photo_description
 import kbbi_kmp.shared.generated.resources.figure_detail_quotes

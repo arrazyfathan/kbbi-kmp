@@ -1,12 +1,30 @@
 package com.arrazyfathan.kbbi.feature.settings.presentation
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,8 +39,37 @@ import com.arrazyfathan.kbbi.core.domain.model.AppTheme
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
 import com.arrazyfathan.kbbi.core.presentation.designsystem.palette
 import com.arrazyfathan.kbbi.feature.settings.domain.AppIcon
-import kbbi_kmp.shared.generated.resources.*
-import org.jetbrains.compose.resources.*
+import kbbi_kmp.shared.generated.resources.Res
+import kbbi_kmp.shared.generated.resources.app_icon_blaze_orange
+import kbbi_kmp.shared.generated.resources.app_icon_deep_forest_energy
+import kbbi_kmp.shared.generated.resources.app_icon_default
+import kbbi_kmp.shared.generated.resources.app_icon_golden_coral_energy
+import kbbi_kmp.shared.generated.resources.app_icon_golden_sunset
+import kbbi_kmp.shared.generated.resources.app_icon_neon_violet
+import kbbi_kmp.shared.generated.resources.app_icon_picker_description
+import kbbi_kmp.shared.generated.resources.app_icon_picker_title
+import kbbi_kmp.shared.generated.resources.app_icon_preview_accessibility
+import kbbi_kmp.shared.generated.resources.app_icon_preview_blaze_orange
+import kbbi_kmp.shared.generated.resources.app_icon_preview_deep_forest_energy
+import kbbi_kmp.shared.generated.resources.app_icon_preview_default
+import kbbi_kmp.shared.generated.resources.app_icon_preview_golden_coral_energy
+import kbbi_kmp.shared.generated.resources.app_icon_preview_golden_sunset
+import kbbi_kmp.shared.generated.resources.app_icon_preview_neon_violet
+import kbbi_kmp.shared.generated.resources.app_icon_preview_royal_ocean
+import kbbi_kmp.shared.generated.resources.app_icon_royal_ocean
+import kbbi_kmp.shared.generated.resources.appearance_section_title
+import kbbi_kmp.shared.generated.resources.ic_check
+import kbbi_kmp.shared.generated.resources.theme_blaze_orange
+import kbbi_kmp.shared.generated.resources.theme_deep_forest_energy
+import kbbi_kmp.shared.generated.resources.theme_golden_coral_energy
+import kbbi_kmp.shared.generated.resources.theme_golden_sunset
+import kbbi_kmp.shared.generated.resources.theme_neon_violet
+import kbbi_kmp.shared.generated.resources.theme_picker_description
+import kbbi_kmp.shared.generated.resources.theme_royal_ocean
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 private const val APP_ICON_COLUMN_COUNT = 6
 private const val APP_ICON_OPTION_TEST_TAG_PREFIX = "app_icon_option_"
@@ -279,4 +326,3 @@ private val AppTheme.labelResId: StringResource
             AppTheme.NEON_VIOLET -> Res.string.theme_neon_violet
             AppTheme.BLAZE_ORANGE -> Res.string.theme_blaze_orange
         }
-

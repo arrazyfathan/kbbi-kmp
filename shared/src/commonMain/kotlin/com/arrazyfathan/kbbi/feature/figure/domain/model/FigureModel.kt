@@ -1,5 +1,8 @@
 package com.arrazyfathan.kbbi.feature.figure.domain.model
 
+import androidx.compose.runtime.Stable
+
+@Stable
 data class FigureModel(
     val name: String?,
     val slug: String,

@@ -7,7 +7,6 @@ import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
 import com.arrazyfathan.kbbi.feature.home.data.mapper.toDomain
 import com.arrazyfathan.kbbi.feature.home.data.source.remote.dto.ListWordDto
 import com.arrazyfathan.kbbi.feature.home.data.source.remote.dto.TranslateDto
-import com.arrazyfathan.kbbi.feature.home.data.source.remote.dto.WordResultDto
 import com.arrazyfathan.kbbi.feature.home.domain.model.TranslateModel
 import com.arrazyfathan.kbbi.feature.home.domain.model.WordResultModel
 import io.ktor.client.HttpClient

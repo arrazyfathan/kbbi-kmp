@@ -289,7 +289,6 @@ fun DetailContent(
                             wordModel.toDefinitionShareText(listWordModel.word, sourceLabel)
                         when (textShare.share(sharedText)) {
                             is CapabilityResult.Success -> {
-                                Unit
                             }
 
                             else -> {

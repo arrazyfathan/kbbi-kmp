@@ -1,7 +1,7 @@
 package com.arrazyfathan.kbbi.feature.home.data.source.local.room
 
-import androidx.room.Entity
 import androidx.room.ColumnInfo
+import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.CachedTopWordEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
@@ -64,8 +64,6 @@ fun SqliteHistoryEntity.toCommonEntity() =
         searchedAt = searchedAt,
     )
 
-fun CachedTopWordEntity.toSqliteEntity() =
-    SqliteTopWordCacheEntity(word = word, visitorCount = visitorCount, position = position)
+fun CachedTopWordEntity.toSqliteEntity() = SqliteTopWordCacheEntity(word = word, visitorCount = visitorCount, position = position)
 
-fun SqliteTopWordCacheEntity.toCommonEntity() =
-    CachedTopWordEntity(word = word, visitorCount = visitorCount, position = position)
+fun SqliteTopWordCacheEntity.toCommonEntity() = CachedTopWordEntity(word = word, visitorCount = visitorCount, position = position)

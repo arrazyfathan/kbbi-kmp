@@ -1,10 +1,10 @@
 package com.arrazyfathan.kbbi.core.platform
 
 import com.arrazyfathan.kbbi.platformModule
+import org.koin.dsl.koinApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import org.koin.dsl.koinApplication
 
 class PlatformCapabilitiesTest {
     @Test

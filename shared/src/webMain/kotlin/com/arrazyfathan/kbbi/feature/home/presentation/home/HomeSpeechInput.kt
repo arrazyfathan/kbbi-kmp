@@ -1,8 +1,8 @@
 package com.arrazyfathan.kbbi.feature.home.presentation.home
 
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.compose.runtime.Composable
 import com.arrazyfathan.kbbi.core.platform.SpeechInput
 import org.koin.compose.koinInject
 

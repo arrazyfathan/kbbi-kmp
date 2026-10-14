@@ -1,7 +1,7 @@
 package com.arrazyfathan.kbbi.feature.home.data.source.local
 
-import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.CachedTopWordEntity
+import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.ListWordEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.room.WordDao
 

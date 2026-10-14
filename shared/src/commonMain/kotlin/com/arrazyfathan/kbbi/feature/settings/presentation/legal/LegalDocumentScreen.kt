@@ -22,17 +22,60 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kbbi_kmp.shared.generated.resources.*
-import org.jetbrains.compose.resources.StringResource
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextH1
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
+import kbbi_kmp.shared.generated.resources.Res
+import kbbi_kmp.shared.generated.resources.ic_arrow_back
+import kbbi_kmp.shared.generated.resources.legal_effective_date
+import kbbi_kmp.shared.generated.resources.navigate_back
+import kbbi_kmp.shared.generated.resources.privacy_changes_body
+import kbbi_kmp.shared.generated.resources.privacy_changes_title
+import kbbi_kmp.shared.generated.resources.privacy_children_body
+import kbbi_kmp.shared.generated.resources.privacy_children_title
+import kbbi_kmp.shared.generated.resources.privacy_choices_body
+import kbbi_kmp.shared.generated.resources.privacy_choices_title
+import kbbi_kmp.shared.generated.resources.privacy_contact_body
+import kbbi_kmp.shared.generated.resources.privacy_contact_title
+import kbbi_kmp.shared.generated.resources.privacy_data_body
+import kbbi_kmp.shared.generated.resources.privacy_data_title
+import kbbi_kmp.shared.generated.resources.privacy_intro_body
+import kbbi_kmp.shared.generated.resources.privacy_intro_title
+import kbbi_kmp.shared.generated.resources.privacy_permissions_body
+import kbbi_kmp.shared.generated.resources.privacy_permissions_title
+import kbbi_kmp.shared.generated.resources.privacy_policy_title
+import kbbi_kmp.shared.generated.resources.privacy_services_body
+import kbbi_kmp.shared.generated.resources.privacy_services_title
+import kbbi_kmp.shared.generated.resources.privacy_storage_body
+import kbbi_kmp.shared.generated.resources.privacy_storage_title
+import kbbi_kmp.shared.generated.resources.privacy_use_body
+import kbbi_kmp.shared.generated.resources.privacy_use_title
+import kbbi_kmp.shared.generated.resources.terms_acceptance_body
+import kbbi_kmp.shared.generated.resources.terms_acceptance_title
+import kbbi_kmp.shared.generated.resources.terms_changes_body
+import kbbi_kmp.shared.generated.resources.terms_changes_title
+import kbbi_kmp.shared.generated.resources.terms_condition_title
+import kbbi_kmp.shared.generated.resources.terms_contact_body
+import kbbi_kmp.shared.generated.resources.terms_contact_title
+import kbbi_kmp.shared.generated.resources.terms_content_body
+import kbbi_kmp.shared.generated.resources.terms_content_title
+import kbbi_kmp.shared.generated.resources.terms_disclaimer_body
+import kbbi_kmp.shared.generated.resources.terms_disclaimer_title
+import kbbi_kmp.shared.generated.resources.terms_ownership_body
+import kbbi_kmp.shared.generated.resources.terms_ownership_title
+import kbbi_kmp.shared.generated.resources.terms_service_body
+import kbbi_kmp.shared.generated.resources.terms_service_title
+import kbbi_kmp.shared.generated.resources.terms_third_party_body
+import kbbi_kmp.shared.generated.resources.terms_third_party_title
+import kbbi_kmp.shared.generated.resources.terms_user_responsibilities_body
+import kbbi_kmp.shared.generated.resources.terms_user_responsibilities_title
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 data class LegalDocumentSection(
     val titleRes: StringResource,
@@ -72,7 +115,10 @@ private fun LegalDocumentScreen(
         containerColor = Color.White,
         topBar = {
             TopAppBar(
-                modifier = Modifier.background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary))),
+                modifier =
+                    Modifier.background(
+                        Brush.verticalGradient(listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary)),
+                    ),
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -93,20 +139,22 @@ private fun LegalDocumentScreen(
                         overflow = TextOverflow.Ellipsis,
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    scrolledContainerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                ),
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
             )
         },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(padding)
-                .padding(horizontal = 20.dp, vertical = 24.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(padding)
+                    .padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             Text(
@@ -135,28 +183,29 @@ private fun LegalDocumentScreen(
     }
 }
 
-private val privacyPolicySections = listOf(
-    LegalDocumentSection(Res.string.privacy_intro_title, Res.string.privacy_intro_body),
-    LegalDocumentSection(Res.string.privacy_data_title, Res.string.privacy_data_body),
-    LegalDocumentSection(Res.string.privacy_use_title, Res.string.privacy_use_body),
-    LegalDocumentSection(Res.string.privacy_storage_title, Res.string.privacy_storage_body),
-    LegalDocumentSection(Res.string.privacy_permissions_title, Res.string.privacy_permissions_body),
-    LegalDocumentSection(Res.string.privacy_services_title, Res.string.privacy_services_body),
-    LegalDocumentSection(Res.string.privacy_choices_title, Res.string.privacy_choices_body),
-    LegalDocumentSection(Res.string.privacy_children_title, Res.string.privacy_children_body),
-    LegalDocumentSection(Res.string.privacy_changes_title, Res.string.privacy_changes_body),
-    LegalDocumentSection(Res.string.privacy_contact_title, Res.string.privacy_contact_body),
-)
+private val privacyPolicySections =
+    listOf(
+        LegalDocumentSection(Res.string.privacy_intro_title, Res.string.privacy_intro_body),
+        LegalDocumentSection(Res.string.privacy_data_title, Res.string.privacy_data_body),
+        LegalDocumentSection(Res.string.privacy_use_title, Res.string.privacy_use_body),
+        LegalDocumentSection(Res.string.privacy_storage_title, Res.string.privacy_storage_body),
+        LegalDocumentSection(Res.string.privacy_permissions_title, Res.string.privacy_permissions_body),
+        LegalDocumentSection(Res.string.privacy_services_title, Res.string.privacy_services_body),
+        LegalDocumentSection(Res.string.privacy_choices_title, Res.string.privacy_choices_body),
+        LegalDocumentSection(Res.string.privacy_children_title, Res.string.privacy_children_body),
+        LegalDocumentSection(Res.string.privacy_changes_title, Res.string.privacy_changes_body),
+        LegalDocumentSection(Res.string.privacy_contact_title, Res.string.privacy_contact_body),
+    )
 
-private val termsConditionsSections = listOf(
-    LegalDocumentSection(Res.string.terms_acceptance_title, Res.string.terms_acceptance_body),
-    LegalDocumentSection(Res.string.terms_service_title, Res.string.terms_service_body),
-    LegalDocumentSection(Res.string.terms_content_title, Res.string.terms_content_body),
-    LegalDocumentSection(Res.string.terms_user_responsibilities_title, Res.string.terms_user_responsibilities_body),
-    LegalDocumentSection(Res.string.terms_third_party_title, Res.string.terms_third_party_body),
-    LegalDocumentSection(Res.string.terms_ownership_title, Res.string.terms_ownership_body),
-    LegalDocumentSection(Res.string.terms_disclaimer_title, Res.string.terms_disclaimer_body),
-    LegalDocumentSection(Res.string.terms_changes_title, Res.string.terms_changes_body),
-    LegalDocumentSection(Res.string.terms_contact_title, Res.string.terms_contact_body),
-)
-
+private val termsConditionsSections =
+    listOf(
+        LegalDocumentSection(Res.string.terms_acceptance_title, Res.string.terms_acceptance_body),
+        LegalDocumentSection(Res.string.terms_service_title, Res.string.terms_service_body),
+        LegalDocumentSection(Res.string.terms_content_title, Res.string.terms_content_body),
+        LegalDocumentSection(Res.string.terms_user_responsibilities_title, Res.string.terms_user_responsibilities_body),
+        LegalDocumentSection(Res.string.terms_third_party_title, Res.string.terms_third_party_body),
+        LegalDocumentSection(Res.string.terms_ownership_title, Res.string.terms_ownership_body),
+        LegalDocumentSection(Res.string.terms_disclaimer_title, Res.string.terms_disclaimer_body),
+        LegalDocumentSection(Res.string.terms_changes_title, Res.string.terms_changes_body),
+        LegalDocumentSection(Res.string.terms_contact_title, Res.string.terms_contact_body),
+    )

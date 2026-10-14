@@ -13,11 +13,13 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.arrazyfathan.kbbi.MainActivity
 import com.arrazyfathan.kbbi.R
 import com.arrazyfathan.kbbi.feature.reminders.data.ReminderContentProvider
+import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderContent
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderDestination
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
@@ -49,7 +51,9 @@ class DailyReminderWorker(
                     koin
                         .get<ReminderContentProvider>()
                         .create(type, y, day, dateKey, preferences.language)
-                if (content != null && !alreadyDelivered(type, dateKey)) post(content)
+                if (content != null && !alreadyDelivered(type, dateKey) && post(content)) {
+                    markDelivered(type, dateKey)
+                }
             }
             koin.get<ReminderScheduler>().schedule(type)
             Result.success()
@@ -78,7 +82,15 @@ class DailyReminderWorker(
             .getSharedPreferences(STORE, Context.MODE_PRIVATE)
             .getString(type.name, null) == date
 
-    private fun post(content: com.arrazyfathan.kbbi.feature.reminders.domain.ReminderContent) {
+    private fun post(content: ReminderContent): Boolean {
+        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return false
+        }
+
         val channel = "kbbi_reminder_${content.type.name.lowercase()}"
         val manager = applicationContext.getSystemService(NotificationManager::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -99,7 +111,7 @@ class DailyReminderWorker(
         val intent =
             Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse(uri),
+                uri.toUri(),
                 applicationContext,
                 MainActivity::class.java,
             ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -121,11 +133,22 @@ class DailyReminderWorker(
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .build()
-        NotificationManagerCompat
-            .from(applicationContext)
-            .notify(4100 + content.type.ordinal, notification)
+        return try {
+            NotificationManagerCompat
+                .from(applicationContext)
+                .notify(4100 + content.type.ordinal, notification)
+            true
+        } catch (_: SecurityException) {
+            false
+        }
+    }
+
+    private fun markDelivered(
+        type: ReminderType,
+        date: String,
+    ) {
         applicationContext.getSharedPreferences(STORE, Context.MODE_PRIVATE).edit {
-            putString(content.type.name, content.occurrenceDate)
+            putString(type.name, date)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.arrazyfathan.kbbi.core.data.visitor
 
+import androidx.core.content.edit
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdStorage
 import com.arrazyfathan.kbbi.feature.home.data.source.local.room.appContext
 
@@ -11,7 +12,7 @@ class AndroidVisitorIdStorage : VisitorIdStorage {
     override fun getVisitorId(): String? = preferences.getString(VISITOR_ID_KEY, null)
 
     override fun saveVisitorId(visitorId: String) {
-        preferences.edit().putString(VISITOR_ID_KEY, visitorId).apply()
+        preferences.edit { putString(VISITOR_ID_KEY, visitorId) }
     }
 
     private companion object {

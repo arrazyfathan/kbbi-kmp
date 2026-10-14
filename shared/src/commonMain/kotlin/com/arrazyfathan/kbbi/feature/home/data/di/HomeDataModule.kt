@@ -3,8 +3,8 @@ package com.arrazyfathan.kbbi.feature.home.data.di
 import com.arrazyfathan.kbbi.feature.home.data.WordRepository
 import com.arrazyfathan.kbbi.feature.home.data.source.local.AssetWordCatalogRepository
 import com.arrazyfathan.kbbi.feature.home.data.source.local.WordLocalDataSource
-import com.arrazyfathan.kbbi.feature.home.data.source.remote.WordRemoteDataSource
 import com.arrazyfathan.kbbi.feature.home.data.source.remote.TopWordsRemoteDataSource
+import com.arrazyfathan.kbbi.feature.home.data.source.remote.WordRemoteDataSource
 import com.arrazyfathan.kbbi.feature.home.domain.repository.BookmarkRepository
 import com.arrazyfathan.kbbi.feature.home.domain.repository.SearchHistoryRepository
 import com.arrazyfathan.kbbi.feature.home.domain.repository.TopWordsRepository

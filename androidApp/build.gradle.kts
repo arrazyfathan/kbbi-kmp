@@ -11,8 +11,8 @@ plugins {
 
 // CI supplies this project's own Firebase configuration; source credentials are never copied.
 if (file("google-services.json").isFile) {
-    apply(plugin = "com.google.gms.google-services")
-    apply(plugin = "com.google.firebase.crashlytics")
+    pluginManager.apply("com.google.gms.google-services")
+    pluginManager.apply("com.google.firebase.crashlytics")
 }
 
 val appVersion =
@@ -71,6 +71,13 @@ android {
                 .toInt()
         versionCode = appVersionCode
         versionName = appVersionName
+    }
+    bundle {
+        language {
+            // The app has an in-app language picker, so package all supported
+            // language resources instead of relying on the device locale split.
+            enableSplit = false
+        }
     }
     packaging {
         resources {

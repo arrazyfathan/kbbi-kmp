@@ -134,6 +134,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun AiSettingsRoute(onNavigateBack: () -> Unit) {
@@ -162,7 +163,7 @@ fun AiSettingsRoute(onNavigateBack: () -> Unit) {
     }
     LaunchedEffect(alert) {
         if (alert != null) {
-            delay(2200)
+            delay(2200.milliseconds)
             alert = null
         }
     }

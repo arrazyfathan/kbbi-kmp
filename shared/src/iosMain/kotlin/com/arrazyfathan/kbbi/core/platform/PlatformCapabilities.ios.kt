@@ -1,5 +1,8 @@
 package com.arrazyfathan.kbbi.core.platform
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDefaults
 import platform.UIKit.UIActivityViewController
@@ -7,9 +10,6 @@ import platform.UIKit.UIApplication
 import platform.UIKit.UIImpactFeedbackGenerator
 import platform.UIKit.UIImpactFeedbackStyle
 import platform.UIKit.UIModalPresentationFullScreen
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 
 internal class IosTextShare : TextShare {
@@ -35,13 +35,14 @@ internal class IosUrlOpener : UrlOpener {
     override suspend fun openAndAwait(url: String): CapabilityResult<Unit> =
         withContext(Dispatchers.Main.immediate) {
             suspendCancellableCoroutine { continuation ->
-                val dispatchResult = openNative(url) { opened ->
-                    if (continuation.isActive) {
-                        continuation.resume(
-                            if (opened) CapabilityResult.Success(Unit) else CapabilityResult.Unavailable,
-                        )
+                val dispatchResult =
+                    openNative(url) { opened ->
+                        if (continuation.isActive) {
+                            continuation.resume(
+                                if (opened) CapabilityResult.Success(Unit) else CapabilityResult.Unavailable,
+                            )
+                        }
                     }
-                }
                 if (dispatchResult !is CapabilityResult.Success && continuation.isActive) {
                     continuation.resume(dispatchResult)
                 }

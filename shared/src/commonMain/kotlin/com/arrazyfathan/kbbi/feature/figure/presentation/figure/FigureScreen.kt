@@ -125,6 +125,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val INITIAL_SHIMMER_COUNT = 6
 private const val SHIMMER_DURATION_MILLIS = 1_100
@@ -178,7 +179,7 @@ fun FigureScreen(
             .distinctUntilChanged()
             .collectLatest { isScrolling ->
                 if (!isScrolling) {
-                    delay(1_000)
+                    delay(1_000.milliseconds)
                     isSearchVisible = true
                 }
             }
@@ -308,7 +309,6 @@ fun FigureScreen(
                         }
 
                         is LoadState.NotLoading -> {
-                            Unit
                         }
                     }
                 }

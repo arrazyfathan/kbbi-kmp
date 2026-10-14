@@ -1,7 +1,7 @@
 package com.arrazyfathan.kbbi.feature.home.data.source.local.room
 
-import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.CachedTopWordEntity
+import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.HistoryEntity
 import com.arrazyfathan.kbbi.feature.home.data.source.local.entity.ListWordEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow

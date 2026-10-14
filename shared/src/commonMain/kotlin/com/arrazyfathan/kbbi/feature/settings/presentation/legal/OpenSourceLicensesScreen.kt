@@ -21,17 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
-import kbbi_kmp.shared.generated.resources.Res
-import kbbi_kmp.shared.generated.resources.ic_arrow_back
-import kbbi_kmp.shared.generated.resources.navigate_back
-import kbbi_kmp.shared.generated.resources.open_source_licenses_title
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
@@ -39,6 +33,12 @@ import com.mikepenz.aboutlibraries.ui.compose.m3.style.m3VariantColors
 import com.mikepenz.aboutlibraries.ui.compose.produceLibraries
 import com.mikepenz.aboutlibraries.ui.compose.variant.LibrariesVariant
 import com.mikepenz.aboutlibraries.ui.compose.variant.LibraryBadges
+import kbbi_kmp.shared.generated.resources.Res
+import kbbi_kmp.shared.generated.resources.ic_arrow_back
+import kbbi_kmp.shared.generated.resources.navigate_back
+import kbbi_kmp.shared.generated.resources.open_source_licenses_title
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun OpenSourceLicensesScreen(onNavigateBack: () -> Unit) {
@@ -101,13 +101,14 @@ private fun OpenSourceLicensesContent(
         },
     ) { padding ->
         LibrariesContainer(
-            modifier = Modifier.fillMaxSize().padding(
-                PaddingValues(
-                    start = padding.calculateStartPadding(layoutDirection),
-                    top = padding.calculateTopPadding(),
-                    end = padding.calculateEndPadding(layoutDirection),
+            modifier =
+                Modifier.fillMaxSize().padding(
+                    PaddingValues(
+                        start = padding.calculateStartPadding(layoutDirection),
+                        top = padding.calculateTopPadding(),
+                        end = padding.calculateEndPadding(layoutDirection),
+                    ),
                 ),
-            ),
             contentPadding = PaddingValues(bottom = padding.calculateBottomPadding()),
             libraries = libraries,
             variant = LibrariesVariant.Traditional,
@@ -124,4 +125,3 @@ private fun OpenSourceLicensesContent(
         )
     }
 }
-

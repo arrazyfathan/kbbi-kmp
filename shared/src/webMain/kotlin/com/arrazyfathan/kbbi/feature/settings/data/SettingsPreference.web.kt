@@ -15,5 +15,5 @@ internal actual fun writeSettingsPreference(
 }
 
 internal actual fun applySettingsLanguage(languageTag: String) {
-    runCatching { document.documentElement?.setAttribute("lang", languageTag) }
+    runCatching { document.documentElement.setAttribute("lang", languageTag) }
 }

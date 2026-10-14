@@ -3,6 +3,7 @@ package com.arrazyfathan.kbbi.feature.wordstudy.data
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import androidx.core.content.edit
 import com.arrazyfathan.kbbi.feature.home.data.source.local.room.appContext
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -34,7 +35,7 @@ internal actual object AiConfigurationPlatformStore {
         key: String,
         value: String?,
     ) {
-        metadata.edit().apply { if (value == null) remove(key) else putString(key, value) }.apply()
+        metadata.edit { if (value == null) remove(key) else putString(key, value) }
     }
 
     actual fun readSecret(key: String): String? =
@@ -56,7 +57,7 @@ internal actual object AiConfigurationPlatformStore {
     ): Boolean =
         runCatching {
             if (value == null) {
-                secrets.edit().remove(key).commit()
+                secrets.edit { remove(key) }
             } else {
                 val cipher = Cipher.getInstance(TRANSFORMATION)
                 cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
@@ -66,8 +67,9 @@ internal actual object AiConfigurationPlatformStore {
                             cipher.doFinal(value.toByteArray()),
                             Base64.NO_WRAP,
                         )
-                secrets.edit().putString(key, packed).commit()
+                secrets.edit { putString(key, packed) }
             }
+            true
         }.getOrDefault(false)
 
     private fun keyStore() = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
