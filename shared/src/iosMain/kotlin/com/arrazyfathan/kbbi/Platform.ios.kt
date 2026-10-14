@@ -8,7 +8,6 @@ import com.arrazyfathan.kbbi.core.domain.visitor.StoredVisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdStorage
 import com.arrazyfathan.kbbi.core.platform.AlternateAppIcon
-import com.arrazyfathan.kbbi.core.platform.EmptyIncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.IosHaptics
 import com.arrazyfathan.kbbi.core.platform.IosLocaleProvider
@@ -23,6 +22,9 @@ import com.arrazyfathan.kbbi.core.platform.UnsupportedAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.UnsupportedNotificationPermission
 import com.arrazyfathan.kbbi.core.platform.UnsupportedSpeechInput
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
+import com.arrazyfathan.kbbi.feature.reminders.IosReminderScheduler
+import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
+import com.arrazyfathan.kbbi.navigation.IosIncomingLaunchRequests
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.darwin.Darwin
 import org.koin.core.module.Module
@@ -51,7 +53,8 @@ actual val platformModule: Module =
         single<SpeechInput> { UnsupportedSpeechInput }
         single<NotificationPermission> { UnsupportedNotificationPermission }
         single<AlternateAppIcon> { UnsupportedAlternateAppIcon }
-        single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
+        single<IncomingLaunchRequests> { IosIncomingLaunchRequests }
+        single<ReminderScheduler> { IosReminderScheduler(get(), get()) }
     }
 
 @Composable

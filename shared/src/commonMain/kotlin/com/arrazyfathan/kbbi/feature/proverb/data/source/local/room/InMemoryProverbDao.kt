@@ -7,13 +7,12 @@ class InMemoryProverbDao : ProverbDao {
     private val proverbs = mutableListOf<CachedProverbEntity>()
     private val details = mutableMapOf<String, CachedProverbDetailEntity>()
 
+    override suspend fun getCachedProverbs(): List<CachedProverbEntity> = proverbs.sortedBy { it.slug }
+
     override suspend fun getProverbs(
         query: String,
         page: Int,
-    ): List<CachedProverbEntity> =
-        proverbs
-            .filter { it.query == query && it.page == page }
-            .sortedBy { it.position }
+    ): List<CachedProverbEntity> = proverbs.filter { it.query == query && it.page == page }.sortedBy { it.position }
 
     override suspend fun replaceProverbPage(
         query: String,

@@ -13,6 +13,7 @@ androidx-espresso = "3.7.0"
 androidx-lifecycle = "2.11.0"
 lifecycleNav3 = "1.0.0-alpha04"
 androidx-testExt = "1.3.0"
+androidx-work = "2.12.0"
 composeMultiplatform = "1.12.1"
 compottie = "2.3.3"
 junit = "4.13.2"
@@ -74,6 +75,7 @@ androidx-lifecycle-viewmodel-navigation3 = { module = "org.jetbrains.androidx.li
 # Room
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "androidx-work" }
 androidx-sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version.ref = "sqlite" }
 
 # Ktor

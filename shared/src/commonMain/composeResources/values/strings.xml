@@ -130,6 +130,8 @@
     <string name="notification_daily_word_channel">Word of the day</string>
     <string name="notification_daily_proverb_channel">Daily proverb</string>
     <string name="notification_bookmark_channel">Bookmark review</string>
+    <string name="reminder_fallback_open">Open</string>
+    <string name="reminder_fallback_dismiss">Dismiss</string>
     <string name="about_section_title">About</string>
     <string name="app_update_title">App update</string>
     <string name="app_update_available">v%1$s available</string>

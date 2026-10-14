@@ -9,6 +9,9 @@ import com.arrazyfathan.kbbi.feature.proverb.data.source.local.entity.CachedProv
 
 @Dao
 interface RoomProverbDao {
+    @Query("SELECT * FROM cached_proverb_table ORDER BY slug ASC")
+    suspend fun getCachedProverbs(): List<SqliteCachedProverbEntity>
+
     @Query("SELECT * FROM cached_proverb_table WHERE query = :query AND page = :page ORDER BY position ASC")
     suspend fun getProverbs(
         query: String,
@@ -55,6 +58,9 @@ interface RoomProverbDao {
 class RoomProverbDaoAdapter(
     private val dao: RoomProverbDao,
 ) : ProverbDao {
+    override suspend fun getCachedProverbs(): List<CachedProverbEntity> =
+        dao.getCachedProverbs().map(SqliteCachedProverbEntity::toCommonEntity)
+
     override suspend fun getProverbs(
         query: String,
         page: Int,

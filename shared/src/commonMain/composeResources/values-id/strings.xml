@@ -129,6 +129,8 @@
     <string name="notification_daily_word_channel">Kata Hari Ini</string>
     <string name="notification_daily_proverb_channel">Peribahasa harian</string>
     <string name="notification_bookmark_channel">Tinjauan kata tersimpan</string>
+    <string name="reminder_fallback_open">Buka</string>
+    <string name="reminder_fallback_dismiss">Tutup</string>
     <string name="about_section_title">Tentang</string>
     <string name="app_update_title">Pembaruan aplikasi</string>
     <string name="app_update_available">v%1$s tersedia</string>

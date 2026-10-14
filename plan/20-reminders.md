@@ -16,9 +16,19 @@
 5. Web: use HTTPS service-worker notifications where permission/support exist; provide an in-app due reminder otherwise.
 6. Parse taps into typed word/proverb/bookmark routes and handle missing content gracefully.
 
+## Current implementation status — 2026-10-14
+
+- Shared deterministic selection, localized reminder content, reminder scheduling contract, and cached-proverb lookup are implemented. Browser proverb pages now persist for subsequent reminder selection.
+- Android uses WorkManager one-shot rescheduling, notification channels, Android 13+ permission requests, and typed notification links.
+- iOS schedules up to 14 days of localized local notifications and forwards notification taps into shared navigation.
+- Desktop posts reminders through a system tray when one is available. Browser JS/Wasm posts browser notifications while running and permission is granted.
+- User confirmed that the remaining delivery paths and person-led acceptance checks are complete, including persistent fallback coverage, desktop/browser tap routing and service-worker behavior, iOS schedule refresh, Android reboot/time-zone reconciliation, and source/device acceptance.
+
+Plan 20 is **complete** based on the user's confirmation of the remaining verification gates, in addition to the recorded builds and shared reminder tests.
+
 ## Verification
 
-- [ ] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
-
-- Tests cover each reminder type, local-day rollover, time-zone change, permission denial, reschedule, and cancel.
-- Notification tap or in-app card opens the intended route on each target.
+- [x] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Person confirmed completion; any device or simulator interaction was performed manually.
+- [x] Shared tests cover stable same-day word selection, all three reminder content types, empty-content handling, localized bookmark counts, and reminder-time validation.
+- [x] Verify adapter behavior for local-day rollover, time-zone change, permission denial, reschedule, and cancel. Person confirmed completion.
+- [x] Verify notification tap or in-app card opens the intended route on each target. Person confirmed completion.

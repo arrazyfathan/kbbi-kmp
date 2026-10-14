@@ -21,6 +21,11 @@ class NetworkProverbRepository(
     private val remoteDataSource: ProverbRemoteDataSource,
     private val localDataSource: ProverbLocalDataSource,
 ) : ProverbRepository {
+    override suspend fun getCachedProverbsForReminder(): List<ProverbModel> =
+        localDataSource.getCachedProverbs().distinctBy { it.slug }.map { cached ->
+            ProverbModel(cached.text, cached.letter, cached.slug, cached.sourceUrl)
+        }
+
     override fun getListProverbs(query: String): Flow<PagingData<ProverbModel>> =
         Pager(
             config =

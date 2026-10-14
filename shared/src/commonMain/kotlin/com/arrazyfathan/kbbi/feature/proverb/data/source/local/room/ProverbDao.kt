@@ -4,6 +4,8 @@ import com.arrazyfathan.kbbi.feature.proverb.data.source.local.entity.CachedProv
 import com.arrazyfathan.kbbi.feature.proverb.data.source.local.entity.CachedProverbEntity
 
 interface ProverbDao {
+    suspend fun getCachedProverbs(): List<CachedProverbEntity> = emptyList()
+
     suspend fun getProverbs(
         query: String,
         page: Int,

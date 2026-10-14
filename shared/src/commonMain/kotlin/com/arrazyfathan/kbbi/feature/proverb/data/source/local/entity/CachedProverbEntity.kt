@@ -1,5 +1,8 @@
 package com.arrazyfathan.kbbi.feature.proverb.data.source.local.entity
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class CachedProverbEntity(
     val query: String,
     val page: Int,

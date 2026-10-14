@@ -30,6 +30,8 @@ import com.arrazyfathan.kbbi.core.platform.UnsupportedNotificationPermission
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
 import com.arrazyfathan.kbbi.core.utils.updateSystemBarStyle
 import com.arrazyfathan.kbbi.feature.home.data.source.local.room.appContext
+import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
+import com.arrazyfathan.kbbi.feature.reminders.domain.UnsupportedReminderScheduler
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.core.module.Module
@@ -55,6 +57,7 @@ actual val platformModule: Module =
         single<NotificationPermission> { UnsupportedNotificationPermission }
         single<AlternateAppIcon> { UnsupportedAlternateAppIcon }
         single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
+        single<ReminderScheduler> { UnsupportedReminderScheduler }
     }
 
 private tailrec fun Context.findActivity(): Activity? =

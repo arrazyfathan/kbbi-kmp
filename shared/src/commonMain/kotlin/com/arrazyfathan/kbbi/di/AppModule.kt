@@ -37,6 +37,7 @@ import com.arrazyfathan.kbbi.feature.proverb.data.di.proverbRepositoryModule
 import com.arrazyfathan.kbbi.feature.proverb.domain.usecase.GetListProverbsUseCase
 import com.arrazyfathan.kbbi.feature.proverb.domain.usecase.GetProverbMeaningUseCase
 import com.arrazyfathan.kbbi.feature.proverb.presentation.proverb.ProverbViewModel
+import com.arrazyfathan.kbbi.feature.reminders.data.ReminderContentProvider
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
 import com.arrazyfathan.kbbi.feature.settings.presentation.SettingsViewModel
 import com.arrazyfathan.kbbi.feature.words.presentation.words.WordViewModel
@@ -63,6 +64,7 @@ val useCaseModule =
     module {
         single { BookmarkLayoutPreferenceStore() }
         single { SettingsPreferenceStore(get(), get()) }
+        single { ReminderContentProvider(get(), get(), get()) }
         single<Haptics> { SettingsAwareHaptics(get()) { get<SettingsPreferenceStore>().preferences.value.hapticsEnabled } }
         factoryOf(::SearchWordUseCase)
         factoryOf(::RestoreWordUseCase)

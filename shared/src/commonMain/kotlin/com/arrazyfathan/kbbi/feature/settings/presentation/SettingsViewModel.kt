@@ -6,6 +6,7 @@ import com.arrazyfathan.kbbi.core.domain.model.AppTheme
 import com.arrazyfathan.kbbi.core.observability.ReportingCapabilities
 import com.arrazyfathan.kbbi.core.observability.ReportingController
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.ClearSearchHistoryUseCase
+import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
 import com.arrazyfathan.kbbi.feature.settings.domain.AppLanguage
 import com.arrazyfathan.kbbi.feature.settings.domain.ReminderType
@@ -22,6 +23,7 @@ class SettingsViewModel(
     private val preferences: SettingsPreferenceStore,
     private val clearSearchHistory: ClearSearchHistoryUseCase,
     private val reporting: ReportingController,
+    private val reminderScheduler: ReminderScheduler,
 ) : ViewModel() {
     val state: StateFlow<SettingsState> =
         preferences.preferences
@@ -79,6 +81,15 @@ class SettingsViewModel(
                     preferences.preferences.value.reminders
                         .getValue(action.type)
                 preferences.setReminder(action.type, current.copy(enabled = action.enabled))
+                viewModelScope.launch {
+                    if (action.enabled) {
+                        reminderScheduler.schedule(action.type)
+                    } else {
+                        reminderScheduler.cancel(
+                            action.type,
+                        )
+                    }
+                }
             }
 
             is SettingsAction.ReminderTimeChanged -> {
@@ -89,6 +100,9 @@ class SettingsViewModel(
                     action.type,
                     current.copy(hour = action.hour, minute = action.minute),
                 )
+                viewModelScope.launch {
+                    if (current.enabled) reminderScheduler.schedule(action.type)
+                }
             }
 
             is SettingsAction.AppIcon -> {
