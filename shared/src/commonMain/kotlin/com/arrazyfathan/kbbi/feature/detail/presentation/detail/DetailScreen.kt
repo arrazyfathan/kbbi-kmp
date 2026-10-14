@@ -287,16 +287,11 @@ fun DetailContent(
                             if (listWordModel.aiGenerated) aiSourceLabel else kbbiSourceLabel
                         val sharedText =
                             wordModel.toDefinitionShareText(listWordModel.word, sourceLabel)
-                        when (textShare.share(sharedText)) {
-                            is CapabilityResult.Success -> {
-                            }
-
-                            else -> {
-                                onShowAlert(
-                                    UiText.StringResource(Res.string.share_unavailable),
-                                    AppAlertType.Failed,
-                                )
-                            }
+                        if (textShare.share(sharedText) !is CapabilityResult.Success) {
+                            onShowAlert(
+                                UiText.StringResource(Res.string.share_unavailable),
+                                AppAlertType.Failed,
+                            )
                         }
                     },
                 )

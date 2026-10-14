@@ -1,4 +1,5 @@
 @file:OptIn(
+    kotlinx.cinterop.BetaInteropApi::class,
     kotlinx.cinterop.ExperimentalForeignApi::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
 )

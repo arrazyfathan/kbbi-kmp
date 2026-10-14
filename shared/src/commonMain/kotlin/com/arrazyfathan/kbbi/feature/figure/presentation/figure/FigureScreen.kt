@@ -308,8 +308,7 @@ fun FigureScreen(
                             }
                         }
 
-                        is LoadState.NotLoading -> {
-                        }
+                        is LoadState.NotLoading -> Unit
                     }
                 }
             }
