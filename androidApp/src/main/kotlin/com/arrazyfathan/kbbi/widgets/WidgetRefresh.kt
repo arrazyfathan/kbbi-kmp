@@ -1,0 +1,163 @@
+package com.arrazyfathan.kbbi.widgets
+
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
+import androidx.glance.appwidget.updateAll
+import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
+import com.arrazyfathan.kbbi.core.logging.AppLogger
+import com.arrazyfathan.kbbi.feature.home.domain.repository.BookmarkRepository
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
+
+internal object WidgetRefreshScheduler {
+    private const val UNIQUE_WORK_NAME = "kbbi_daily_data_widget_refresh"
+    private const val IMMEDIATE_REFRESH_WORK_NAME = "kbbi_widget_time_change_refresh"
+    private const val PERIOD_HOURS = 24L
+
+    fun reconcile(context: Context) {
+        val applicationContext = context.applicationContext
+        val manager = AppWidgetManager.getInstance(applicationContext)
+        val hasDataWidgets =
+            manager
+                .getAppWidgetIds(
+                    ComponentName(
+                        applicationContext,
+                        WordOfDayWidgetReceiver::class.java,
+                    ),
+                ).isNotEmpty() ||
+                manager
+                    .getAppWidgetIds(
+                        ComponentName(
+                            applicationContext,
+                            SavedWordWidgetReceiver::class.java,
+                        ),
+                    ).isNotEmpty()
+        val workManager = WorkManager.getInstance(applicationContext)
+        if (hasDataWidgets) {
+            val request =
+                PeriodicWorkRequestBuilder<WidgetRefreshWorker>(
+                    PERIOD_HOURS,
+                    TimeUnit.HOURS,
+                ).setInitialDelay(
+                    delayToNextLocalDay(),
+                    TimeUnit.MILLISECONDS,
+                ).build()
+            workManager.enqueueUniquePeriodicWork(
+                UNIQUE_WORK_NAME,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                request,
+            )
+        } else {
+            workManager.cancelUniqueWork(UNIQUE_WORK_NAME)
+        }
+    }
+
+    fun onSystemTimeChanged(context: Context) {
+        reconcile(context)
+        val manager = AppWidgetManager.getInstance(context.applicationContext)
+        val hasDataWidgets =
+            manager
+                .getAppWidgetIds(ComponentName(context, WordOfDayWidgetReceiver::class.java))
+                .isNotEmpty() ||
+                manager
+                    .getAppWidgetIds(
+                        ComponentName(
+                            context,
+                            SavedWordWidgetReceiver::class.java,
+                        ),
+                    ).isNotEmpty()
+        if (hasDataWidgets) {
+            WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+                IMMEDIATE_REFRESH_WORK_NAME,
+                ExistingWorkPolicy.KEEP,
+                OneTimeWorkRequestBuilder<WidgetRefreshWorker>().build(),
+            )
+        }
+    }
+
+    private fun delayToNextLocalDay(): Long {
+        val now = Calendar.getInstance()
+        val nextDay =
+            (now.clone() as Calendar).apply {
+                add(Calendar.DAY_OF_YEAR, 1)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+        return nextDay.timeInMillis - now.timeInMillis
+    }
+}
+
+internal class WidgetSystemChangeReceiver : android.content.BroadcastReceiver() {
+    override fun onReceive(
+        context: Context,
+        intent: android.content.Intent,
+    ) {
+        when (intent.action) {
+            android.content.Intent.ACTION_TIME_CHANGED,
+            android.content.Intent.ACTION_TIMEZONE_CHANGED,
+            android.content.Intent.ACTION_DATE_CHANGED,
+            android.content.Intent.ACTION_BOOT_COMPLETED,
+            android.content.Intent.ACTION_MY_PACKAGE_REPLACED,
+            -> WidgetRefreshScheduler.onSystemTimeChanged(context)
+        }
+    }
+}
+
+internal class WidgetRefreshWorker(
+    appContext: Context,
+    workerParams: WorkerParameters,
+) : CoroutineWorker(appContext, workerParams) {
+    // Any unexpected Glance update failure should be logged and retried without swallowing cancellation.
+    @Suppress("TooGenericExceptionCaught")
+    override suspend fun doWork(): Result =
+        try {
+            WordOfDayWidget().updateAll(applicationContext)
+            SavedWordWidget().updateAll(applicationContext)
+            Result.success()
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            AppLogger.error("WidgetRefresh", error, "Scheduled widget refresh failed")
+            Result.retry()
+        }
+}
+
+internal class BookmarkWidgetCoordinator(
+    private val context: Context,
+    private val repository: BookmarkRepository,
+) {
+    // Keep the long-lived bookmark observer active after rendering failures while preserving cancellation.
+    @Suppress("TooGenericExceptionCaught")
+    suspend fun observeBookmarkChanges() {
+        repository
+            .getBookmarks()
+            .map { bookmarks -> bookmarks.map { it.word }.sorted() }
+            .distinctUntilChanged()
+            .collect {
+                try {
+                    SavedWordWidget().updateAll(context)
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    AppLogger.error(
+                        "WidgetRefresh",
+                        error,
+                        "Bookmark widget synchronization failed",
+                    )
+                    // A later bookmark change will retry while the daily worker remains a fallback.
+                }
+            }
+    }
+}

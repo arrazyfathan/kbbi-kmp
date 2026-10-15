@@ -2,6 +2,7 @@ import Shared
 import SwiftUI
 import UIKit
 import UserNotifications
+import WidgetKit
 
 @main
 struct iOSApp: App {
@@ -14,6 +15,7 @@ struct iOSApp: App {
             ExternalEntryConfigurationKt.getShareExtensionApiBaseUrl(),
             forKey: "apiBaseUrl"
         )
+        WidgetSnapshotBridge.start()
     }
 
     var body: some Scene {
@@ -24,9 +26,40 @@ struct iOSApp: App {
                 }
                 .onAppear(perform: consumeDeferredShare)
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { consumeDeferredShare() }
+                    if phase == .active {
+                        consumeDeferredShare()
+                        WidgetSnapshotBridge.reconcile()
+                    }
                 }
         }
+    }
+}
+
+private enum WidgetSnapshotBridge {
+    static func start() {
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name("com.arrazyfathan.kbbi.widgetSnapshotUpdated"),
+            object: nil,
+            queue: .main
+        ) { notification in
+            guard let encoded = notification.object as? String,
+                  let data = encoded.data(using: .utf8),
+                  data.count <= 2_000_000,
+                  let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.arrazyfathan.kbbi") else { return }
+            let destination = container.appendingPathComponent("widget-snapshot.json")
+            do {
+                try data.write(to: destination, options: .atomic)
+                WidgetCenter.shared.reloadTimelines(ofKind: "com.arrazyfathan.kbbi.widget.word-of-day")
+                WidgetCenter.shared.reloadTimelines(ofKind: "com.arrazyfathan.kbbi.widget.saved-word")
+            } catch {
+                NSLog("KBBI widget snapshot publish failed: %@", String(describing: error))
+            }
+        }
+    }
+
+    static func reconcile() {
+        WidgetCenter.shared.reloadTimelines(ofKind: "com.arrazyfathan.kbbi.widget.word-of-day")
+        WidgetCenter.shared.reloadTimelines(ofKind: "com.arrazyfathan.kbbi.widget.saved-word")
     }
 }
 

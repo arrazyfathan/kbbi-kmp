@@ -69,6 +69,7 @@ import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import com.arrazyfathan.kbbi.core.platform.Haptics
+import com.arrazyfathan.kbbi.core.platform.supportsGlanceableHomeSurface
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchAction
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
@@ -80,6 +81,7 @@ import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
 import com.arrazyfathan.kbbi.core.presentation.ui.LocalAppLoadingController
 import com.arrazyfathan.kbbi.core.presentation.ui.asStringNonComposable
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
+import com.arrazyfathan.kbbi.feature.widgets.GlanceableEntrySection
 import com.arrazyfathan.kbbi.navigation.IncomingActionSignal
 import com.arrazyfathan.kbbi.showToast
 import kbbi_kmp.shared.generated.resources.Res
@@ -113,6 +115,7 @@ fun HomeScreen(
     onNavigateToFigure: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAiSettings: () -> Unit = {},
+    onNavigateToBookmarks: () -> Unit = {},
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val haptics: Haptics = koinInject()
@@ -194,6 +197,7 @@ fun HomeScreen(
         onNavigateToFigure = onNavigateToFigure,
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToAiSettings = onNavigateToAiSettings,
+        onNavigateToBookmarks = onNavigateToBookmarks,
         modifier = modifier,
         onVoiceSearchClick = {
             if (isHomeVoiceSearchEnabled) viewModel.onAction(HomeAction.StartVoice(speechInput))
@@ -213,6 +217,7 @@ fun HomeContent(
     onNavigateToFigure: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAiSettings: () -> Unit = {},
+    onNavigateToBookmarks: () -> Unit = {},
     onVoiceSearchClick: () -> Unit = {},
     onVoiceSearchCancel: () -> Unit = {},
     voiceSearchEnabled: Boolean = isHomeVoiceSearchEnabled,
@@ -290,6 +295,18 @@ fun HomeContent(
                 fontWeight = FontWeight.Normal,
                 lineHeight = 20.sp,
             )
+
+            if (supportsGlanceableHomeSurface) {
+                GlanceableEntrySection(
+                    onSearch = { word ->
+                        onAction(HomeAction.OnSearchQueryChanged(word))
+                        onAction(HomeAction.OnSearchSubmitted(word))
+                    },
+                    onQuickSearch = { onAction(HomeAction.OnSearchFocusChanged(true)) },
+                    onOpenBookmarks = onNavigateToBookmarks,
+                    modifier = Modifier.padding(top = 16.dp),
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 

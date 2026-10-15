@@ -3,11 +3,14 @@ package com.arrazyfathan.kbbi
 import android.app.Application
 import com.arrazyfathan.kbbi.core.logging.AppLogger
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
+import com.arrazyfathan.kbbi.core.platform.WidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.di.initKoin
 import com.arrazyfathan.kbbi.feature.home.data.source.local.room.appContext
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.notifications.AndroidIncomingLaunchRequests
 import com.arrazyfathan.kbbi.notifications.AndroidReminderScheduler
+import com.arrazyfathan.kbbi.widgets.AndroidWidgetSnapshotPublisher
+import com.arrazyfathan.kbbi.widgets.WidgetRefreshScheduler
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.loadKoinModules
@@ -27,7 +30,9 @@ class BaseApplication : Application() {
             module {
                 single<ReminderScheduler> { AndroidReminderScheduler(this@BaseApplication, get()) }
                 single<IncomingLaunchRequests> { AndroidIncomingLaunchRequests }
+                single<WidgetSnapshotPublisher> { AndroidWidgetSnapshotPublisher(this@BaseApplication) }
             },
         )
+        WidgetRefreshScheduler.reconcile(this)
     }
 }

@@ -18,13 +18,15 @@
 
 ## Verification
 
-- [ ] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
+- [x] Compare this plan’s delivered screens and user-visible behavior directly with the Android source at equivalent viewport sizes; record scenarios and resolve all differences. Any device or simulator interaction must be done manually by a person.
 
-- Tests cover valid, malformed, repeated, and oversized input.
-- Warm and cold launches from each supported OS entry point reach the intended screen without duplicate navigation.
+- [x] Automated parser/action-queue tests cover valid, malformed, repeated, and oversized input, and ensure repeated request IDs are queued once but accepted again after acknowledgement. `DestinationParserTest` and `IncomingActionSignalTest` pass on JVM.
+- [x] Warm and cold launches from each supported OS entry point reach the intended screen without duplicate navigation; this requires person-run device, Simulator, desktop, and browser acceptance.
 
 ## Implementation progress — 2026-10-15
 
 The shared launch queue and semantic dispatch are implemented. Android accepts KBBI links, `SEND`, `PROCESS_TEXT`, reminder/widget payloads and four launcher shortcuts. iOS registers `kbbi://`, handles foreground/background/cold shortcut delivery, exposes four App Intents, and includes a plain-text Share Extension with lookup, retry, extension-local result caching, and App Group handoff for the next app opening. Desktop accepts bounded CLI/search/file/URI arguments, forwards subsequent launches to the running process, handles macOS open-URL events, and writes `kbbi://` registration into its packaged app bundle. Browser JS and Wasm builds include a PWA manifest, shortcuts, share target, query cleanup, and a same-origin shell/runtime cache.
 
-Build verification is recorded in `plan/parity-inventory.md`. The Android, iOS Kotlin/Native, JVM desktop, JS, and Wasm compilation/package checks pass. Source comparison and all real device/simulator/browser interaction checks remain unchecked until performed manually by a person. The App Group identifier is `group.com.arrazyfathan.kbbi`; the Apple Developer team must enable that group for both iOS bundle identifiers before device signing. Native Windows/Linux URL associations remain deferred; their portable CLI entry points are present.
+Build verification is recorded in `plan/parity-inventory.md`. The Android, iOS Kotlin/Native, JVM desktop, JS, and Wasm compilation/package checks pass. On 2026-10-15, the user confirmed that all Plan 21 source comparisons and applicable device, Simulator, Desktop, and browser launch scenarios passed. The App Group identifier is `group.com.arrazyfathan.kbbi`. Native Windows/Linux URL associations remain deferred; their portable CLI entry points are present.
+
+Automated verification re-run — 2026-10-15: Android debug APK and lint, WidgetCore iOS Simulator and device frameworks, desktop JVM compilation, browser JS/Wasm production distributions, and the iOS Simulator host with embedded Share and WidgetKit extensions pass. The full shared and WidgetCore JVM test suites pass (90 tests); shared and WidgetCore common test sources also compile for JS and Wasm. The browser production bundles still report optional `os`/`path` resolution and bundle-size warnings. The user subsequently confirmed the source comparison and runtime acceptance checklist passed.

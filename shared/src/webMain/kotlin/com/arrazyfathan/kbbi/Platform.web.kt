@@ -21,6 +21,8 @@ import com.arrazyfathan.kbbi.core.platform.UnsupportedPlatformHaptics
 import com.arrazyfathan.kbbi.core.platform.UnsupportedSpeechInput
 import com.arrazyfathan.kbbi.core.platform.UnsupportedTextShare
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
+import com.arrazyfathan.kbbi.core.platform.NoOpWidgetSnapshotPublisher
+import com.arrazyfathan.kbbi.core.platform.WidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.feature.reminders.BrowserReminderScheduler
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import io.ktor.client.engine.HttpClientEngine
@@ -48,6 +50,7 @@ actual val platformModule: Module =
         single<AlternateAppIcon> { UnsupportedAlternateAppIcon }
         single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
         single<ReminderScheduler> { BrowserReminderScheduler(get(), get()) }
+        single<WidgetSnapshotPublisher> { NoOpWidgetSnapshotPublisher }
     }
 
 @Composable

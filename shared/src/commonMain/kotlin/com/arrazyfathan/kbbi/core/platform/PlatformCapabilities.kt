@@ -3,6 +3,7 @@ package com.arrazyfathan.kbbi.core.platform
 import androidx.compose.runtime.Immutable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import com.arrazyfathan.kbbi.widgetcore.WidgetKind
 
 sealed interface CapabilityResult<out T> {
     data class Success<T>(
@@ -112,6 +113,8 @@ data class IncomingLaunchRequest(
     val uri: String? = null,
     val sharedText: String? = null,
     val action: IncomingLaunchAction? = null,
+    val widgetKind: WidgetKind? = null,
+    val widgetWord: String? = null,
     // Hosts must reuse this identity while redelivering the same OS request.
     val requestId: String =
         kotlin.random.Random

@@ -1,4 +1,4 @@
-const CACHE = 'kbbi-shell-v1';
+const CACHE = 'kbbi-shell-v2';
 const SHELL = ['./', './index.html', './styles.css', './manifest.webmanifest', './icon-192.svg', './icon-512.svg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)));

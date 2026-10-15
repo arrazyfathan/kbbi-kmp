@@ -40,6 +40,9 @@ import com.arrazyfathan.kbbi.feature.proverb.presentation.proverb.ProverbViewMod
 import com.arrazyfathan.kbbi.feature.reminders.data.ReminderContentProvider
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
 import com.arrazyfathan.kbbi.feature.settings.presentation.SettingsViewModel
+import com.arrazyfathan.kbbi.feature.widgets.GlanceableEntryViewModel
+import com.arrazyfathan.kbbi.feature.widgets.WidgetContentProvider
+import com.arrazyfathan.kbbi.feature.widgets.WidgetSyncCoordinator
 import com.arrazyfathan.kbbi.feature.words.presentation.words.WordViewModel
 import com.arrazyfathan.kbbi.feature.wordstudy.data.di.wordStudyDataModule
 import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.GenerateWordStudyUseCase
@@ -65,6 +68,8 @@ val useCaseModule =
         single { BookmarkLayoutPreferenceStore() }
         single { SettingsPreferenceStore(get(), get()) }
         single { ReminderContentProvider(get(), get(), get()) }
+        single { WidgetContentProvider(get(), get()) }
+        single { WidgetSyncCoordinator(get(), get(), get()) }
         single<Haptics> { SettingsAwareHaptics(get()) { get<SettingsPreferenceStore>().preferences.value.hapticsEnabled } }
         factoryOf(::SearchWordUseCase)
         factoryOf(::RestoreWordUseCase)
@@ -100,6 +105,7 @@ val viewModelModule =
         viewModelOf(::AiSettingsViewModel)
         viewModelOf(::WordDetailRouteViewModel)
         viewModelOf(::HomeViewModel)
+        viewModelOf(::GlanceableEntryViewModel)
         viewModelOf(::BookmarksViewModel)
         viewModelOf(::WordViewModel)
         viewModelOf(::ProverbViewModel)

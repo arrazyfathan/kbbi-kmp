@@ -120,6 +120,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
+            implementation(projects.widgetCore)
             implementation(libs.aboutlibraries.compose.m3)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
@@ -153,6 +154,7 @@ kotlin {
 
             // Serialization
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
         }
         jvmMain.dependencies {

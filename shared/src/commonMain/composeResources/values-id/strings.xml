@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="widget_section_title">Sekilas</string>
+    <string name="widget_word_of_day">Kata hari ini</string>
+    <string name="widget_saved_word">Kata tersimpan</string>
+    <string name="widget_quick_search">Cari kata</string>
+    <string name="widget_empty_saved">Simpan kata untuk melihatnya di sini</string>
+    <string name="widget_empty_daily">Daftar kata tidak tersedia</string>
+    <string name="widget_loading">Memuat…</string>
+    <string name="widget_data_unavailable">Kata tersimpan sementara tidak tersedia</string>
     <string name="app_name">KBBI</string>
     <string name="logo_desc">Logo KBBI</string>
     <string name="home_title">Beranda</string>

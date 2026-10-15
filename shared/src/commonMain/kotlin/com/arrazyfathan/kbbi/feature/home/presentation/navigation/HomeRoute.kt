@@ -20,6 +20,7 @@ fun EntryProviderScope<NavKey>.homeEntry(
     onNavigateToFigure: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAiSettings: () -> Unit,
+    onNavigateToBookmarks: () -> Unit = {},
 ) {
     entry<HomeKey>(clazzContentKey = DestinationParser::path) {
         HomeRoute(
@@ -28,18 +29,20 @@ fun EntryProviderScope<NavKey>.homeEntry(
             onNavigateToFigure = onNavigateToFigure,
             onNavigateToSettings = onNavigateToSettings,
             onNavigateToAiSettings = onNavigateToAiSettings,
+            onNavigateToBookmarks = onNavigateToBookmarks,
         )
     }
 }
 
 @Composable
 fun HomeRoute(
+    modifier: Modifier = Modifier,
     onNavigateToDetail: (ListWordModel) -> Unit,
     onNavigateToProverb: () -> Unit,
     onNavigateToFigure: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAiSettings: () -> Unit,
-    modifier: Modifier = Modifier,
+    onNavigateToBookmarks: () -> Unit = {},
 ) {
     HomeScreen(
         onNavigateToDetail = onNavigateToDetail,
@@ -47,6 +50,7 @@ fun HomeRoute(
         onNavigateToFigure = onNavigateToFigure,
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToAiSettings = onNavigateToAiSettings,
+        onNavigateToBookmarks = onNavigateToBookmarks,
         modifier = modifier,
     )
 }

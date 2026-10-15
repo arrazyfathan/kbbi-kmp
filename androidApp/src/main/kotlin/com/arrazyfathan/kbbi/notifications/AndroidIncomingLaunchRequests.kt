@@ -4,6 +4,8 @@ import android.content.Intent
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchAction
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequest
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
+import com.arrazyfathan.kbbi.widgetcore.WidgetKind
+import com.arrazyfathan.kbbi.widgets.EXTRA_WIDGET_WORD
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChangedBy
@@ -42,9 +44,7 @@ object AndroidIncomingLaunchRequests : IncomingLaunchRequests {
                 }
 
                 Intent.ACTION_PROCESS_TEXT -> {
-                    intent
-                        .getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)
-                        ?.toString()
+                    intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()
                 }
 
                 else -> {
@@ -53,14 +53,41 @@ object AndroidIncomingLaunchRequests : IncomingLaunchRequests {
             }
         val shortcut =
             when (action) {
-                ACTION_SHORTCUT_SEARCH -> IncomingLaunchAction.FOCUS_SEARCH
-                ACTION_SHORTCUT_BOOKMARKS -> IncomingLaunchAction.OPEN_BOOKMARKS
-                ACTION_SHORTCUT_PROVERBS -> IncomingLaunchAction.OPEN_PROVERBS
-                ACTION_SHORTCUT_RANDOM_WORD -> IncomingLaunchAction.RANDOM_WORD
-                ACTION_WIDGET_QUICK_SEARCH -> IncomingLaunchAction.FOCUS_SEARCH
-                ACTION_WIDGET_WORD_OF_DAY -> IncomingLaunchAction.SEARCH
-                ACTION_WIDGET_SAVED_WORD -> IncomingLaunchAction.OPEN_BOOKMARKS
-                else -> null
+                ACTION_SHORTCUT_SEARCH -> {
+                    IncomingLaunchAction.FOCUS_SEARCH
+                }
+
+                ACTION_SHORTCUT_BOOKMARKS -> {
+                    IncomingLaunchAction.OPEN_BOOKMARKS
+                }
+
+                ACTION_SHORTCUT_PROVERBS -> {
+                    IncomingLaunchAction.OPEN_PROVERBS
+                }
+
+                ACTION_SHORTCUT_RANDOM_WORD -> {
+                    IncomingLaunchAction.RANDOM_WORD
+                }
+
+                ACTION_WIDGET_QUICK_SEARCH -> {
+                    IncomingLaunchAction.FOCUS_SEARCH
+                }
+
+                ACTION_WIDGET_WORD_OF_DAY -> {
+                    IncomingLaunchAction.SEARCH
+                }
+
+                ACTION_WIDGET_SAVED_WORD -> {
+                    if (intent.getStringExtra(EXTRA_WIDGET_WORD).isNullOrBlank()) {
+                        IncomingLaunchAction.OPEN_BOOKMARKS
+                    } else {
+                        IncomingLaunchAction.SEARCH
+                    }
+                }
+
+                else -> {
+                    null
+                }
             }
         val uri =
             intent.dataString ?: intent.getStringExtra("url")
@@ -80,8 +107,25 @@ object AndroidIncomingLaunchRequests : IncomingLaunchRequests {
                 uri = boundedUri,
                 sharedText = boundedText,
                 action = shortcut,
+                widgetKind =
+                    when (action) {
+                        ACTION_WIDGET_QUICK_SEARCH -> WidgetKind.QUICK_SEARCH
+                        ACTION_WIDGET_WORD_OF_DAY -> WidgetKind.WORD_OF_DAY
+                        ACTION_WIDGET_SAVED_WORD -> WidgetKind.SAVED_WORD
+                        else -> null
+                    },
+                widgetWord =
+                    if (action == ACTION_WIDGET_WORD_OF_DAY || action == ACTION_WIDGET_SAVED_WORD) {
+                        boundedText
+                    } else {
+                        null
+                    },
                 requestId =
-                    intent.identifier
+                    (if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                        intent.identifier
+                    } else {
+                        null
+                    })
                         ?: "android-${android.os.SystemClock.elapsedRealtimeNanos()}",
             )
         pending.update { queue ->
@@ -89,7 +133,6 @@ object AndroidIncomingLaunchRequests : IncomingLaunchRequests {
         }
     }
 
-    private const val EXTRA_WIDGET_WORD = "com.arrazyfathan.kbbi.extra.WIDGET_WORD"
     private const val ACTION_SHORTCUT_SEARCH = "com.arrazyfathan.kbbi.action.SHORTCUT_SEARCH"
     private const val ACTION_SHORTCUT_BOOKMARKS = "com.arrazyfathan.kbbi.action.SHORTCUT_BOOKMARKS"
     private const val ACTION_SHORTCUT_PROVERBS = "com.arrazyfathan.kbbi.action.SHORTCUT_PROVERBS"

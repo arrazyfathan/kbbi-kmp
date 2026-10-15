@@ -35,6 +35,7 @@ import com.arrazyfathan.kbbi.core.presentation.designsystem.components.AppLottie
 import com.arrazyfathan.kbbi.core.presentation.ui.LocalAppLoadingController
 import com.arrazyfathan.kbbi.core.presentation.ui.rememberAppLoadingController
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.bookmarksEntry
+import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.BookmarksKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.DetailKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.detailEntry
 import com.arrazyfathan.kbbi.feature.figure.presentation.navigation.FigureDetailKey
@@ -82,6 +83,7 @@ internal fun MainApp(navigationState: NavigationState) {
                     },
                     onNavigateToSettings = { navigator.navigate(SettingsKey) },
                     onNavigateToAiSettings = { navigator.navigate(AiSettingsKey) },
+                    onNavigateToBookmarks = { navigator.navigate(BookmarksKey) },
                 )
                 wordsEntry(onNavigateToDetail = navigateToDetail)
                 bookmarksEntry(

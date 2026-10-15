@@ -11,6 +11,7 @@
 		19A000000000000000000002 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 19B000000000000000000002 /* FirebaseCrashlytics */; };
 		19A000000000000000000003 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = 19B000000000000000000003 /* FirebasePerformance */; };
 		AA1000000000000000000001 /* KBBIShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AA2000000000000000000001 /* KBBIShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AB1000000000000000000001 /* KBBIWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AB2000000000000000000001 /* KBBIWidgetExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -20,6 +21,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = AA6000000000000000000001;
 			remoteInfo = KBBIShareExtension;
+		};
+		AB9000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 485B37A0A010DA97F999F059 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB6000000000000000000001;
+			remoteInfo = KBBIWidgetExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -31,6 +39,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				AA1000000000000000000001 /* KBBIShareExtension.appex in Embed App Extensions */,
+				AB1000000000000000000001 /* KBBIWidgetExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -39,24 +48,34 @@
 
 /* Begin PBXFileReference section */
 		AA2000000000000000000001 /* KBBIShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KBBIShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB2000000000000000000001 /* KBBIWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KBBIWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C7200F9050BA1C0C241DFFF1 /* kbbi-kmp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "kbbi-kmp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		055112B63957025DA20175C6 /* Exceptions for "iosApp" folder in "iosApp" target */ = {
+		055112B63957025DA20175C6 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 				ShareExtension,
+				WidgetExtension,
 			);
 			target = BFE1F67A7D13D2EA0FE79BC3 /* iosApp */;
 		};
-		AAB100000000000000000001 /* Exceptions for "ShareExtension" folder in "KBBIShareExtension" target */ = {
+		AAB100000000000000000001 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = AA6000000000000000000001 /* KBBIShareExtension */;
+		};
+		ABB100000000000000000001 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				WidgetExtension.entitlements,
+			);
+			target = AB6000000000000000000001 /* KBBIWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -64,7 +83,11 @@
 		951C1F3BD4BD8BC7F567A521 /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				055112B63957025DA20175C6 /* Exceptions for "iosApp" folder in "iosApp" target */,
+				055112B63957025DA20175C6 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -72,13 +95,33 @@
 		AA3000000000000000000001 /* ShareExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				AAB100000000000000000001 /* Exceptions for "ShareExtension" folder in "KBBIShareExtension" target */,
+				AAB100000000000000000001 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
 			);
 			path = ShareExtension;
 			sourceTree = "<group>";
 		};
+		AB3000000000000000000001 /* WidgetExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				ABB100000000000000000001 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = WidgetExtension;
+			sourceTree = "<group>";
+		};
 		B15572BBA60CCEDCFA3F818E /* Configuration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = Configuration;
 			sourceTree = "<group>";
 		};
@@ -96,6 +139,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AA8000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB8000000000000000000002 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -120,6 +170,7 @@
 			children = (
 				C7200F9050BA1C0C241DFFF1 /* kbbi-kmp.app */,
 				AA2000000000000000000001 /* KBBIShareExtension.appex */,
+				AB2000000000000000000001 /* KBBIWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -128,6 +179,7 @@
 			isa = PBXGroup;
 			children = (
 				AA3000000000000000000001 /* ShareExtension */,
+				AB3000000000000000000001 /* WidgetExtension */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -155,6 +207,27 @@
 			productReference = AA2000000000000000000001 /* KBBIShareExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		AB6000000000000000000001 /* KBBIWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AB7000000000000000000001 /* Build configuration list for PBXNativeTarget "KBBIWidgetExtension" */;
+			buildPhases = (
+				AB8000000000000000000004 /* Prepare widget resources and framework */,
+				AB8000000000000000000001 /* Sources */,
+				AB8000000000000000000002 /* Frameworks */,
+				AB8000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AB3000000000000000000001 /* WidgetExtension */,
+			);
+			name = KBBIWidgetExtension;
+			productName = KBBIWidgetExtension;
+			productReference = AB2000000000000000000001 /* KBBIWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		BFE1F67A7D13D2EA0FE79BC3 /* iosApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AC11D7DD4DB63370592BCDA7 /* Build configuration list for PBXNativeTarget "iosApp" */;
@@ -169,6 +242,7 @@
 			);
 			dependencies = (
 				AA5000000000000000000001 /* PBXTargetDependency */,
+				AB5000000000000000000001 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				951C1F3BD4BD8BC7F567A521 /* iosApp */,
@@ -196,6 +270,9 @@
 					AA6000000000000000000001 = {
 						CreatedOnToolsVersion = 16.2;
 					};
+					AB6000000000000000000001 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					BFE1F67A7D13D2EA0FE79BC3 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -221,12 +298,20 @@
 			targets = (
 				BFE1F67A7D13D2EA0FE79BC3 /* iosApp */,
 				AA6000000000000000000001 /* KBBIShareExtension */,
+				AB6000000000000000000001 /* KBBIWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		AA8000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB8000000000000000000003 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -243,6 +328,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		AB8000000000000000000004 /* Prepare widget resources and framework */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Prepare widget resources and framework";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\ncd \"$SRCROOT/..\"\nif [ \"$SDK_NAME\" = \"iphoneos\" ]; then TASK_TARGET=IosArm64; else TASK_TARGET=IosSimulatorArm64; fi\n./gradlew :widgetCore:link${CONFIGURATION}Framework${TASK_TARGET}\nmkdir -p \"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"\ncp shared/src/commonMain/composeResources/files/entries.json \"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/entries.json\"\n";
+		};
 		FFDA94A11BB41AF4DD6C0F80 /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -272,6 +376,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AB8000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC362891BD171C78E7FC75D9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -286,6 +397,11 @@
 			isa = PBXTargetDependency;
 			target = AA6000000000000000000001 /* KBBIShareExtension */;
 			targetProxy = AA9000000000000000000001 /* PBXContainerItemProxy */;
+		};
+		AB5000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB6000000000000000000001 /* KBBIWidgetExtension */;
+			targetProxy = AB9000000000000000000001 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -382,6 +498,68 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.arrazyfathan.kbbi.ShareExtension;
 				PRODUCT_NAME = KBBIShareExtension;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		ABC000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = WidgetExtension/WidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../widgetCore/build/bin/$(KOTLIN_TARGET)/$(KOTLIN_BUILD_TYPE)Framework",
+				);
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				KOTLIN_BUILD_TYPE = debug;
+				KOTLIN_TARGET = iosSimulatorArm64;
+				"KOTLIN_TARGET[sdk=iphoneos*]" = iosArm64;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					WidgetCore,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.arrazyfathan.kbbi.WidgetExtension;
+				PRODUCT_NAME = KBBIWidgetExtension;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		ABC000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = WidgetExtension/WidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../widgetCore/build/bin/$(KOTLIN_TARGET)/$(KOTLIN_BUILD_TYPE)Framework",
+				);
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
+				KOTLIN_BUILD_TYPE = release;
+				KOTLIN_TARGET = iosSimulatorArm64;
+				"KOTLIN_TARGET[sdk=iphoneos*]" = iosArm64;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					WidgetCore,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.arrazyfathan.kbbi.WidgetExtension;
+				PRODUCT_NAME = KBBIWidgetExtension;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -546,6 +724,15 @@
 			buildConfigurations = (
 				AAB000000000000000000001 /* Debug */,
 				AAB000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AB7000000000000000000001 /* Build configuration list for PBXNativeTarget "KBBIWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ABC000000000000000000001 /* Debug */,
+				ABC000000000000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -1,4 +1,12 @@
 <resources>
+    <string name="widget_section_title">A quick look</string>
+    <string name="widget_word_of_day">Word of the day</string>
+    <string name="widget_saved_word">Saved word</string>
+    <string name="widget_quick_search">Search a word</string>
+    <string name="widget_empty_saved">Save a word to see it here</string>
+    <string name="widget_empty_daily">Word list unavailable</string>
+    <string name="widget_loading">Loading…</string>
+    <string name="widget_data_unavailable">Saved words are temporarily unavailable</string>
     <string name="app_name">KBBI</string>
     <string name="logo_desc">KBBI logo</string>
     <string name="home_title">Home</string>

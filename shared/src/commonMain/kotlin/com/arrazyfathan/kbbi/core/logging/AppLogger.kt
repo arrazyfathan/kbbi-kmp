@@ -89,7 +89,7 @@ object AppLogger {
         throwable: Throwable,
         message: String,
     ) {
-        error(tag = tag, message = message, throwable = throwable)
+        write(LogLevel.Error, tag, message, throwable)
     }
 
     fun critical(

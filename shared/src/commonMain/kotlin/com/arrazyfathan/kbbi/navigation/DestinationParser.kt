@@ -10,6 +10,7 @@ import com.arrazyfathan.kbbi.feature.proverb.presentation.navigation.ProverbKey
 import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.LegalDocumentKey
 import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.SettingsKey
 import com.arrazyfathan.kbbi.feature.words.presentation.navigation.WordsKey
+import com.arrazyfathan.kbbi.widgetcore.WidgetKind
 import io.ktor.http.Url
 import io.ktor.http.decodeURLPart
 import io.ktor.http.encodeURLPathPart
@@ -23,6 +24,12 @@ internal object DestinationParser {
         if (input.length > MAX_LINK_LENGTH || input.any { it.isISOControl() }) return null
         val raw = input.trim()
         if (raw.isEmpty()) return HomeKey
+        widgetLink(raw)?.let { (kind, word) ->
+            return when {
+                kind == WidgetKind.SAVED_WORD && word == null -> BookmarksKey
+                else -> HomeKey
+            }
+        }
         val path =
             when {
                 raw.startsWith("#/") -> {
@@ -97,6 +104,48 @@ internal object DestinationParser {
                 ?.takeIf(::validArgument)
                 ?: return null
         return DetailKey(word)
+    }
+
+    fun validWidgetWord(word: String?): String? = word?.trim()?.takeIf { it.length <= MAX_ARGUMENT_LENGTH && validArgument(it) }
+
+    fun widgetLink(input: String): Pair<WidgetKind, String?>? {
+        if (input.length > MAX_LINK_LENGTH || input.any(Char::isISOControl)) return null
+        val pieces =
+            if (input.startsWith("#/widget/")) {
+                input.removePrefix("#/widget/").split('/')
+            } else {
+                val url = runCatching { Url(input) }.getOrNull() ?: return null
+                if (url.protocol.name.lowercase() != "kbbi" || url.host != "widget" || !url.user.isNullOrEmpty() ||
+                    !url.password.isNullOrEmpty() ||
+                    url.parameters
+                        .names()
+                        .isNotEmpty()
+                ) {
+                    return null
+                }
+                url.encodedPath.removePrefix("/").split('/')
+            }
+        if (pieces.size !in 1..2 || pieces.any(String::isEmpty)) return null
+        val kind =
+            when (pieces[0]) {
+                "word-of-day" -> WidgetKind.WORD_OF_DAY
+                "saved-word" -> WidgetKind.SAVED_WORD
+                "quick-search" -> WidgetKind.QUICK_SEARCH
+                else -> return null
+            }
+        if (kind == WidgetKind.QUICK_SEARCH && pieces.size != 1) return null
+        val word =
+            pieces.getOrNull(1)?.let { encoded ->
+                if (encoded.length > MAX_ARGUMENT_LENGTH * 3 ||
+                    Regex("%(?![0-9a-fA-F]{2})").containsMatchIn(
+                        encoded,
+                    )
+                ) {
+                    return null
+                }
+                validWidgetWord(runCatching { encoded.decodeURLPart() }.getOrNull()) ?: return null
+            }
+        return kind to word
     }
 
     fun isAvailable(key: NavKey): Boolean =

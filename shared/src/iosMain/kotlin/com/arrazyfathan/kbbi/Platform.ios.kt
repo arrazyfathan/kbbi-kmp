@@ -13,6 +13,7 @@ import com.arrazyfathan.kbbi.core.platform.IosHaptics
 import com.arrazyfathan.kbbi.core.platform.IosLocaleProvider
 import com.arrazyfathan.kbbi.core.platform.IosTextShare
 import com.arrazyfathan.kbbi.core.platform.IosUrlOpener
+import com.arrazyfathan.kbbi.core.platform.IosWidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.core.platform.LocaleProvider
 import com.arrazyfathan.kbbi.core.platform.NotificationPermission
 import com.arrazyfathan.kbbi.core.platform.PlatformHaptics
@@ -22,6 +23,7 @@ import com.arrazyfathan.kbbi.core.platform.UnsupportedAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.UnsupportedNotificationPermission
 import com.arrazyfathan.kbbi.core.platform.UnsupportedSpeechInput
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
+import com.arrazyfathan.kbbi.core.platform.WidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.feature.reminders.IosReminderScheduler
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.navigation.IosIncomingLaunchRequests
@@ -54,6 +56,7 @@ actual val platformModule: Module =
         single<NotificationPermission> { UnsupportedNotificationPermission }
         single<AlternateAppIcon> { UnsupportedAlternateAppIcon }
         single<IncomingLaunchRequests> { IosIncomingLaunchRequests }
+        single<WidgetSnapshotPublisher> { IosWidgetSnapshotPublisher }
         single<ReminderScheduler> { IosReminderScheduler(get(), get()) }
     }
 

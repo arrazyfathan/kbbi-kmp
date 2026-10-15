@@ -43,10 +43,12 @@ kotlin {
 }
 dependencies {
     implementation(projects.shared)
+    implementation(projects.widgetCore)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.koin.android)
     implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.glance.appwidget)
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)

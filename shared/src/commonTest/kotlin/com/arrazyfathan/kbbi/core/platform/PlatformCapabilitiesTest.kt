@@ -33,7 +33,7 @@ class PlatformCapabilitiesTest {
             assertNotNull(koin.get<TextShare>())
             assertNotNull(koin.get<UrlOpener>())
             assertNotNull(koin.get<LocaleProvider>())
-            assertNotNull(koin.get<Haptics>())
+            assertNotNull(koin.get<PlatformHaptics>())
             assertNotNull(koin.get<SpeechInput>())
             assertNotNull(koin.get<NotificationPermission>())
             assertNotNull(koin.get<AlternateAppIcon>())

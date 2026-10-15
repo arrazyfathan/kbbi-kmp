@@ -6,16 +6,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.arrazyfathan.kbbi.core.observability.AnalyticsEvent
+import com.arrazyfathan.kbbi.core.observability.AnalyticsReporter
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchAction
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.BookmarksKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.DetailKey
 import com.arrazyfathan.kbbi.feature.home.presentation.navigation.HomeKey
 import com.arrazyfathan.kbbi.feature.proverb.presentation.navigation.ProverbKey
+import com.arrazyfathan.kbbi.widgetcore.WidgetKind
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.koin.compose.koinInject
+import com.arrazyfathan.kbbi.core.observability.WidgetKind as AnalyticsWidgetKind
 
 internal data class IncomingActionEvent(
     val requestId: String,
@@ -45,6 +49,7 @@ internal fun BindIncomingNavigation(
     onAccepted: () -> Unit = {},
 ) {
     val requests: IncomingLaunchRequests = koinInject()
+    val analytics: AnalyticsReporter = koinInject()
     var consumedIds by rememberSaveable { mutableStateOf(listOf<String>()) }
     LaunchedEffect(state, requests, onAccepted) {
         val navigator = Navigator(state)
@@ -54,19 +59,28 @@ internal fun BindIncomingNavigation(
                 return@collect
             }
             consumedIds = (consumedIds + request.requestId).takeLast(128)
+            val widgetLink = request.uri?.let(DestinationParser::widgetLink)
+            val widgetKind = request.widgetKind ?: widgetLink?.first
+            val widgetWord =
+                DestinationParser.validWidgetWord(request.widgetWord ?: widgetLink?.second)
             val sharedWord =
-                (request.sharedText?.let(DestinationParser::sharedText) as? DetailKey)?.word
+                widgetWord
+                    ?: (request.sharedText?.let(DestinationParser::sharedText) as? DetailKey)?.word
             val action =
-                request.action
-                    ?: if (sharedWord != null) {
-                        IncomingLaunchAction.SEARCH
-                    } else {
-                        when (request.uri) {
-                            "kbbi://action/search" -> IncomingLaunchAction.FOCUS_SEARCH
-                            "kbbi://action/random" -> IncomingLaunchAction.RANDOM_WORD
-                            else -> null
-                        }
+                request.action ?: when (widgetKind) {
+                    WidgetKind.QUICK_SEARCH -> IncomingLaunchAction.FOCUS_SEARCH
+                    WidgetKind.WORD_OF_DAY -> if (widgetWord == null) IncomingLaunchAction.FOCUS_SEARCH else IncomingLaunchAction.SEARCH
+                    WidgetKind.SAVED_WORD -> if (widgetWord == null) IncomingLaunchAction.OPEN_BOOKMARKS else IncomingLaunchAction.SEARCH
+                    null -> null
+                } ?: if (sharedWord != null) {
+                    IncomingLaunchAction.SEARCH
+                } else {
+                    when (request.uri) {
+                        "kbbi://action/search" -> IncomingLaunchAction.FOCUS_SEARCH
+                        "kbbi://action/random" -> IncomingLaunchAction.RANDOM_WORD
+                        else -> null
                     }
+                }
             val destination =
                 when {
                     action != null -> {
@@ -92,6 +106,15 @@ internal fun BindIncomingNavigation(
                     }
                 }
             destination?.takeIf(DestinationParser::isAvailable)?.let {
+                widgetKind?.let { kind ->
+                    val analyticsKind =
+                        when (kind) {
+                            WidgetKind.QUICK_SEARCH -> AnalyticsWidgetKind.QuickSearch
+                            WidgetKind.WORD_OF_DAY -> AnalyticsWidgetKind.WordOfDay
+                            WidgetKind.SAVED_WORD -> AnalyticsWidgetKind.SavedWord
+                        }
+                    analytics.log(AnalyticsEvent.WidgetOpened(analyticsKind))
+                }
                 action
                     ?.takeIf {
                         it == IncomingLaunchAction.SEARCH || it == IncomingLaunchAction.FOCUS_SEARCH ||

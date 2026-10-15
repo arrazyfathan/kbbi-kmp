@@ -1,9 +1,9 @@
 package com.arrazyfathan.kbbi.feature.reminders.domain
 
 import com.arrazyfathan.kbbi.feature.settings.domain.ReminderType
+import com.arrazyfathan.kbbi.widgetcore.WidgetDailyItemSelector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.random.Random
 
 data class ReminderTime(
     val hour: Int,
@@ -41,7 +41,7 @@ object DailyReminderSelector {
         items: List<T>,
         year: Int,
         dayOfYear: Int,
-    ): T? = items.takeIf(List<T>::isNotEmpty)?.get(Random(year * 366 + dayOfYear).nextInt(items.size))
+    ): T? = WidgetDailyItemSelector.select(items, year, dayOfYear)
 }
 
 private val emptyReminderFallbacks: StateFlow<List<ReminderContent>> = MutableStateFlow(emptyList())

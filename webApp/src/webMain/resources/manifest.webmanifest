@@ -13,8 +13,9 @@
     { "src": "icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    { "name": "Cari kata", "short_name": "Cari", "url": "./#/home", "icons": [{ "src": "icon-192.svg", "sizes": "192x192" }] },
-    { "name": "Kata tersimpan", "short_name": "Tersimpan", "url": "./#/bookmarks", "icons": [{ "src": "icon-192.svg", "sizes": "192x192" }] },
+    { "name": "Kata hari ini", "short_name": "Hari ini", "url": "./#/widget/word-of-day", "icons": [{ "src": "icon-192.svg", "sizes": "192x192" }] },
+    { "name": "Cari kata", "short_name": "Cari", "url": "./#/widget/quick-search", "icons": [{ "src": "icon-192.svg", "sizes": "192x192" }] },
+    { "name": "Kata tersimpan", "short_name": "Tersimpan", "url": "./#/widget/saved-word", "icons": [{ "src": "icon-192.svg", "sizes": "192x192" }] },
     { "name": "Peribahasa", "short_name": "Peribahasa", "url": "./#/proverb", "icons": [{ "src": "icon-192.svg", "sizes": "192x192" }] }
   ],
   "share_target": {

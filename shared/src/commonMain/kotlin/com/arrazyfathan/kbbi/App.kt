@@ -29,6 +29,7 @@ import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.feature.reminders.presentation.ReminderFallbackCards
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
 import com.arrazyfathan.kbbi.feature.splash.presentation.navigation.SplashRoute
+import com.arrazyfathan.kbbi.feature.widgets.WidgetSyncCoordinator
 import com.arrazyfathan.kbbi.navigation.BindBrowserNavigation
 import com.arrazyfathan.kbbi.navigation.BindIncomingNavigation
 import com.arrazyfathan.kbbi.navigation.BindReportingNavigation
@@ -46,6 +47,7 @@ fun App() {
     val reporting: ReportingCoordinator = koinInject()
     LaunchedEffect(reporting) { reporting.initialize() }
     val settings: SettingsPreferenceStore = koinInject()
+    val widgetSyncCoordinator: WidgetSyncCoordinator = koinInject()
     val reminderScheduler: ReminderScheduler = koinInject()
     val pendingReminders by reminderScheduler.pendingFallbacks.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
@@ -57,6 +59,9 @@ fun App() {
         }
     }
     val preferences by settings.preferences.collectAsStateWithLifecycle()
+    LaunchedEffect(widgetSyncCoordinator, preferences.language) {
+        widgetSyncCoordinator.run(preferences.language.tag)
+    }
     var isSplashVisible by rememberSaveable { mutableStateOf(true) }
     val navigationState = rememberNavigationState(HomeKey, topLevelRoutes)
     BindIncomingNavigation(navigationState) { isSplashVisible = false }
