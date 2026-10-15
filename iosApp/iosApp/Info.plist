@@ -2,18 +2,67 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key><false/>
-    <key>FirebaseAutomaticScreenReportingEnabled</key><false/>
-    <key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key><false/>
-    <key>FirebaseCrashlyticsCollectionEnabled</key><false/>
-    <key>firebase_performance_collection_enabled</key><false/>
-    <key>firebase_performance_instrumentation_enabled</key><false/>
-    <key>KBBIEnvironment</key><string>$(KBBI_ENVIRONMENT)</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>KBBI uses the microphone when you start voice search.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>KBBI recognizes spoken Indonesian words for voice search.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.arrazyfathan.kbbi</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>kbbi</string>
+			</array>
+		</dict>
+	</array>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
+	<key>FirebaseAutomaticScreenReportingEnabled</key>
+	<false/>
+	<key>FirebaseCrashlyticsCollectionEnabled</key>
+	<false/>
+	<key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key>
+	<false/>
+	<key>KBBIEnvironment</key>
+	<string>$(KBBI_ENVIRONMENT)</string>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>magnifyingglass</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Search KBBI</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.arrazyfathan.kbbi.search</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>bookmark</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Saved words</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.arrazyfathan.kbbi.bookmarks</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>text.book.closed</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Proverbs</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.arrazyfathan.kbbi.proverbs</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>shuffle</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Random word</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.arrazyfathan.kbbi.random</string>
+		</dict>
+	</array>
+	<key>firebase_performance_collection_enabled</key>
+	<false/>
+	<key>firebase_performance_instrumentation_enabled</key>
+	<false/>
 </dict>
 </plist>

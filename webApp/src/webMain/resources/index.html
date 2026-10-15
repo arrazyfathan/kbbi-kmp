@@ -4,12 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KBBI</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#193c8f">
     <link type="text/css" rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="loading" aria-label="Memuat aplikasi">
-        <div class="spinner"></div>
-    </div>
-    <script type="application/javascript" src="webApp.js"></script>
+<div class="loading" aria-label="Memuat aplikasi">
+    <div class="spinner"></div>
+</div>
+<script>
+    (() => {
+        const query = new URLSearchParams(window.location.search);
+        const text = query.get('share_text') || query.get('text');
+        const sharedUrl = query.get('url');
+        let route = null;
+        if (text && text.length <= 4096) {
+            const word = text.trim().split(/\s+/)[0]?.replace(/^[^\p{L}\p{N}-]+|[^\p{L}\p{N}-]+$/gu, '').toLowerCase();
+            if (word && word.length <= 256) route = `/word/${encodeURIComponent(word)}`;
+        } else if (sharedUrl && sharedUrl.length <= 2048) {
+            try {
+                const candidate = new URL(sharedUrl, window.location.origin);
+                if (candidate.origin === window.location.origin) route = candidate.hash.startsWith('#/') ? candidate.hash.slice(1) : candidate.pathname;
+            } catch (_) { /* invalid shared URL is ignored */ }
+        }
+        if (route) {
+            history.replaceState(null, '', `${window.location.pathname}#${route}`);
+        } else if ([...query.keys()].some(key => ['share_text', 'text', 'title', 'url'].includes(key))) {
+            history.replaceState(null, '', `${window.location.pathname}${window.location.hash}`);
+        }
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    })();
+</script>
+<script type="application/javascript" src="webApp.js"></script>
 </body>
 </html>

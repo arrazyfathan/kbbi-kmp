@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">KBBI</string>
+    <string name="shortcut_search">Search KBBI</string>
+    <string name="shortcut_search_short">Search</string>
+    <string name="shortcut_bookmarks">Saved words</string>
+    <string name="shortcut_bookmarks_short">Saved</string>
+    <string name="shortcut_proverbs">Indonesian proverbs</string>
+    <string name="shortcut_proverbs_short">Proverbs</string>
+    <string name="shortcut_random_word">Random word</string>
+    <string name="shortcut_random_word_short">Random</string>
+    <string name="share_target_label">Search with KBBI</string>
 </resources>

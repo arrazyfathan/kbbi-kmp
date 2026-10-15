@@ -111,12 +111,23 @@ fun interface AlternateAppIcon {
 data class IncomingLaunchRequest(
     val uri: String? = null,
     val sharedText: String? = null,
+    val action: IncomingLaunchAction? = null,
     // Hosts must reuse this identity while redelivering the same OS request.
     val requestId: String =
         kotlin.random.Random
             .nextLong()
             .toString(),
 )
+
+/** Semantic actions shared by OS shortcuts, widgets, notifications, and CLI launchers. */
+enum class IncomingLaunchAction {
+    SEARCH,
+    FOCUS_SEARCH,
+    RANDOM_WORD,
+    OPEN_BOOKMARKS,
+    OPEN_PROVERBS,
+    OPEN_HOME,
+}
 
 fun interface IncomingLaunchRequests {
     fun observe(): Flow<IncomingLaunchRequest>

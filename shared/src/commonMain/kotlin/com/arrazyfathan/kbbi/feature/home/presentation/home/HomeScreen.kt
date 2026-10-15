@@ -69,6 +69,7 @@ import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import com.arrazyfathan.kbbi.core.platform.Haptics
+import com.arrazyfathan.kbbi.core.platform.IncomingLaunchAction
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme
@@ -79,6 +80,7 @@ import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
 import com.arrazyfathan.kbbi.core.presentation.ui.LocalAppLoadingController
 import com.arrazyfathan.kbbi.core.presentation.ui.asStringNonComposable
 import com.arrazyfathan.kbbi.feature.home.domain.model.ListWordModel
+import com.arrazyfathan.kbbi.navigation.IncomingActionSignal
 import com.arrazyfathan.kbbi.showToast
 import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.did_you_mean_label
@@ -126,6 +128,39 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         viewModel.onAction(HomeAction.OnStarted)
+    }
+
+    LaunchedEffect(viewModel) {
+        IncomingActionSignal.pending.collect { events ->
+            events.forEach { event ->
+                IncomingActionSignal.consume(event.requestId)
+                when (event.action) {
+                    IncomingLaunchAction.SEARCH -> {
+                        val query = event.query
+                        if (query.isNullOrBlank()) {
+                            viewModel.onAction(HomeAction.OnSearchFocusChanged(true))
+                        } else {
+                            viewModel.onAction(HomeAction.OnSearchQueryChanged(query))
+                            viewModel.onAction(HomeAction.OnSearchSubmitted(query))
+                        }
+                    }
+
+                    IncomingLaunchAction.FOCUS_SEARCH -> {
+                        viewModel.onAction(
+                            HomeAction.OnSearchFocusChanged(
+                                true,
+                            ),
+                        )
+                    }
+
+                    IncomingLaunchAction.RANDOM_WORD -> {
+                        viewModel.onAction(HomeAction.OnRandomWordRequested)
+                    }
+
+                    else -> {}
+                }
+            }
+        }
     }
 
     LaunchedEffect(Unit) {

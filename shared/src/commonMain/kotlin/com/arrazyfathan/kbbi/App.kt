@@ -59,7 +59,7 @@ fun App() {
     val preferences by settings.preferences.collectAsStateWithLifecycle()
     var isSplashVisible by rememberSaveable { mutableStateOf(true) }
     val navigationState = rememberNavigationState(HomeKey, topLevelRoutes)
-    BindIncomingNavigation(navigationState)
+    BindIncomingNavigation(navigationState) { isSplashVisible = false }
     BindBrowserNavigation(navigationState)
     BindReportingNavigation(navigationState, !isSplashVisible)
     // Platform language is applied before preferences emit. Recreate resource
