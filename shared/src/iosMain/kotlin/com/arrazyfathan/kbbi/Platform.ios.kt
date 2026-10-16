@@ -1,5 +1,3 @@
-@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-
 package com.arrazyfathan.kbbi
 
 import androidx.compose.runtime.Composable
@@ -68,7 +66,7 @@ actual fun BindSystemBarColor(isDetailVisible: Boolean) {
 private var activeToast: platform.UIKit.UIView? = null
 
 actual fun showToast(message: String) {
-    platform.dawrwin.dispatch_async(platform.darwin.dispatch_get_main_queue()) {
+    platform.darwin.dispatch_async(platform.darwin.dispatch_get_main_queue()) {
         val window = UIApplication.sharedApplication.keyWindow ?: return@dispatch_async
         activeToast?.removeFromSuperview()
         val bubble =
