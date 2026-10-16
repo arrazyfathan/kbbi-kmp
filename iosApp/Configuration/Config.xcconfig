@@ -1,6 +1,7 @@
 #include "../../version.properties"
 
 TEAM_ID=
+DEVELOPMENT_TEAM=$(TEAM_ID)
 
 PRODUCT_NAME=kbbi-kmp
 PRODUCT_BUNDLE_IDENTIFIER=com.arrazyfathan.kbbi.kbbi-kmp$(TEAM_ID)
