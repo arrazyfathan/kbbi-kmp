@@ -9,6 +9,7 @@ import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdStorage
 import com.arrazyfathan.kbbi.core.platform.AlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
+import com.arrazyfathan.kbbi.core.platform.IosAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.IosHaptics
 import com.arrazyfathan.kbbi.core.platform.IosLocaleProvider
 import com.arrazyfathan.kbbi.core.platform.IosTextShare
@@ -19,7 +20,6 @@ import com.arrazyfathan.kbbi.core.platform.NotificationPermission
 import com.arrazyfathan.kbbi.core.platform.PlatformHaptics
 import com.arrazyfathan.kbbi.core.platform.SpeechInput
 import com.arrazyfathan.kbbi.core.platform.TextShare
-import com.arrazyfathan.kbbi.core.platform.UnsupportedAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.UnsupportedNotificationPermission
 import com.arrazyfathan.kbbi.core.platform.UnsupportedSpeechInput
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
@@ -54,7 +54,7 @@ actual val platformModule: Module =
         single<PlatformHaptics> { IosHaptics() }
         single<SpeechInput> { UnsupportedSpeechInput }
         single<NotificationPermission> { UnsupportedNotificationPermission }
-        single<AlternateAppIcon> { UnsupportedAlternateAppIcon }
+        single<AlternateAppIcon> { IosAlternateAppIcon() }
         single<IncomingLaunchRequests> { IosIncomingLaunchRequests }
         single<WidgetSnapshotPublisher> { IosWidgetSnapshotPublisher }
         single<ReminderScheduler> { IosReminderScheduler(get(), get()) }
@@ -68,7 +68,7 @@ actual fun BindSystemBarColor(isDetailVisible: Boolean) {
 private var activeToast: platform.UIKit.UIView? = null
 
 actual fun showToast(message: String) {
-    platform.darwin.dispatch_async(platform.darwin.dispatch_get_main_queue()) {
+    platform.dawrwin.dispatch_async(platform.darwin.dispatch_get_main_queue()) {
         val window = UIApplication.sharedApplication.keyWindow ?: return@dispatch_async
         activeToast?.removeFromSuperview()
         val bubble =

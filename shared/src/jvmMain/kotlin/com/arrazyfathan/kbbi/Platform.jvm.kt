@@ -6,22 +6,22 @@ import com.arrazyfathan.kbbi.core.domain.visitor.StoredVisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdStorage
 import com.arrazyfathan.kbbi.core.platform.AlternateAppIcon
+import com.arrazyfathan.kbbi.core.platform.DesktopAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.DesktopLocaleProvider
 import com.arrazyfathan.kbbi.core.platform.DesktopUrlOpener
 import com.arrazyfathan.kbbi.core.platform.EmptyIncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.LocaleProvider
+import com.arrazyfathan.kbbi.core.platform.NoOpWidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.core.platform.NotificationPermission
 import com.arrazyfathan.kbbi.core.platform.PlatformHaptics
 import com.arrazyfathan.kbbi.core.platform.SpeechInput
 import com.arrazyfathan.kbbi.core.platform.TextShare
-import com.arrazyfathan.kbbi.core.platform.UnsupportedAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.UnsupportedNotificationPermission
 import com.arrazyfathan.kbbi.core.platform.UnsupportedPlatformHaptics
 import com.arrazyfathan.kbbi.core.platform.UnsupportedSpeechInput
 import com.arrazyfathan.kbbi.core.platform.UnsupportedTextShare
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
-import com.arrazyfathan.kbbi.core.platform.NoOpWidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.core.platform.WidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.feature.reminders.domain.UnsupportedReminderScheduler
@@ -47,7 +47,7 @@ actual val platformModule: Module =
         single<PlatformHaptics> { UnsupportedPlatformHaptics }
         single<SpeechInput> { UnsupportedSpeechInput }
         single<NotificationPermission> { UnsupportedNotificationPermission }
-        single<AlternateAppIcon> { UnsupportedAlternateAppIcon }
+        single<AlternateAppIcon> { DesktopAlternateAppIcon }
         single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
         single<ReminderScheduler> { UnsupportedReminderScheduler }
         single<WidgetSnapshotPublisher> { NoOpWidgetSnapshotPublisher }

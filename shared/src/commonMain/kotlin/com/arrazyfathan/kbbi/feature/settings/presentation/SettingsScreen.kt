@@ -35,6 +35,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arrazyfathan.kbbi.core.observability.AnalyticsEvent
 import com.arrazyfathan.kbbi.core.observability.AnalyticsReporter
+import com.arrazyfathan.kbbi.core.platform.AppIconTarget
 import com.arrazyfathan.kbbi.core.platform.CapabilityResult
 import com.arrazyfathan.kbbi.core.platform.TextShare
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
@@ -61,10 +63,19 @@ import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextH1
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
 import com.arrazyfathan.kbbi.core.presentation.designsystem.components.KBBITimePickerBottomSheet
+import com.arrazyfathan.kbbi.feature.settings.domain.AppIcon
 import com.arrazyfathan.kbbi.feature.settings.domain.ReminderType
 import com.arrazyfathan.kbbi.getAppVersionName
+import com.arrazyfathan.kbbi.showToast
 import kbbi_kmp.shared.generated.resources.Res
 import kbbi_kmp.shared.generated.resources.about_section_title
+import kbbi_kmp.shared.generated.resources.app_icon_change_dialog_confirm
+import kbbi_kmp.shared.generated.resources.app_icon_change_dialog_message_android
+import kbbi_kmp.shared.generated.resources.app_icon_change_dialog_message_ios
+import kbbi_kmp.shared.generated.resources.app_icon_change_dialog_message_window
+import kbbi_kmp.shared.generated.resources.app_icon_change_dialog_title
+import kbbi_kmp.shared.generated.resources.app_icon_change_failed
+import kbbi_kmp.shared.generated.resources.app_icon_change_success
 import kbbi_kmp.shared.generated.resources.app_update_title
 import kbbi_kmp.shared.generated.resources.app_update_up_to_date
 import kbbi_kmp.shared.generated.resources.app_version_title
@@ -138,6 +149,16 @@ fun SettingsRoute(
 ) {
     val viewModel: SettingsViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
+    val appIconSuccessMessage = stringResource(Res.string.app_icon_change_success)
+    val appIconFailureMessage = stringResource(Res.string.app_icon_change_failed)
+    LaunchedEffect(state.appIconChangeResult) {
+        when (state.appIconChangeResult) {
+            AppIconChangeStatus.SUCCEEDED -> showToast(appIconSuccessMessage)
+            AppIconChangeStatus.FAILED -> showToast(appIconFailureMessage)
+            null -> Unit
+        }
+        if (state.appIconChangeResult != null) viewModel.onAction(SettingsAction.DismissAppIconMessage)
+    }
     val urlOpener: UrlOpener = koinInject()
     val share: TextShare = koinInject()
     val analytics: AnalyticsReporter = koinInject()
@@ -217,6 +238,7 @@ private fun SettingsScreen(
     val p = state.preferences
     var selectedTimeType by remember { mutableStateOf<ReminderType?>(null) }
     var showLanguagePicker by remember { mutableStateOf(false) }
+    var pendingAppIcon by remember { mutableStateOf<AppIcon?>(null) }
     val selectedReminder = selectedTimeType?.let { p.reminders.getValue(it) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -287,8 +309,11 @@ private fun SettingsScreen(
             AppearanceSection(
                 selectedTheme = p.theme,
                 selectedAppIcon = p.appIcon,
+                appIconTarget = state.appIconTarget,
                 onThemeSelected = { onAction(SettingsAction.Theme(it)) },
-                onAppIconSelected = { onAction(SettingsAction.AppIcon(it)) },
+                onAppIconSelected = {
+                    if (!state.appIconUpdating && it != p.appIcon) pendingAppIcon = it
+                },
             )
             Section(stringResource(Res.string.interaction_section_title)) {
                 IconToggleRow(
@@ -418,6 +443,33 @@ private fun SettingsScreen(
                 showLanguagePicker = false
             },
             onDismissRequest = { showLanguagePicker = false },
+        )
+    }
+    pendingAppIcon?.let { icon ->
+        val message =
+            when (state.appIconTarget) {
+                AppIconTarget.LAUNCHER -> Res.string.app_icon_change_dialog_message_android
+                AppIconTarget.IOS_HOME_SCREEN -> Res.string.app_icon_change_dialog_message_ios
+                AppIconTarget.DESKTOP_WINDOW, AppIconTarget.BROWSER_TAB, AppIconTarget.UNSUPPORTED -> Res.string.app_icon_change_dialog_message_window
+            }
+        AlertDialog(
+            onDismissRequest = { if (!state.appIconUpdating) pendingAppIcon = null },
+            title = { Text(stringResource(Res.string.app_icon_change_dialog_title)) },
+            text = { Text(stringResource(message)) },
+            confirmButton = {
+                TextButton(
+                    enabled = !state.appIconUpdating,
+                    onClick = {
+                        onAction(SettingsAction.AppIcon(icon))
+                        pendingAppIcon = null
+                    },
+                ) { Text(stringResource(Res.string.app_icon_change_dialog_confirm)) }
+            },
+            dismissButton = {
+                TextButton(enabled = !state.appIconUpdating, onClick = { pendingAppIcon = null }) {
+                    Text(stringResource(Res.string.cancel))
+                }
+            },
         )
     }
 }

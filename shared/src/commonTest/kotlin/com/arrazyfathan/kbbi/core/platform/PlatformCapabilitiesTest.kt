@@ -1,6 +1,7 @@
 package com.arrazyfathan.kbbi.core.platform
 
 import com.arrazyfathan.kbbi.platformModule
+import kotlinx.coroutines.test.runTest
 import org.koin.dsl.koinApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,10 +20,15 @@ class PlatformCapabilitiesTest {
     }
 
     @Test
-    fun unsupportedHapticsAndAlternateIconsReportUnavailable() {
-        assertEquals(CapabilityResult.Unavailable, UnsupportedHaptics.perform(HapticFeedback.TAP))
-        assertEquals(CapabilityResult.Unavailable, UnsupportedAlternateAppIcon.setIcon(AppIconVariant.DEFAULT))
-    }
+    fun unsupportedHapticsAndAlternateIconsReportUnavailable() =
+        runTest {
+            assertEquals(CapabilityResult.Unavailable, UnsupportedHaptics.perform(HapticFeedback.TAP))
+            assertEquals(CapabilityResult.Unavailable, UnsupportedAlternateAppIcon.currentIcon())
+            assertEquals(
+                CapabilityResult.Unavailable,
+                UnsupportedAlternateAppIcon.setIcon(AppIconVariant.DEFAULT),
+            )
+        }
 
     @Test
     fun activePlatformModuleResolvesEveryCapability() {

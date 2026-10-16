@@ -1,4 +1,8 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
 
 plugins {
     alias(libs.plugins.kotlinJvm)
@@ -22,6 +26,9 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "KBBI"
             packageVersion = "1.0.0"
+            macOS { iconFile.set(project.file("src/main/resources/icons/kbbi.icns")) }
+            windows { iconFile.set(project.file("src/main/resources/icons/kbbi.ico")) }
+            linux { iconFile.set(project.file("src/main/resources/icons/kbbi.png")) }
         }
     }
 }
@@ -39,11 +46,7 @@ tasks.matching { it.name == "createDistributable" }.configureEach {
         val infoPlist =
             fileTree(appRoot).matching { include("**/*.app/Contents/Info.plist") }.files.singleOrNull()
                 ?: return@doLast
-        val document =
-            javax.xml.parsers.DocumentBuilderFactory
-                .newInstance()
-                .newDocumentBuilder()
-                .parse(infoPlist)
+        val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(infoPlist)
         val plistDict =
             document.documentElement.getElementsByTagName("dict").item(0) as org.w3c.dom.Element
         val key = document.createElement("key").apply { textContent = "CFBundleURLTypes" }
@@ -62,11 +65,9 @@ tasks.matching { it.name == "createDistributable" }.configureEach {
         types.appendChild(type)
         plistDict.appendChild(key)
         plistDict.appendChild(types)
-        javax.xml.transform.TransformerFactory.newInstance().newTransformer().transform(
-            javax.xml.transform.dom
-                .DOMSource(document),
-            javax.xml.transform.stream
-                .StreamResult(infoPlist),
+        TransformerFactory.newInstance().newTransformer().transform(
+            DOMSource(document),
+            StreamResult(infoPlist),
         )
     }
 }

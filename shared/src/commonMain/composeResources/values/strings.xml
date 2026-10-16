@@ -164,7 +164,11 @@
     <string name="theme_deep_forest_energy">Deep Forest Energy</string>
     <string name="theme_neon_violet">Neon Violet</string>
     <string name="app_icon_picker_title">App icon</string>
-    <string name="app_icon_picker_description">Choose the icon shown by your device launcher.</string>
+    <string name="app_icon_picker_description">Choose an app icon.</string>
+    <string name="app_icon_picker_android_description">Choose the icon shown by your device launcher.</string>
+    <string name="app_icon_picker_ios_description">Choose the icon shown on your iPhone or iPad Home Screen. iOS may ask you to allow the change.</string>
+    <string name="app_icon_picker_desktop_description">Choose the icon shown in the open KBBI window. The installed app icon remains the one included in the package.</string>
+    <string name="app_icon_picker_browser_description">Choose the icon shown in this browser tab. A pinned or installed web app keeps its packaged icon.</string>
     <string name="app_icon_default">Default</string>
     <string name="app_icon_royal_ocean">Royal Ocean</string>
     <string name="app_icon_golden_sunset">Golden Sunset</string>
@@ -177,7 +181,10 @@
     <string name="app_icon_change_failed">Couldn\\'t change the app icon</string>
     <string name="app_icon_preview_accessibility">%1$s app icon preview</string>
     <string name="app_icon_change_dialog_title">Change app icon?</string>
-    <string name="app_icon_change_dialog_message">The app may need to be closed and reopened to apply the new launcher icon. Do you want to continue?</string>
+    <string name="app_icon_change_dialog_message">Do you want to continue?</string>
+    <string name="app_icon_change_dialog_message_android">Your launcher may take a moment to refresh the new icon. Do you want to continue?</string>
+    <string name="app_icon_change_dialog_message_ios">iOS may ask you to allow this icon change. Do you want to continue?</string>
+    <string name="app_icon_change_dialog_message_window">This changes the open window or browser tab. Packaged and installed app icons stay fixed. Do you want to continue?</string>
     <string name="app_icon_change_dialog_confirm">Yes, change icon</string>
     <string name="haptic_feedback_title">Haptic feedback</string>
     <string name="haptic_feedback_description">Use subtle vibrations for actions and results</string>

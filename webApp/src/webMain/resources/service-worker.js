@@ -1,5 +1,6 @@
-const CACHE = 'kbbi-shell-v2';
-const SHELL = ['./', './index.html', './styles.css', './manifest.webmanifest', './icon-192.svg', './icon-512.svg'];
+const CACHE = 'kbbi-shell-v3';
+const ICONS = ['default', 'royal_ocean', 'golden_sunset', 'golden_coral_energy', 'deep_forest_energy', 'neon_violet', 'blaze_orange'];
+const SHELL = ['./', './index.html', './styles.css', './manifest.webmanifest', './icon-maskable-512.png', ...ICONS.map(name => `./icon-${name}.png`)];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)));
   self.skipWaiting();

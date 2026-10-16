@@ -13,6 +13,7 @@ import com.arrazyfathan.kbbi.core.domain.visitor.StoredVisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdStorage
 import com.arrazyfathan.kbbi.core.platform.AlternateAppIcon
+import com.arrazyfathan.kbbi.core.platform.AndroidAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.AndroidHaptics
 import com.arrazyfathan.kbbi.core.platform.AndroidLocaleProvider
 import com.arrazyfathan.kbbi.core.platform.AndroidSpeechInput
@@ -25,7 +26,6 @@ import com.arrazyfathan.kbbi.core.platform.NotificationPermission
 import com.arrazyfathan.kbbi.core.platform.PlatformHaptics
 import com.arrazyfathan.kbbi.core.platform.SpeechInput
 import com.arrazyfathan.kbbi.core.platform.TextShare
-import com.arrazyfathan.kbbi.core.platform.UnsupportedAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.UnsupportedNotificationPermission
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
 import com.arrazyfathan.kbbi.core.utils.updateSystemBarStyle
@@ -55,7 +55,7 @@ actual val platformModule: Module =
         single<PlatformHaptics> { AndroidHaptics() }
         single<SpeechInput> { AndroidSpeechInput(appContext) }
         single<NotificationPermission> { UnsupportedNotificationPermission }
-        single<AlternateAppIcon> { UnsupportedAlternateAppIcon }
+        single<AlternateAppIcon> { AndroidAlternateAppIcon(appContext) }
         single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
         single<ReminderScheduler> { UnsupportedReminderScheduler }
     }

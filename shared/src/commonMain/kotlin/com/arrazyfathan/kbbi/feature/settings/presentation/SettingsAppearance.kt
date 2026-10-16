@@ -36,6 +36,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.arrazyfathan.kbbi.core.domain.model.AppTheme
+import com.arrazyfathan.kbbi.core.platform.AppIconTarget
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
 import com.arrazyfathan.kbbi.core.presentation.designsystem.palette
 import com.arrazyfathan.kbbi.feature.settings.domain.AppIcon
@@ -46,7 +47,11 @@ import kbbi_kmp.shared.generated.resources.app_icon_default
 import kbbi_kmp.shared.generated.resources.app_icon_golden_coral_energy
 import kbbi_kmp.shared.generated.resources.app_icon_golden_sunset
 import kbbi_kmp.shared.generated.resources.app_icon_neon_violet
+import kbbi_kmp.shared.generated.resources.app_icon_picker_android_description
+import kbbi_kmp.shared.generated.resources.app_icon_picker_browser_description
 import kbbi_kmp.shared.generated.resources.app_icon_picker_description
+import kbbi_kmp.shared.generated.resources.app_icon_picker_desktop_description
+import kbbi_kmp.shared.generated.resources.app_icon_picker_ios_description
 import kbbi_kmp.shared.generated.resources.app_icon_picker_title
 import kbbi_kmp.shared.generated.resources.app_icon_preview_accessibility
 import kbbi_kmp.shared.generated.resources.app_icon_preview_blaze_orange
@@ -79,6 +84,7 @@ private const val APP_ICON_SELECTED_INDICATOR_TEST_TAG_PREFIX = "app_icon_select
 internal fun AppearanceSection(
     selectedTheme: AppTheme,
     selectedAppIcon: AppIcon,
+    appIconTarget: AppIconTarget,
     onThemeSelected: (AppTheme) -> Unit,
     onAppIconSelected: (AppIcon) -> Unit,
 ) {
@@ -122,7 +128,16 @@ internal fun AppearanceSection(
                 modifier = Modifier.padding(horizontal = 4.dp),
             )
             Text(
-                text = stringResource(Res.string.app_icon_picker_description),
+                text =
+                    stringResource(
+                        when (appIconTarget) {
+                            AppIconTarget.LAUNCHER -> Res.string.app_icon_picker_android_description
+                            AppIconTarget.IOS_HOME_SCREEN -> Res.string.app_icon_picker_ios_description
+                            AppIconTarget.DESKTOP_WINDOW -> Res.string.app_icon_picker_desktop_description
+                            AppIconTarget.BROWSER_TAB -> Res.string.app_icon_picker_browser_description
+                            AppIconTarget.UNSUPPORTED -> Res.string.app_icon_picker_description
+                        },
+                    ),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextP,
                 modifier = Modifier.padding(horizontal = 4.dp),
@@ -193,7 +208,10 @@ private fun AppIconOption(
         )
         if (selected) {
             Box(
-                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center,
             ) {
                 Box(
@@ -289,12 +307,19 @@ private fun ThemeOption(
                         modifier = Modifier.size(28.dp).background(palette.primary, CircleShape),
                     )
                     Box(
-                        modifier = Modifier.offset(x = 18.dp).size(28.dp).background(palette.secondary, CircleShape),
+                        modifier =
+                            Modifier
+                                .offset(x = 18.dp)
+                                .size(28.dp)
+                                .background(palette.secondary, CircleShape),
                     )
                 }
                 if (selected) {
                     Box(
-                        modifier = Modifier.size(24.dp).background(MaterialTheme.colorScheme.primary, CircleShape),
+                        modifier =
+                            Modifier
+                                .size(24.dp)
+                                .background(MaterialTheme.colorScheme.primary, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(

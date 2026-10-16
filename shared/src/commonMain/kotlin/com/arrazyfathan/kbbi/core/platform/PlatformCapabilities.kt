@@ -1,9 +1,9 @@
 package com.arrazyfathan.kbbi.core.platform
 
 import androidx.compose.runtime.Immutable
+import com.arrazyfathan.kbbi.widgetcore.WidgetKind
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import com.arrazyfathan.kbbi.widgetcore.WidgetKind
 
 sealed interface CapabilityResult<out T> {
     data class Success<T>(
@@ -105,8 +105,22 @@ enum class AppIconVariant(
     BLAZE_ORANGE("blaze_orange"),
 }
 
-fun interface AlternateAppIcon {
-    fun setIcon(variant: AppIconVariant): CapabilityResult<Unit>
+enum class AppIconTarget {
+    LAUNCHER,
+    IOS_HOME_SCREEN,
+    DESKTOP_WINDOW,
+    BROWSER_TAB,
+    UNSUPPORTED,
+}
+
+interface AlternateAppIcon {
+    val target: AppIconTarget
+
+    /** Reports the icon currently applied by the platform, not a saved preference. */
+    suspend fun currentIcon(): CapabilityResult<AppIconVariant>
+
+    /** Applies a variant and returns the platform-confirmed selection. */
+    suspend fun setIcon(variant: AppIconVariant): CapabilityResult<AppIconVariant>
 }
 
 data class IncomingLaunchRequest(
@@ -161,7 +175,11 @@ object UnsupportedNotificationPermission : NotificationPermission {
 }
 
 object UnsupportedAlternateAppIcon : AlternateAppIcon {
-    override fun setIcon(variant: AppIconVariant): CapabilityResult<Unit> = CapabilityResult.Unavailable
+    override val target: AppIconTarget = AppIconTarget.UNSUPPORTED
+
+    override suspend fun currentIcon(): CapabilityResult<AppIconVariant> = CapabilityResult.Unavailable
+
+    override suspend fun setIcon(variant: AppIconVariant): CapabilityResult<AppIconVariant> = CapabilityResult.Unavailable
 }
 
 object EmptyIncomingLaunchRequests : IncomingLaunchRequests {
