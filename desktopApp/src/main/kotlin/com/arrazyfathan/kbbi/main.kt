@@ -1,7 +1,13 @@
 package com.arrazyfathan.kbbi
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import com.arrazyfathan.kbbi.core.logging.AppLogger
 import com.arrazyfathan.kbbi.core.platform.DesktopWindowIcon
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequest
@@ -51,6 +57,8 @@ fun main(args: Array<String>) {
 
     application {
         Window(
+            state = rememberWindowState(size = DpSize(450.dp, 800.dp)),
+            resizable = false,
             onCloseRequest = {
                 launchBroker.close()
                 (GlobalContext.get().get<ReminderScheduler>() as? DesktopReminderScheduler)?.close()
@@ -60,7 +68,9 @@ fun main(args: Array<String>) {
             title = "KBBI",
             icon = DesktopWindowIcon(),
         ) {
-            App()
+            Box(modifier = Modifier.fillMaxSize()) {
+                App()
+            }
         }
     }
 }

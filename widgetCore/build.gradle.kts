@@ -13,6 +13,7 @@ kotlin {
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
         compilerOptions { jvmTarget = JvmTarget.JVM_17 }
+        withHostTest {}
     }
 
     listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->

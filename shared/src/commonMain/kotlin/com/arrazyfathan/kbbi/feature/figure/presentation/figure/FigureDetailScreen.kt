@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -346,11 +345,10 @@ private fun FigureHero(
 ) {
     val platformContext = LocalPlatformContext.current
     var imageFailed by remember(figure.photo) { mutableStateOf(false) }
-    var aspectRatio by remember(figure.photo) { mutableFloatStateOf(0.9f) }
     Box(
         modifier
             .fillMaxWidth()
-            .aspectRatio(aspectRatio)
+            .height(500.dp)
             .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.16f)),
         contentAlignment = Alignment.Center,
     ) {
@@ -384,14 +382,7 @@ private fun FigureHero(
                         displayName,
                     ),
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit,
-                onSuccess = { result ->
-                    val size = result.painter.intrinsicSize
-                    if (size.width.isFinite() && size.height.isFinite() && size.width > 0f && size.height > 0f) {
-                        aspectRatio =
-                            size.width / size.height
-                    }
-                },
+                contentScale = ContentScale.Crop,
                 onError = { imageFailed = true },
             )
         }
