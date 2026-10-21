@@ -9,6 +9,7 @@ import com.arrazyfathan.kbbi.core.platform.Haptics
 import com.arrazyfathan.kbbi.core.platform.SettingsAwareHaptics
 import com.arrazyfathan.kbbi.feature.bookmark.data.BookmarkLayoutPreferenceStore
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.bookmark.BookmarksViewModel
+import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconciler
 import com.arrazyfathan.kbbi.feature.detail.presentation.detail.DetailViewModel
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.WordDetailRouteViewModel
 import com.arrazyfathan.kbbi.feature.figure.data.di.figureDataModule
@@ -66,7 +67,7 @@ import org.koin.dsl.module
 val useCaseModule =
     module {
         single { BookmarkLayoutPreferenceStore() }
-        single { SettingsPreferenceStore(get(), get()) }
+        single { SettingsPreferenceStore(get(), get(), get()) }
         single { ReminderContentProvider(get(), get(), get()) }
         single { WidgetContentProvider(get(), get()) }
         single { WidgetSyncCoordinator(get(), get(), get()) }

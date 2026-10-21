@@ -25,6 +25,8 @@ import com.arrazyfathan.kbbi.core.platform.UrlOpener
 import com.arrazyfathan.kbbi.core.platform.WidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.feature.reminders.domain.UnsupportedReminderScheduler
+import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconciler
+import com.arrazyfathan.kbbi.feature.campaigns.domain.NoOpCampaignSubscriptionReconciler
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
 import org.koin.core.module.Module
@@ -47,6 +49,7 @@ actual val platformModule: Module =
         single<PlatformHaptics> { UnsupportedPlatformHaptics }
         single<SpeechInput> { UnsupportedSpeechInput }
         single<NotificationPermission> { UnsupportedNotificationPermission }
+        single<CampaignSubscriptionReconciler> { NoOpCampaignSubscriptionReconciler }
         single<AlternateAppIcon> { DesktopAlternateAppIcon }
         single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
         single<ReminderScheduler> { UnsupportedReminderScheduler }

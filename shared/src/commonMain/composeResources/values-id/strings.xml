@@ -129,7 +129,7 @@
     <string name="notification_daily_word">Kata Hari Ini</string>
     <string name="notification_daily_proverb">Peribahasa harian</string>
     <string name="notification_bookmark_review">Tinjau kata tersimpan</string>
-    <string name="notification_permission_denied">Notifikasi dinonaktifkan. Izinkan notifikasi di pengaturan sistem untuk menggunakan pengingat.</string>
+    <string name="notification_permission_denied">Notifikasi dinonaktifkan. Izinkan notifikasi di pengaturan sistem untuk menerima kabar kampanye dan pengingat.</string>
     <string name="notification_daily_word_title">Kata Hari Ini</string>
     <string name="notification_daily_word_body">Pelajari “%1$s” hari ini.</string>
     <string name="notification_daily_proverb_title">Peribahasa harian</string>
@@ -143,6 +143,8 @@
     <string name="app_update_title">Pembaruan aplikasi</string>
     <string name="app_update_available">v%1$s tersedia</string>
     <string name="app_update_up_to_date">Terbaru</string>
+    <string name="app_update_details_fallback">Informasi pembaruan ini sudah tidak tersedia.</string>
+    <string name="update_open_release_page">Lihat rilis</string>
     <string name="app_version_title">Versi</string>
     <string name="privacy_policy_title">Kebijakan Privasi</string>
     <string name="terms_condition_title">Syarat &amp; Ketentuan</string>

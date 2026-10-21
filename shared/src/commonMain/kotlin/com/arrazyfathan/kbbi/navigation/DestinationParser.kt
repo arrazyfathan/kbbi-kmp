@@ -73,7 +73,7 @@ internal object DestinationParser {
                 if (!validArgument(decoded)) return null
                 decoded
             }
-        if (argument != null && name !in setOf("word", "figure", "proverb")) return null
+        if (argument != null && name !in setOf("word", "figure", "proverb", "update")) return null
         return when (name) {
             "", "home" -> HomeKey
             "words", "word-list" -> WordsKey
@@ -87,7 +87,7 @@ internal object DestinationParser {
             "terms", "terms-conditions" -> LegalDocumentKey("terms")
             "licenses", "open-source-licenses" -> LegalDocumentKey("licenses")
             "ai-settings" -> AiSettingsKey
-            "update" -> AppUpdateKey
+            "update" -> argument?.let(::AppUpdateKey)
             else -> null
         }
     }
@@ -155,6 +155,7 @@ internal object DestinationParser {
             is FigureDetailKey -> validArgument(key.slug)
             is ProverbKey -> key.slug == null || validArgument(key.slug)
             is LegalDocumentKey -> key.document in setOf("privacy", "terms", "licenses")
+            is AppUpdateKey -> validArgument(key.releaseId)
             else -> false
         }
 
@@ -170,7 +171,7 @@ internal object DestinationParser {
             SettingsKey -> "/settings"
             is LegalDocumentKey -> "/${key.document}"
             AiSettingsKey -> "/ai-settings"
-            AppUpdateKey -> "/update"
+            is AppUpdateKey -> "/update/${key.releaseId.encodeURLPathPart()}"
             else -> "/home"
         }
 

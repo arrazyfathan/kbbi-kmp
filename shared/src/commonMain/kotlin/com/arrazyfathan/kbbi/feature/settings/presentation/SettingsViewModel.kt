@@ -10,6 +10,7 @@ import com.arrazyfathan.kbbi.core.platform.AppIconTarget
 import com.arrazyfathan.kbbi.core.platform.AppIconVariant
 import com.arrazyfathan.kbbi.core.platform.CapabilityResult
 import com.arrazyfathan.kbbi.core.platform.FailureReason
+import com.arrazyfathan.kbbi.core.platform.NotificationPermission
 import com.arrazyfathan.kbbi.feature.home.domain.usecase.ClearSearchHistoryUseCase
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
@@ -33,16 +34,19 @@ class SettingsViewModel(
     private val reporting: ReportingController,
     private val reminderScheduler: ReminderScheduler,
     private val alternateAppIcon: AlternateAppIcon,
+    private val notificationPermission: NotificationPermission,
 ) : ViewModel() {
     private val appIconUpdating = MutableStateFlow(false)
     private val appIconChangeResult = MutableStateFlow<AppIconChangeStatus?>(null)
+    private val notificationPermissionDenied = MutableStateFlow(false)
 
     val state: StateFlow<SettingsState> =
         combine(
             preferences.preferences,
             appIconUpdating,
             appIconChangeResult,
-        ) { current, updating, result ->
+            notificationPermissionDenied,
+        ) { current, updating, result, permissionDenied ->
             SettingsState(
                 current,
                 reporting.capabilities,
@@ -50,6 +54,7 @@ class SettingsViewModel(
                 alternateAppIcon.target,
                 updating,
                 result,
+                permissionDenied,
             )
         }.stateIn(
             viewModelScope,
@@ -196,15 +201,42 @@ class SettingsViewModel(
             }
 
             is SettingsAction.CampaignNotifications -> {
-                preferences.setCampaignNotifications(action.enabled)
+                setNotificationPreference(action.enabled, preferences::setCampaignNotifications)
             }
 
             is SettingsAction.UpdateNotifications -> {
-                preferences.setUpdateNotifications(action.enabled)
+                setNotificationPreference(action.enabled, preferences::setUpdateNotifications)
+            }
+
+            SettingsAction.OpenNotificationSettings -> {
+                notificationPermission.openSettings()
             }
 
             is SettingsAction.ClearHistory -> {
                 viewModelScope.launch { clearSearchHistory() }
+            }
+        }
+    }
+
+    private fun setNotificationPreference(
+        enabled: Boolean,
+        save: (Boolean) -> Unit,
+    ) {
+        if (!enabled) {
+            notificationPermissionDenied.value = false
+            save(false)
+            return
+        }
+        viewModelScope.launch {
+            when (notificationPermission.request()) {
+                is CapabilityResult.Success, CapabilityResult.Unavailable -> {
+                    notificationPermissionDenied.value = false
+                    save(true)
+                }
+                CapabilityResult.Denied, is CapabilityResult.Failed -> {
+                    notificationPermissionDenied.value = true
+                    save(false)
+                }
             }
         }
     }
@@ -217,6 +249,7 @@ data class SettingsState(
     val appIconTarget: AppIconTarget = AppIconTarget.UNSUPPORTED,
     val appIconUpdating: Boolean = false,
     val appIconChangeResult: AppIconChangeStatus? = null,
+    val notificationPermissionDenied: Boolean = false,
 )
 
 enum class AppIconChangeStatus { SUCCEEDED, FAILED }
@@ -276,6 +309,8 @@ sealed interface SettingsAction {
     ) : SettingsAction
 
     data object ClearHistory : SettingsAction
+
+    data object OpenNotificationSettings : SettingsAction
 }
 
 private fun AppIcon.toVariant(): AppIconVariant = AppIconVariant.entries.first { it.storageKey == identifier }

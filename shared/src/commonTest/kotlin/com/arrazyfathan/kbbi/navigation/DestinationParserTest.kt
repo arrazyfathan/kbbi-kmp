@@ -37,4 +37,11 @@ class DestinationParserTest {
         assertEquals(DetailKey("kata benda"), DestinationParser.parse(link))
         assertEquals(DestinationParser.parse(link), DestinationParser.parse(link))
     }
+
+    @Test
+    fun updateAnnouncementDeepLinkRequiresAValidReleaseId() {
+        assertEquals(AppUpdateKey("ios-2-3-1"), DestinationParser.parse("kbbi://update/ios-2-3-1"))
+        assertNull(DestinationParser.parse("kbbi://update/../unsafe"))
+        assertNull(DestinationParser.parse("kbbi://update/"))
+    }
 }

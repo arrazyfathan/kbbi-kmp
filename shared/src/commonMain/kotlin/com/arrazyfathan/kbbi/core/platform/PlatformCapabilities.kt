@@ -89,6 +89,8 @@ fun interface SpeechInput {
 
 fun interface NotificationPermission {
     suspend fun request(): CapabilityResult<Unit>
+
+    fun openSettings(): CapabilityResult<Unit> = CapabilityResult.Unavailable
 }
 
 enum class AppIconVariant(

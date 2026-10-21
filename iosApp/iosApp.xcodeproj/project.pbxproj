@@ -10,6 +10,7 @@
 		19A000000000000000000001 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 19B000000000000000000001 /* FirebaseAnalytics */; };
 		19A000000000000000000002 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 19B000000000000000000002 /* FirebaseCrashlytics */; };
 		19A000000000000000000003 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = 19B000000000000000000003 /* FirebasePerformance */; };
+		19A000000000000000000004 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 19B000000000000000000004 /* FirebaseMessaging */; };
 		AA1000000000000000000001 /* KBBIShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA2000000000000000000001 /* KBBIShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AB1000000000000000000001 /* KBBIWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB2000000000000000000001 /* KBBIWidgetExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -135,6 +136,7 @@
 				19A000000000000000000001 /* FirebaseAnalytics in Frameworks */,
 				19A000000000000000000002 /* FirebaseCrashlytics in Frameworks */,
 				19A000000000000000000003 /* FirebasePerformance in Frameworks */,
+				19A000000000000000000004 /* FirebaseMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +254,7 @@
 				19B000000000000000000001 /* FirebaseAnalytics */,
 				19B000000000000000000002 /* FirebaseCrashlytics */,
 				19B000000000000000000003 /* FirebasePerformance */,
+				19B000000000000000000004 /* FirebaseMessaging */,
 			);
 			productName = iosApp;
 			productReference = C7200F9050BA1C0C241DFFF1 /* kbbi-kmp.app */;
@@ -567,8 +570,16 @@
 		AE09139A26A421B694A23421 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APS_ENVIRONMENT = development;
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (
+					AppIconRoyalOcean,
+					AppIconGoldenSunset,
+					AppIconGoldenCoralEnergy,
+					AppIconDeepForestEnergy,
+					AppIconNeonViolet,
+					AppIconBlazeOrange,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (AppIconRoyalOcean, AppIconGoldenSunset, AppIconGoldenCoralEnergy, AppIconDeepForestEnergy, AppIconNeonViolet, AppIconBlazeOrange);
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -579,6 +590,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = KBBI;
+				INFOPLIST_KEY_KBBIIosReleaseURL = "$(KBBI_IOS_RELEASE_URL)";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "KBBI uses the microphone when you start voice search.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "KBBI recognizes spoken Indonesian words for voice search.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -605,8 +617,16 @@
 		BAE82DF12ABE0D1E5F78CEDA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APS_ENVIRONMENT = production;
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (
+					AppIconRoyalOcean,
+					AppIconGoldenSunset,
+					AppIconGoldenCoralEnergy,
+					AppIconDeepForestEnergy,
+					AppIconNeonViolet,
+					AppIconBlazeOrange,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (AppIconRoyalOcean, AppIconGoldenSunset, AppIconGoldenCoralEnergy, AppIconDeepForestEnergy, AppIconNeonViolet, AppIconBlazeOrange);
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -617,6 +637,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = KBBI;
+				INFOPLIST_KEY_KBBIIosReleaseURL = "$(KBBI_IOS_RELEASE_URL)";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "KBBI uses the microphone when you start voice search.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "KBBI recognizes spoken Indonesian words for voice search.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -624,7 +645,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				KBBI_ENVIRONMENT = development;
+				KBBI_ENVIRONMENT = production;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -774,6 +795,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 19C000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebasePerformance;
+		};
+		19B000000000000000000004 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 19C000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

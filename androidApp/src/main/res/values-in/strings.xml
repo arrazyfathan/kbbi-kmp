@@ -9,4 +9,8 @@
     <string name="shortcut_random_word">Kata acak</string>
     <string name="shortcut_random_word_short">Acak</string>
     <string name="share_target_label">Cari dengan KBBI</string>
+    <string name="campaign_notification_channel">Pengumuman KBBI</string>
+    <string name="campaign_update_notification_channel">Pembaruan aplikasi</string>
+    <string name="campaign_update_notification_title">Pembaruan KBBI tersedia</string>
+    <string name="campaign_update_notification_body">Versi %1$s tersedia. Ketuk untuk melihat yang baru.</string>
 </resources>

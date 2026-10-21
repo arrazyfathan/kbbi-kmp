@@ -49,6 +49,8 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.glance.appwidget)
+    implementation(project.dependencies.platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)

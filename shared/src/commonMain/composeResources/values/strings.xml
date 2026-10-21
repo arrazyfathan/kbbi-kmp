@@ -130,7 +130,7 @@
     <string name="notification_daily_word">Word of the day</string>
     <string name="notification_daily_proverb">Daily proverb</string>
     <string name="notification_bookmark_review">Review saved bookmarks</string>
-    <string name="notification_permission_denied">Notifications are disabled. Allow notification permission in system settings to use reminders.</string>
+    <string name="notification_permission_denied">Notifications are disabled. Allow notifications in system settings to receive campaign messages and reminders.</string>
     <string name="notification_daily_word_title">Word of the day</string>
     <string name="notification_daily_word_body">Learn “%1$s” today.</string>
     <string name="notification_daily_proverb_title">Daily proverb</string>
@@ -144,6 +144,8 @@
     <string name="app_update_title">App update</string>
     <string name="app_update_available">v%1$s available</string>
     <string name="app_update_up_to_date">Up to date</string>
+    <string name="app_update_details_fallback">This release announcement is no longer available.</string>
+    <string name="update_open_release_page">View release</string>
     <string name="app_version_title">Version</string>
     <string name="privacy_policy_title">Privacy Policy</string>
     <string name="terms_condition_title">Terms &amp; Conditions</string>

@@ -30,6 +30,8 @@ import com.arrazyfathan.kbbi.core.platform.UnsupportedNotificationPermission
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
 import com.arrazyfathan.kbbi.core.utils.updateSystemBarStyle
 import com.arrazyfathan.kbbi.feature.home.data.source.local.room.appContext
+import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconciler
+import com.arrazyfathan.kbbi.feature.campaigns.domain.NoOpCampaignSubscriptionReconciler
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.feature.reminders.domain.UnsupportedReminderScheduler
 import io.ktor.client.engine.HttpClientEngine
@@ -55,6 +57,7 @@ actual val platformModule: Module =
         single<PlatformHaptics> { AndroidHaptics() }
         single<SpeechInput> { AndroidSpeechInput(appContext) }
         single<NotificationPermission> { UnsupportedNotificationPermission }
+        single<CampaignSubscriptionReconciler> { NoOpCampaignSubscriptionReconciler }
         single<AlternateAppIcon> { AndroidAlternateAppIcon(appContext) }
         single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
         single<ReminderScheduler> { UnsupportedReminderScheduler }

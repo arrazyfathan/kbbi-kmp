@@ -24,6 +24,8 @@ import com.arrazyfathan.kbbi.core.platform.UnsupportedTextShare
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
 import com.arrazyfathan.kbbi.core.platform.WidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.feature.reminders.BrowserReminderScheduler
+import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconciler
+import com.arrazyfathan.kbbi.feature.campaigns.domain.NoOpCampaignSubscriptionReconciler
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.js.Js
@@ -47,6 +49,7 @@ actual val platformModule: Module =
         single<PlatformHaptics> { UnsupportedPlatformHaptics }
         single<SpeechInput> { UnsupportedSpeechInput }
         single<NotificationPermission> { UnsupportedNotificationPermission }
+        single<CampaignSubscriptionReconciler> { NoOpCampaignSubscriptionReconciler }
         single<AlternateAppIcon> { BrowserAlternateAppIcon() }
         single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
         single<ReminderScheduler> { BrowserReminderScheduler(get(), get()) }

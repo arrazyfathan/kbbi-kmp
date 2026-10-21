@@ -79,11 +79,10 @@ internal val navigationSavedStateConfiguration =
             }
     }
 
-// AI settings is implemented; app update remains owned by Plan 25.
 @Serializable
 @SerialName("ai-settings")
 internal data object AiSettingsKey : NavKey
 
 @Serializable
 @SerialName("update")
-internal data object AppUpdateKey : NavKey
+internal data class AppUpdateKey(val releaseId: String) : NavKey

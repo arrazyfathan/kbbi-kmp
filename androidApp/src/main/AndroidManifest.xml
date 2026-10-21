@@ -89,6 +89,14 @@
                 android:resource="@xml/app_shortcuts" />
         </activity>
 
+        <service
+            android:name=".notifications.AndroidCampaignMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <activity-alias
             android:name="${applicationId}.launcher.DefaultIconAlias"
             android:enabled="true"

@@ -35,6 +35,7 @@ import com.arrazyfathan.kbbi.core.presentation.designsystem.components.AppLottie
 import com.arrazyfathan.kbbi.core.presentation.ui.LocalAppLoadingController
 import com.arrazyfathan.kbbi.core.presentation.ui.rememberAppLoadingController
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.bookmarksEntry
+import com.arrazyfathan.kbbi.feature.campaigns.presentation.UpdateAnnouncementRoute
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.BookmarksKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.DetailKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.detailEntry
@@ -125,6 +126,9 @@ internal fun MainApp(navigationState: NavigationState) {
                     onNavigateBack = navigator::goBack,
                     onNavigateToAiSettings = { navigator.navigate(AiSettingsKey) },
                 )
+                entry<AppUpdateKey>(clazzContentKey = DestinationParser::path) { key ->
+                    UpdateAnnouncementRoute(key.releaseId, onBack = navigator::goBack)
+                }
                 entry<AiSettingsKey>(clazzContentKey = DestinationParser::path) {
                     AiSettingsRoute(onNavigateBack = navigator::goBack)
                 }

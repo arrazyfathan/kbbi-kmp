@@ -106,6 +106,8 @@ import kbbi_kmp.shared.generated.resources.interaction_section_title
 import kbbi_kmp.shared.generated.resources.navigate_back
 import kbbi_kmp.shared.generated.resources.notification_app_updates_description
 import kbbi_kmp.shared.generated.resources.notification_app_updates_title
+import kbbi_kmp.shared.generated.resources.notification_permission_denied
+import kbbi_kmp.shared.generated.resources.notification_open_system_settings
 import kbbi_kmp.shared.generated.resources.notification_bookmark_review
 import kbbi_kmp.shared.generated.resources.notification_bookmark_review_description
 import kbbi_kmp.shared.generated.resources.notification_daily_proverb
@@ -271,6 +273,14 @@ private fun SettingsScreen(
                     p.updateNotificationsEnabled,
                     onChange = { onAction(SettingsAction.UpdateNotifications(it)) },
                 )
+                if (state.notificationPermissionDenied) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(top = 8.dp)) {
+                        Text(stringResource(Res.string.notification_permission_denied), style = MaterialTheme.typography.bodySmall)
+                        TextButton(onClick = { onAction(SettingsAction.OpenNotificationSettings) }) {
+                            Text(stringResource(Res.string.notification_open_system_settings))
+                        }
+                    }
+                }
                 SectionDivider()
                 ReminderType.entries.forEach { type ->
                     val pref = p.reminders.getValue(type)

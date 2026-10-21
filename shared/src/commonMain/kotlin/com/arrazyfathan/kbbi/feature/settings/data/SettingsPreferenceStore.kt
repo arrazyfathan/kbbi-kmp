@@ -4,6 +4,7 @@ import com.arrazyfathan.kbbi.core.domain.model.AppTheme
 import com.arrazyfathan.kbbi.core.platform.LocaleProvider
 import com.arrazyfathan.kbbi.feature.bookmark.data.BookmarkLayoutPreferenceStore
 import com.arrazyfathan.kbbi.feature.bookmark.domain.BookmarkLayout
+import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconciler
 import com.arrazyfathan.kbbi.feature.settings.domain.AppIcon
 import com.arrazyfathan.kbbi.feature.settings.domain.AppLanguage
 import com.arrazyfathan.kbbi.feature.settings.domain.ReminderPreference
@@ -25,6 +26,7 @@ internal expect fun applySettingsLanguage(languageTag: String)
 class SettingsPreferenceStore(
     private val bookmarkLayoutStore: BookmarkLayoutPreferenceStore,
     private val localeProvider: LocaleProvider,
+    private val campaignSubscriptionReconciler: CampaignSubscriptionReconciler,
 ) {
     private val mutablePreferences = MutableStateFlow(readPreferences())
     val preferences: StateFlow<SettingsPreferences> = mutablePreferences.asStateFlow()
@@ -64,13 +66,13 @@ class SettingsPreferenceStore(
         update(
             "campaign_notifications",
             value.toString(),
-        ) { copy(campaignNotificationsEnabled = value) }
+        ) { copy(campaignNotificationsEnabled = value) }.also { campaignSubscriptionReconciler.requestReconcile() }
 
     fun setUpdateNotifications(value: Boolean) =
         update(
             "update_notifications",
             value.toString(),
-        ) { copy(updateNotificationsEnabled = value) }
+        ) { copy(updateNotificationsEnabled = value) }.also { campaignSubscriptionReconciler.requestReconcile() }
 
     fun setReminder(
         type: ReminderType,

@@ -1,6 +1,7 @@
 import Shared
 import SwiftUI
 import UIKit
+import FirebaseMessaging
 import UserNotifications
 import WidgetKit
 
@@ -10,6 +11,7 @@ struct iOSApp: App {
     @Environment(\.scenePhase) private var scenePhase
     init() {
         installFirebaseReporting()
+        IosCampaignCoordinator.shared.install()
         KoinInitIosKt.doInitKoinIos()
         UserDefaults(suiteName: "group.com.arrazyfathan.kbbi")?.set(
             ExternalEntryConfigurationKt.getShareExtensionApiBaseUrl(),
@@ -27,6 +29,7 @@ struct iOSApp: App {
                 .onAppear(perform: consumeDeferredShare)
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active {
+                        Task { await IosCampaignCoordinator.shared.reconcile() }
                         consumeDeferredShare()
                         WidgetSnapshotBridge.reconcile()
                     }
@@ -69,13 +72,47 @@ private func consumeDeferredShare() {
     IosIncomingLaunchRequests.shared.publishText(sharedText: text)
 }
 
-final class KBBIAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+final class KBBIAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
+        Messaging.messaging().delegate = self
         return true
+    }
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Messaging.messaging().apnsToken = deviceToken
+        Task { await IosCampaignCoordinator.shared.reconcile() }
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        NSLog("KBBI APNs registration failed: %@", String(describing: error))
+    }
+
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        IosCampaignCoordinator.shared.didUpdateFCMToken(fcmToken)
+    }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        guard let campaign = parsedCampaign(from: notification.request.content.userInfo) else {
+            completionHandler([])
+            return
+        }
+        let defaults = UserDefaults.standard
+        let enabled = campaign.topic == "app_updates"
+            ? (defaults.object(forKey: "kbbi.ui.update_notifications") as? Bool ?? true)
+            : defaults.bool(forKey: "kbbi.ui.campaign_notifications")
+        guard enabled else {
+            completionHandler([])
+            return
+        }
+        completionHandler([.banner, .list, .sound])
     }
 
     func application(
@@ -141,9 +178,26 @@ extension KBBIAppDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        if let uri = response.notification.request.content.userInfo["url"] as? String {
-            IosIncomingLaunchRequests.shared.publish(uri: uri)
+        if let campaign = parsedCampaign(from: response.notification.request.content.userInfo) {
+            if let releaseId = campaign.releaseId, let version = campaign.versionName {
+                let prefix = "kbbi.push.update.\(releaseId)."
+                UserDefaults.standard.set(version, forKey: prefix + "version")
+                UserDefaults.standard.set(campaign.title, forKey: prefix + "title")
+                UserDefaults.standard.set(campaign.body, forKey: prefix + "body")
+            }
+            IosIncomingLaunchRequests.shared.publish(uri: campaign.route, requestId: "push-\(campaign.deliveryId)")
         }
         completionHandler()
     }
+}
+
+private func parsedCampaign(from userInfo: [AnyHashable: Any]) -> IosParsedCampaignPush? {
+    let data = Dictionary(uniqueKeysWithValues: userInfo.compactMap { key, value -> (String, String)? in
+        guard let key = key as? String, let value = value as? String else { return nil }
+        return (key, value)
+    })
+    return IosCampaignPayloadParser.shared.parse(
+        data: data,
+        nowEpochMillis: Date().timeIntervalSince1970 * 1_000,
+    )
 }

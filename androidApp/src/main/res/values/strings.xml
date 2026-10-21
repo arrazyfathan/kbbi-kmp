@@ -9,4 +9,8 @@
     <string name="shortcut_random_word">Random word</string>
     <string name="shortcut_random_word_short">Random</string>
     <string name="share_target_label">Search with KBBI</string>
+    <string name="campaign_notification_channel">KBBI announcements</string>
+    <string name="campaign_update_notification_channel">App updates</string>
+    <string name="campaign_update_notification_title">KBBI update available</string>
+    <string name="campaign_update_notification_body">Version %1$s is ready. Tap to see what’s new.</string>
 </resources>

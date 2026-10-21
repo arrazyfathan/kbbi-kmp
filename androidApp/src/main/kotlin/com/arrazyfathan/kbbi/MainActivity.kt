@@ -25,6 +25,7 @@ import org.koin.core.context.GlobalContext
 
 class MainActivity : ComponentActivity() {
     private var pendingPermissionType: ReminderType? = null
+    private var pendingNotificationPermissionResult: ((Boolean) -> Unit)? = null
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             val type = pendingPermissionType
@@ -43,6 +44,10 @@ class MainActivity : ComponentActivity() {
                         koin.get<ReminderScheduler>().cancel(type)
                     }
                 }
+            }
+            pendingNotificationPermissionResult?.also { result ->
+                pendingNotificationPermissionResult = null
+                result(granted)
             }
         }
 
@@ -87,6 +92,23 @@ class MainActivity : ComponentActivity() {
             return
         }
         pendingPermissionType = type
+        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
+    fun requestNotificationPermission(onResult: (Boolean) -> Unit) {
+        if (Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            onResult(true)
+            return
+        }
+        if (pendingNotificationPermissionResult != null) {
+            onResult(false)
+            return
+        }
+        pendingNotificationPermissionResult = onResult
         permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
