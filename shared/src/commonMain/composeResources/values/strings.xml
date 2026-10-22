@@ -146,6 +146,15 @@
     <string name="app_update_up_to_date">Up to date</string>
     <string name="app_update_details_fallback">This release announcement is no longer available.</string>
     <string name="update_open_release_page">View release</string>
+    <string name="app_update_dialog_title">A new version is available</string>
+    <string name="app_update_dialog_required_title">Update required</string>
+    <string name="app_update_release_notes">What’s new</string>
+    <string name="app_update_open_release">Update now</string>
+    <string name="app_update_reload">Reload to update</string>
+    <string name="app_update_later">Later</string>
+    <string name="app_update_checking">Checking for updates…</string>
+    <string name="app_update_check_failed">Could not check for updates. Try again.</string>
+    <string name="app_update_action_failed">Could not open the update destination.</string>
     <string name="app_version_title">Version</string>
     <string name="privacy_policy_title">Privacy Policy</string>
     <string name="terms_condition_title">Terms &amp; Conditions</string>

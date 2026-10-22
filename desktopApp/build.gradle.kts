@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.util.Properties
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
@@ -9,6 +10,12 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }
+
+val appVersionProperties = Properties().apply {
+    rootProject.file("version.properties").inputStream().use(::load)
+}
+val desktopAppVersion = listOf("VERSION_MAJOR", "VERSION_MINOR", "VERSION_PATCH")
+    .joinToString(".") { key -> requireNotNull(appVersionProperties.getProperty(key)) { "$key is missing from version.properties" } }
 
 dependencies {
     implementation(projects.shared)
@@ -25,7 +32,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "KBBI"
-            packageVersion = "1.0.0"
+            packageVersion = desktopAppVersion
             macOS { iconFile.set(project.file("src/main/resources/icons/kbbi.icns")) }
             windows { iconFile.set(project.file("src/main/resources/icons/kbbi.ico")) }
             linux { iconFile.set(project.file("src/main/resources/icons/kbbi.png")) }

@@ -13,12 +13,13 @@ import com.arrazyfathan.kbbi.core.domain.visitor.StoredVisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdStorage
 import com.arrazyfathan.kbbi.core.platform.AlternateAppIcon
+import com.arrazyfathan.kbbi.core.platform.AndroidUrlOpener
+import com.arrazyfathan.kbbi.core.platform.CapabilityResult
 import com.arrazyfathan.kbbi.core.platform.AndroidAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.AndroidHaptics
 import com.arrazyfathan.kbbi.core.platform.AndroidLocaleProvider
 import com.arrazyfathan.kbbi.core.platform.AndroidSpeechInput
 import com.arrazyfathan.kbbi.core.platform.AndroidTextShare
-import com.arrazyfathan.kbbi.core.platform.AndroidUrlOpener
 import com.arrazyfathan.kbbi.core.platform.EmptyIncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.LocaleProvider
@@ -34,6 +35,10 @@ import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconc
 import com.arrazyfathan.kbbi.feature.campaigns.domain.NoOpCampaignSubscriptionReconciler
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.feature.reminders.domain.UnsupportedReminderScheduler
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdatePlatformMetadata
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateTarget
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateLauncher
+import com.arrazyfathan.kbbi.shared.BuildKonfig
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.core.module.Module
@@ -59,6 +64,11 @@ actual val platformModule: Module =
         single<NotificationPermission> { UnsupportedNotificationPermission }
         single<CampaignSubscriptionReconciler> { NoOpCampaignSubscriptionReconciler }
         single<AlternateAppIcon> { AndroidAlternateAppIcon(appContext) }
+        single<AppUpdateLauncher> {
+            AppUpdateLauncher { update ->
+                update.actionUrl?.let(AndroidUrlOpener()::open) ?: CapabilityResult.Unavailable
+            }
+        }
         single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
         single<ReminderScheduler> { UnsupportedReminderScheduler }
     }
@@ -98,3 +108,12 @@ actual fun getAppVersionName(): String =
         .getPackageInfo(appContext.packageName, 0)
         .versionName
         .orEmpty()
+
+actual fun getAppUpdatePlatformMetadata(): AppUpdatePlatformMetadata {
+    val version = getAppVersionName()
+    return AppUpdatePlatformMetadata(
+        target = AppUpdateTarget.ANDROID,
+        currentVersion = version,
+        enabled = BuildKonfig.APP_ENVIRONMENT == "production" && version.isNotBlank(),
+    )
+}

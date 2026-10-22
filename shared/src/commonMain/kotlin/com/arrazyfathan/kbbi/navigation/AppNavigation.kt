@@ -16,6 +16,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -36,6 +38,8 @@ import com.arrazyfathan.kbbi.core.presentation.ui.LocalAppLoadingController
 import com.arrazyfathan.kbbi.core.presentation.ui.rememberAppLoadingController
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.bookmarksEntry
 import com.arrazyfathan.kbbi.feature.campaigns.presentation.UpdateAnnouncementRoute
+import com.arrazyfathan.kbbi.feature.appupdate.presentation.AppUpdatePrompt
+import com.arrazyfathan.kbbi.feature.appupdate.presentation.AppUpdateViewModel
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.navigation.BookmarksKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.DetailKey
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.detailEntry
@@ -53,12 +57,15 @@ import com.arrazyfathan.kbbi.feature.settings.presentation.navigation.settingsEn
 import com.arrazyfathan.kbbi.feature.words.presentation.navigation.wordsEntry
 import com.arrazyfathan.kbbi.feature.wordstudy.presentation.ai.AiSettingsRoute
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun MainApp(navigationState: NavigationState) {
     val navigator = remember(navigationState) { Navigator(navigationState) }
     val analytics: AnalyticsReporter = koinInject()
     val currentRoute = navigationState.currentRoute
+    val appUpdateViewModel: AppUpdateViewModel = koinViewModel()
+    val appUpdateState by appUpdateViewModel.state.collectAsState()
     val isDetailVisible = currentRoute is DetailKey || currentRoute is FigureDetailKey
     val showBottomNavigation = currentRoute in topLevelRoutes
     val loadingController = rememberAppLoadingController()
@@ -67,6 +74,8 @@ internal fun MainApp(navigationState: NavigationState) {
     }
 
     BindSystemBarColor(isDetailVisible = isDetailVisible)
+
+    LaunchedEffect(appUpdateViewModel) { appUpdateViewModel.onAppStarted() }
 
     val entries =
         navigationState.toDecoratedEntries(
@@ -121,6 +130,8 @@ internal fun MainApp(navigationState: NavigationState) {
                 settingsEntry(
                     onBack = { navigator.goBack() },
                     onOpenLegal = { document -> navigator.navigate(LegalDocumentKey(document)) },
+                    appUpdateState = appUpdateState,
+                    onCheckForUpdate = appUpdateViewModel::checkManually,
                 )
                 detailEntry(
                     onNavigateBack = navigator::goBack,
@@ -173,6 +184,15 @@ internal fun MainApp(navigationState: NavigationState) {
                     )
                 },
             )
+
+            appUpdateState.availableUpdate?.let { update ->
+                AppUpdatePrompt(
+                    update = update,
+                    actionFailed = appUpdateState.actionFailed,
+                    onLaunch = appUpdateViewModel::launchUpdate,
+                    onDismiss = appUpdateViewModel::dismissPrompt,
+                )
+            }
 
             AnimatedVisibility(
                 visible = showBottomNavigation,

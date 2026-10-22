@@ -15,6 +15,13 @@ val apiBaseUrl =
     listOf(
         localProperties.getProperty("BASE_URL"),
     ).firstNotNullOf { it?.trim()?.takeIf(String::isNotEmpty) }
+val appVersionProperties =
+    Properties().apply {
+        rootProject.file("version.properties").inputStream().use(::load)
+    }
+val appVersionName =
+    listOf("VERSION_MAJOR", "VERSION_MINOR", "VERSION_PATCH")
+        .joinToString(".") { key -> requireNotNull(appVersionProperties.getProperty(key)) { "$key is missing from version.properties" } }
 
 plugins {
     alias(libs.plugins.aboutlibraries)
@@ -195,6 +202,7 @@ buildkonfig {
     defaultConfigs {
         buildConfigField(Type.STRING, "BASE_URL", apiBaseUrl)
         buildConfigField(Type.STRING, "APP_ENVIRONMENT", providers.gradleProperty("appEnvironment").getOrElse("development"))
+        buildConfigField(Type.STRING, "APP_VERSION", appVersionName)
     }
 }
 

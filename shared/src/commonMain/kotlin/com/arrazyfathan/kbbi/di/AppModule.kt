@@ -7,6 +7,13 @@ import com.arrazyfathan.kbbi.core.observability.ReportingController
 import com.arrazyfathan.kbbi.core.observability.observabilityModule
 import com.arrazyfathan.kbbi.core.platform.Haptics
 import com.arrazyfathan.kbbi.core.platform.SettingsAwareHaptics
+import com.arrazyfathan.kbbi.getAppUpdatePlatformMetadata
+import com.arrazyfathan.kbbi.feature.appupdate.data.AppUpdateStore
+import com.arrazyfathan.kbbi.feature.appupdate.data.GitHubAppUpdateRepository
+import com.arrazyfathan.kbbi.feature.appupdate.data.PlatformAppUpdateStore
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdatePlatformMetadata
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateRepository
+import com.arrazyfathan.kbbi.feature.appupdate.presentation.AppUpdateViewModel
 import com.arrazyfathan.kbbi.feature.bookmark.data.BookmarkLayoutPreferenceStore
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.bookmark.BookmarksViewModel
 import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconciler
@@ -100,6 +107,14 @@ val useCaseModule =
         factoryOf(::TestAiConnectionUseCase)
     }
 
+val appUpdateModule =
+    module {
+        single<AppUpdatePlatformMetadata> { getAppUpdatePlatformMetadata() }
+        single<AppUpdateStore> { PlatformAppUpdateStore(get()) }
+        single<AppUpdateRepository> { GitHubAppUpdateRepository(get(), get(), get()) }
+        viewModelOf(::AppUpdateViewModel)
+    }
+
 val viewModelModule =
     module {
         viewModelOf(::DetailViewModel)
@@ -129,6 +144,7 @@ fun initKoin(config: KoinAppDeclaration? = null): KoinApplication =
             networkModule,
             useCaseModule,
             observabilityModule,
+            appUpdateModule,
         )
     }.also { application ->
         val controller = application.koin.get<ReportingController>()

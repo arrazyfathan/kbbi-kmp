@@ -65,6 +65,8 @@ import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
 import com.arrazyfathan.kbbi.core.presentation.designsystem.components.KBBITimePickerBottomSheet
 import com.arrazyfathan.kbbi.feature.settings.domain.AppIcon
 import com.arrazyfathan.kbbi.feature.settings.domain.ReminderType
+import com.arrazyfathan.kbbi.feature.appupdate.presentation.AppUpdateState
+import com.arrazyfathan.kbbi.feature.appupdate.presentation.ManualUpdateCheckResult
 import com.arrazyfathan.kbbi.getAppVersionName
 import com.arrazyfathan.kbbi.showToast
 import kbbi_kmp.shared.generated.resources.Res
@@ -77,6 +79,9 @@ import kbbi_kmp.shared.generated.resources.app_icon_change_dialog_title
 import kbbi_kmp.shared.generated.resources.app_icon_change_failed
 import kbbi_kmp.shared.generated.resources.app_icon_change_success
 import kbbi_kmp.shared.generated.resources.app_update_title
+import kbbi_kmp.shared.generated.resources.app_update_available
+import kbbi_kmp.shared.generated.resources.app_update_check_failed
+import kbbi_kmp.shared.generated.resources.app_update_checking
 import kbbi_kmp.shared.generated.resources.app_update_up_to_date
 import kbbi_kmp.shared.generated.resources.app_version_title
 import kbbi_kmp.shared.generated.resources.cancel
@@ -148,6 +153,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SettingsRoute(
     onBack: () -> Unit,
     onOpenLegal: (String) -> Unit,
+    appUpdateState: AppUpdateState,
+    onCheckForUpdate: () -> Unit,
 ) {
     val viewModel: SettingsViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
@@ -171,6 +178,8 @@ fun SettingsRoute(
     var message by remember { mutableStateOf<String?>(null) }
     SettingsScreen(
         state = state,
+        appUpdateState = appUpdateState,
+        onCheckForUpdate = onCheckForUpdate,
         onBack = onBack,
         onAction = viewModel::onAction,
         onOpenLegal = onOpenLegal,
@@ -230,6 +239,8 @@ fun SettingsRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun SettingsScreen(
     state: SettingsState,
+    appUpdateState: AppUpdateState,
+    onCheckForUpdate: () -> Unit,
     onBack: () -> Unit,
     onAction: (SettingsAction) -> Unit,
     onOpenLegal: (String) -> Unit,
@@ -381,8 +392,16 @@ private fun SettingsScreen(
                 PreferenceRow(
                     Res.string.app_update_title,
                     icon = Res.drawable.ic_update,
-                    subtitleResource = Res.string.app_update_up_to_date,
+                    subtitle =
+                        appUpdateState.availableUpdate?.let {
+                            stringResource(Res.string.app_update_available, it.latestVersion)
+                        } ?: when {
+                            appUpdateState.isChecking -> stringResource(Res.string.app_update_checking)
+                            appUpdateState.manualCheckResult == ManualUpdateCheckResult.UNAVAILABLE -> stringResource(Res.string.app_update_check_failed)
+                            else -> stringResource(Res.string.app_update_up_to_date)
+                        },
                     trailing = "›",
+                    onClick = onCheckForUpdate,
                 )
                 SectionDivider()
                 PreferenceRow(

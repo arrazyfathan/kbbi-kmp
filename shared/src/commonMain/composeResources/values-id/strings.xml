@@ -145,6 +145,15 @@
     <string name="app_update_up_to_date">Terbaru</string>
     <string name="app_update_details_fallback">Informasi pembaruan ini sudah tidak tersedia.</string>
     <string name="update_open_release_page">Lihat rilis</string>
+    <string name="app_update_dialog_title">Versi baru tersedia</string>
+    <string name="app_update_dialog_required_title">Pembaruan diperlukan</string>
+    <string name="app_update_release_notes">Yang baru</string>
+    <string name="app_update_open_release">Perbarui sekarang</string>
+    <string name="app_update_reload">Muat ulang untuk memperbarui</string>
+    <string name="app_update_later">Nanti</string>
+    <string name="app_update_checking">Memeriksa pembaruan…</string>
+    <string name="app_update_check_failed">Pembaruan tidak dapat diperiksa. Coba lagi.</string>
+    <string name="app_update_action_failed">Tujuan pembaruan tidak dapat dibuka.</string>
     <string name="app_version_title">Versi</string>
     <string name="privacy_policy_title">Kebijakan Privasi</string>
     <string name="terms_condition_title">Syarat &amp; Ketentuan</string>

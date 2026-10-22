@@ -1,5 +1,7 @@
 # 25 — Add app-update flow
 
+**Status:** In progress (2026-10-21). Shared release checking, startup/Settings prompts, version metadata, and target-aware destinations are implemented. Android download/validation/install parity and human source/device acceptance remain open.
+
 **Depends on:** 13, 14, 19, 21  
 **Outcome:** Update checks, prompts, and destination actions reproduce Android policy with platform-safe installation.
 
@@ -21,3 +23,10 @@
 
 - Tests cover older/equal/newer version, malformed release, missing asset, policy failure, cached required update, and cancelled download.
 - Prompts cannot launch a package for another OS; all target actions work from Settings and startup.
+
+## Implementation progress — 2026-10-21
+
+- Shared GitHub latest-release and update-policy parsing, semantic version comparison, per-platform asset selection, persisted daily/hourly check cadence, and cached required-update fallback are implemented in `shared/src/commonMain/kotlin/com/arrazyfathan/kbbi/feature/appupdate/`.
+- Startup and Settings checks show localized optional/required prompts and release notes. Android uses APK assets (or the GitHub release page if an APK asset is missing); iOS uses the configured App Store/TestFlight URL only when the policy explicitly includes `ios`; Desktop selects the package extension for its host OS; Web reloads only for an explicitly targeted web release.
+- Android DownloadManager, APK identity/signature validation, completion notification and install launcher parity remain open. Target-format production release publishing is not configured in this checkout.
+- Human 1:1 visual comparison and device/browser acceptance remain open; agents do not perform these interactions.

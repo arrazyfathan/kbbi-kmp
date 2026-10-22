@@ -6,9 +6,10 @@ import com.arrazyfathan.kbbi.core.domain.visitor.StoredVisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdStorage
 import com.arrazyfathan.kbbi.core.platform.AlternateAppIcon
+import com.arrazyfathan.kbbi.core.platform.DesktopUrlOpener
+import com.arrazyfathan.kbbi.core.platform.CapabilityResult
 import com.arrazyfathan.kbbi.core.platform.DesktopAlternateAppIcon
 import com.arrazyfathan.kbbi.core.platform.DesktopLocaleProvider
-import com.arrazyfathan.kbbi.core.platform.DesktopUrlOpener
 import com.arrazyfathan.kbbi.core.platform.EmptyIncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.LocaleProvider
@@ -25,6 +26,10 @@ import com.arrazyfathan.kbbi.core.platform.UrlOpener
 import com.arrazyfathan.kbbi.core.platform.WidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.feature.reminders.domain.UnsupportedReminderScheduler
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdatePlatformMetadata
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateTarget
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateLauncher
+import com.arrazyfathan.kbbi.shared.BuildKonfig
 import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconciler
 import com.arrazyfathan.kbbi.feature.campaigns.domain.NoOpCampaignSubscriptionReconciler
 import io.ktor.client.engine.HttpClientEngine
@@ -51,6 +56,11 @@ actual val platformModule: Module =
         single<NotificationPermission> { UnsupportedNotificationPermission }
         single<CampaignSubscriptionReconciler> { NoOpCampaignSubscriptionReconciler }
         single<AlternateAppIcon> { DesktopAlternateAppIcon }
+        single<AppUpdateLauncher> {
+            AppUpdateLauncher { update ->
+                update.actionUrl?.let(DesktopUrlOpener()::open) ?: CapabilityResult.Unavailable
+            }
+        }
         single<IncomingLaunchRequests> { EmptyIncomingLaunchRequests }
         single<ReminderScheduler> { UnsupportedReminderScheduler }
         single<WidgetSnapshotPublisher> { NoOpWidgetSnapshotPublisher }
@@ -63,4 +73,20 @@ actual fun showToast(message: String) {
     println(message)
 }
 
-actual fun getAppVersionName(): String = "1.0.0"
+actual fun getAppVersionName(): String = BuildKonfig.APP_VERSION
+
+actual fun getAppUpdatePlatformMetadata(): AppUpdatePlatformMetadata {
+    val os = System.getProperty("os.name").orEmpty().lowercase()
+    val extension = when {
+        os.contains("mac") -> "dmg"
+        os.contains("win") -> "msi"
+        os.contains("linux") -> "deb"
+        else -> null
+    }
+    return AppUpdatePlatformMetadata(
+        target = AppUpdateTarget.DESKTOP,
+        currentVersion = getAppVersionName(),
+        enabled = extension != null && BuildKonfig.APP_ENVIRONMENT == "production",
+        desktopPackageExtension = extension,
+    )
+}

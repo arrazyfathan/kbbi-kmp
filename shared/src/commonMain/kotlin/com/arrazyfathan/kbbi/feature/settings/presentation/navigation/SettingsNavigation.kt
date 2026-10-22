@@ -3,6 +3,7 @@ package com.arrazyfathan.kbbi.feature.settings.presentation.navigation
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.arrazyfathan.kbbi.feature.settings.presentation.SettingsRoute
+import com.arrazyfathan.kbbi.feature.appupdate.presentation.AppUpdateState
 import com.arrazyfathan.kbbi.feature.settings.presentation.legal.OpenSourceLicensesScreen
 import com.arrazyfathan.kbbi.feature.settings.presentation.legal.PrivacyPolicyScreen
 import com.arrazyfathan.kbbi.feature.settings.presentation.legal.TermsConditionsScreen
@@ -23,11 +24,15 @@ data class LegalDocumentKey(
 fun EntryProviderScope<NavKey>.settingsEntry(
     onBack: () -> Unit,
     onOpenLegal: (String) -> Unit,
+    appUpdateState: AppUpdateState,
+    onCheckForUpdate: () -> Unit,
 ) {
     entry<SettingsKey>(clazzContentKey = DestinationParser::path) {
         SettingsRoute(
             onBack = onBack,
             onOpenLegal = onOpenLegal,
+            appUpdateState = appUpdateState,
+            onCheckForUpdate = onCheckForUpdate,
         )
     }
     entry<LegalDocumentKey>(clazzContentKey = DestinationParser::path) { key ->
