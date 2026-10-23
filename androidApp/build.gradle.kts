@@ -35,6 +35,21 @@ val versionMinor = appVersion.requiredVersionPart("VERSION_MINOR")
 val versionPatch = appVersion.requiredVersionPart("VERSION_PATCH")
 val appVersionCode = appVersion.requiredVersionPart("VERSION_CODE")
 val appVersionName = "$versionMajor.$versionMinor.$versionPatch"
+fun releaseInput(name: String): String? =
+    providers.gradleProperty(name).orNull?.takeIf(String::isNotBlank)
+        ?: providers.environmentVariable(name).orNull?.takeIf(String::isNotBlank)
+
+val releaseSigning =
+    listOf(
+        releaseInput("ANDROID_KEYSTORE_PATH"),
+        releaseInput("ANDROID_KEYSTORE_PASSWORD"),
+        releaseInput("ANDROID_KEY_ALIAS"),
+        releaseInput("ANDROID_KEY_PASSWORD"),
+    )
+require(releaseSigning.all { it == null } || releaseSigning.all { it != null }) {
+    "Provide all four Android release signing inputs, or omit all four to build an unsigned artifact."
+}
+val hasReleaseSigning = releaseSigning.all { it != null }
 
 kotlin {
     compilerOptions {
@@ -88,9 +103,27 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    signingConfigs {
+        create("release") {
+            if (hasReleaseSigning) {
+                storeFile = file(releaseSigning[0]!!)
+                storePassword = releaseSigning[1]
+                keyAlias = releaseSigning[2]
+                keyPassword = releaseSigning[3]
+            }
+        }
+    }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {

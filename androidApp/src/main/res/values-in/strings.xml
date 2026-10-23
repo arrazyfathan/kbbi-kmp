@@ -13,4 +13,11 @@
     <string name="campaign_update_notification_channel">Pembaruan aplikasi</string>
     <string name="campaign_update_notification_title">Pembaruan KBBI tersedia</string>
     <string name="campaign_update_notification_body">Versi %1$s tersedia. Ketuk untuk melihat yang baru.</string>
+    <string name="app_update_downloading_title">Mengunduh pembaruan KBBI</string>
+    <string name="app_update_downloading_body">Versi %1$s</string>
+    <string name="app_update_notification_channel">Pembaruan aplikasi</string>
+    <string name="app_update_ready_title">KBBI %1$s siap dipasang</string>
+    <string name="app_update_ready_body">Ketuk untuk melanjutkan pemasangan pembaruan.</string>
+    <string name="app_update_install_permission_error">Izinkan KBBI memasang pembaruan dari sumber ini di setelan sistem.</string>
+    <string name="app_update_install_error">Pemasang pembaruan tidak dapat dibuka. Coba unduh ulang.</string>
 </resources>

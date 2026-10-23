@@ -1,0 +1,162 @@
+name: KBBI KMP CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Android, JVM, JS and Wasm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Configure public API endpoint
+        run: cp local.properties.example local.properties
+
+      - name: Reject tracked signing credentials
+        run: |
+          if git ls-files | grep -E '(^|/)(google-services\.json|GoogleService-Info\.plist|[^/]+\.(jks|keystore)|[^/]*service-account[^/]*\.json)$'; then
+            echo "Tracked signing or Firebase credential files are not allowed"
+            exit 1
+          fi
+
+      - name: Run shared and Android unit tests
+        run: ./gradlew --no-daemon :shared:jvmTest :androidApp:testDebugUnitTest --stacktrace
+
+      - name: Build Android debug APK
+        run: ./gradlew --no-daemon :androidApp:assembleDebug --stacktrace
+
+      - name: Build minified Android release APK
+        run: ./gradlew --no-daemon :androidApp:assembleRelease -PappEnvironment=production --stacktrace
+
+      - name: Build browser JavaScript and Wasm bundles
+        run: ./gradlew --no-daemon :webApp:jsBrowserDistribution :webApp:wasmJsBrowserDistribution --stacktrace
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-and-web-builds
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            androidApp/build/outputs/apk/debug/*.apk
+            androidApp/build/outputs/apk/release/*.apk
+            webApp/build/dist/js/productionExecutable/**
+            webApp/build/dist/wasmJs/productionExecutable/**
+
+  desktop:
+    name: Desktop ${{ matrix.format }} package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            format: DEB
+            task: packageDeb
+            artifact: desktopApp/build/compose/binaries/main/deb/*.deb
+          - os: macos-15
+            format: DMG
+            task: packageDmg
+            artifact: desktopApp/build/compose/binaries/main/dmg/*.dmg
+          - os: windows-latest
+            format: MSI
+            task: packageMsi
+            artifact: desktopApp/build/compose/binaries/main/msi/*.msi
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Configure public API endpoint
+        run: cp local.properties.example local.properties
+        shell: bash
+
+      - name: Build native installer
+        run: ./gradlew --no-daemon :desktopApp:${{ matrix.task }} --stacktrace
+        shell: bash
+
+      - name: Launch Linux desktop smoke
+        if: matrix.format == 'DEB'
+        run: |
+          set +e
+          timeout 45s xvfb-run -a ./gradlew --no-daemon :desktopApp:run --stacktrace --console=plain
+          status=$?
+          if [ "$status" -eq 124 ]; then exit 0; fi
+          exit "$status"
+        shell: bash
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.format }}
+          if-no-files-found: error
+          retention-days: 14
+          path: ${{ matrix.artifact }}
+
+  ios:
+    name: iOS simulator build
+    runs-on: macos-15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Configure public API endpoint
+        run: cp local.properties.example local.properties
+
+      - name: Build iOS simulator framework and app
+        run: |
+          ./gradlew --no-daemon :shared:linkDebugFrameworkIosSimulatorArm64 --stacktrace
+          xcodebuild \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/kbbi-ios-derived" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Upload iOS Simulator app
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-app
+          if-no-files-found: error
+          retention-days: 14
+          path: ${{ runner.temp }}/kbbi-ios-derived/Build/Products/Debug-iphonesimulator/kbbi-kmp.app

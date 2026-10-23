@@ -23,7 +23,7 @@ KBBI Multiplatform shares its user interface, navigation, domain logic, networki
 | Web | JavaScript and WebAssembly | `webApp` | In-memory storage |
 | Desktop | JVM | `desktopApp` | Room and bundled SQLite |
 
-This project is a Kotlin Multiplatform migration of the original [Android KBBI application](https://github.com/arrazyfathan/kbbi). See [MIGRATION_STATE.md](./MIGRATION_STATE.md) for migration coverage, known warnings, and remaining test work.
+This project is a Kotlin Multiplatform migration of the original [Android KBBI application](https://github.com/arrazyfathan/kbbi). See [MIGRATION_STATE.md](./MIGRATION_STATE.md) for migration coverage, known warnings, and remaining test work. Release preparation and external configuration requirements are documented in [docs/release.md](./docs/release.md).
 
 ## Features
 

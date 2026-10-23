@@ -13,4 +13,11 @@
     <string name="campaign_update_notification_channel">App updates</string>
     <string name="campaign_update_notification_title">KBBI update available</string>
     <string name="campaign_update_notification_body">Version %1$s is ready. Tap to see what’s new.</string>
+    <string name="app_update_downloading_title">Downloading KBBI update</string>
+    <string name="app_update_downloading_body">Version %1$s</string>
+    <string name="app_update_notification_channel">App updates</string>
+    <string name="app_update_ready_title">KBBI %1$s is ready to install</string>
+    <string name="app_update_ready_body">Tap to continue installing the update.</string>
+    <string name="app_update_install_permission_error">Allow KBBI to install updates from this source in system settings.</string>
+    <string name="app_update_install_error">The update installer could not be opened. Try downloading the update again.</string>
 </resources>
