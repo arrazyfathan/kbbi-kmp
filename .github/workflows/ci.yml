@@ -127,9 +127,17 @@ jobs:
   ios:
     name: iOS simulator build
     runs-on: macos-15
+    env:
+      # Firebase 13 requires Swift tools 6.2.1 or newer; Xcode 26.2 includes Swift 6.2.3.
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+
+      - name: Verify Xcode toolchain
+        run: |
+          xcodebuild -version
+          xcrun swift --version
 
       - name: Set up Java
         uses: actions/setup-java@v4
