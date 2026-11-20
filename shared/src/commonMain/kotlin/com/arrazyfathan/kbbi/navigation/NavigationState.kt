@@ -124,10 +124,15 @@ internal data class NavigationSnapshot(
 )
 
 internal fun NavigationSnapshot.isValid(): Boolean =
-    topLevelRoute in topLevelRoutes && backStacks.keys == topLevelRoutes.toSet() && backStacks.values.sumOf { it.size } <= 96 &&
+    topLevelRoute in topLevelRoutes &&
+        backStacks.keys == topLevelRoutes.toSet() &&
+        backStacks.values.sumOf { it.size } <= 96 &&
         backStacks.all { (root, entries) ->
-            entries.isNotEmpty() && entries.size <= 32 && entries.first() == root &&
+            entries.isNotEmpty() &&
+                entries.size <= 32 &&
+                entries.first() == root &&
                 entries
                     .drop(1)
-                    .none { it in topLevelRoutes } && entries.all(DestinationParser::isAvailable)
+                    .none { it in topLevelRoutes } &&
+                entries.all(DestinationParser::isAvailable)
         }

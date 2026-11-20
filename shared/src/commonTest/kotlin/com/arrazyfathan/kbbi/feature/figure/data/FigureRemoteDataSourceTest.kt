@@ -38,7 +38,7 @@ class FigureRemoteDataSourceTest {
                         page(
                             page?.toInt() ?: -1,
                             hasNextPage = page == "1",
-                            items = listOf(figureJson),
+                            items = listOf(FIGURE_JSON),
                         ),
                         headers = jsonHeaders,
                     )
@@ -190,7 +190,7 @@ class FigureRemoteDataSourceTest {
         }]}}"""
 
     private companion object {
-        const val figureJson =
+        const val FIGURE_JSON =
             """{"name":"Ki Hajar","slug":"ki-hajar","sourceUrl":"https://kbbi.example/ki-hajar"}"""
         val jsonHeaders = headersOf(HttpHeaders.ContentType, "application/json")
     }

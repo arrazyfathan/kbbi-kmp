@@ -6,10 +6,9 @@ import androidx.room.RoomDatabase
 
 lateinit var appContext: Context
 
-actual fun getDatabaseBuilder(): RoomDatabase.Builder<WordDatabase> {
-    return Room.databaseBuilder(
+actual fun getDatabaseBuilder(): RoomDatabase.Builder<WordDatabase> =
+    Room.databaseBuilder(
         context = appContext,
         name = "kbbi_db",
         klass = WordDatabase::class.java,
     )
-}

@@ -104,10 +104,12 @@ internal fun buildWordStudyUserPrompt(
 }
 
 private fun WordStudyContentDto.hasValidContent(word: String): Boolean =
-    explanation.isNotBlank() && examples.hasMinimumNonBlankItems(2) &&
+    explanation.isNotBlank() &&
+        examples.hasMinimumNonBlankItems(2) &&
         usageNotes.hasMinimumNonBlankItems(
             2,
-        ) && relatedWords.hasValidRelatedWords(word)
+        ) &&
+        relatedWords.hasValidRelatedWords(word)
 
 private fun String.removeJsonFence(): String =
     trim()
@@ -118,7 +120,11 @@ private fun String.removeJsonFence(): String =
 
 private fun String.toSafeCustomBaseUrl(): String? {
     val url = runCatching { Url(this) }.getOrNull() ?: return null
-    if (url.protocol.name != "https" || url.host.isBlank() || url.user != null || url.password != null || url.encodedQuery.isNotEmpty() ||
+    if (url.protocol.name != "https" ||
+        url.host.isBlank() ||
+        url.user != null ||
+        url.password != null ||
+        url.encodedQuery.isNotEmpty() ||
         url.fragment.isNotEmpty() ||
         url.encodedPath
             .trimEnd(

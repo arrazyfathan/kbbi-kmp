@@ -59,10 +59,14 @@ class BackendWordStudyRemoteDataSource(
 }
 
 internal fun BackendWordStudyResultDto.hasValidContent(word: String): Boolean =
-    explanation.isNotBlank() && examples.hasMinimumNonBlankItems(2) &&
+    explanation.isNotBlank() &&
+        examples.hasMinimumNonBlankItems(2) &&
         usageNotes.hasMinimumNonBlankItems(
             2,
-        ) && provider.isNotBlank() && model.isNotBlank() && relatedWords.hasValidRelatedWords(word)
+        ) &&
+        provider.isNotBlank() &&
+        model.isNotBlank() &&
+        relatedWords.hasValidRelatedWords(word)
 
 internal fun List<String>.hasMinimumNonBlankItems(minimum: Int): Boolean = size >= minimum && all(String::isNotBlank)
 

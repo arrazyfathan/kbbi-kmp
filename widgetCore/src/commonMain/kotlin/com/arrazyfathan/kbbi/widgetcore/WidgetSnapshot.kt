@@ -95,7 +95,9 @@ object WidgetDailyItemSelector {
 
     fun decodeSnapshot(json: String): WidgetSnapshot? =
         runCatching { snapshotJson.decodeFromString<WidgetSnapshot>(json) }.getOrNull()?.takeIf {
-            it.schemaVersion == WidgetSnapshot.CURRENT_SCHEMA_VERSION && it.localDate.length == 10 && it.localDate[4] == '-' &&
+            it.schemaVersion == WidgetSnapshot.CURRENT_SCHEMA_VERSION &&
+                it.localDate.length == 10 &&
+                it.localDate[4] == '-' &&
                 it.localDate[7] == '-' &&
                 it.languageTag in SUPPORTED_LANGUAGES &&
                 (it.selectedWord == null || it.selectedWord.length <= MAX_WORD_LENGTH)

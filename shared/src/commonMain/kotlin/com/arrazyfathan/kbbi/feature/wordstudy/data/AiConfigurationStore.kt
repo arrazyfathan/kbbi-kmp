@@ -70,7 +70,10 @@ class AiConfigurationStore(
             val normalizedName = name.trim()
             val normalizedUrl = baseUrl.trim().trimEnd('/')
             val normalizedModels = models.map(String::trim).filter(String::isNotBlank).distinct()
-            if (normalizedName.isBlank() || normalizedUrl.isBlank() || normalizedModels.isEmpty() || selectedModel !in normalizedModels ||
+            if (normalizedName.isBlank() ||
+                normalizedUrl.isBlank() ||
+                normalizedModels.isEmpty() ||
+                selectedModel !in normalizedModels ||
                 normalizedModels.size > 20 ||
                 normalizedModels.any { it.length > 200 }
             ) {
@@ -137,7 +140,8 @@ class AiConfigurationStore(
         mutex.withLock {
             val current = mutableConfiguration.value
             val provider = current.customProviders.firstOrNull { it.id == providerId }
-            if (provider == null || model !in provider.models ||
+            if (provider == null ||
+                model !in provider.models ||
                 AiConfigurationPlatformStore
                     .readSecret(
                         providerId,

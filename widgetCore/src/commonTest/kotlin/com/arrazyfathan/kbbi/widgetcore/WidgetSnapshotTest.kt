@@ -14,7 +14,10 @@ class WidgetSnapshotTest {
         val reversedWords = orderedWords.reversed()
 
         assertEquals(orderedWords[Random(seed).nextInt(orderedWords.size)], WidgetDailyItemSelector.selectWordOfDay(words, 2026, 287))
-        assertEquals(reversedWords[Random(seed).nextInt(reversedWords.size)], WidgetDailyItemSelector.selectWordOfDay(words.reversed(), 2026, 287))
+        assertEquals(
+            reversedWords[Random(seed).nextInt(reversedWords.size)],
+            WidgetDailyItemSelector.selectWordOfDay(words.reversed(), 2026, 287),
+        )
     }
 
     @Test

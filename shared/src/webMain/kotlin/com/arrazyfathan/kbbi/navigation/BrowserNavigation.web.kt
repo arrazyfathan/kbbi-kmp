@@ -109,7 +109,9 @@ private class BrowserNavigationController(
         val encoded = historyStateString(historyState)?.toString()
         val snapshot = encoded?.let(NavigationCodec::decode)
         val destination = DestinationParser.parse(window.location.hash)
-        if (snapshot != null && snapshot.isValid() && destination ==
+        if (snapshot != null &&
+            snapshot.isValid() &&
+            destination ==
             snapshot.backStacks
                 .getValue(
                     snapshot.topLevelRoute,

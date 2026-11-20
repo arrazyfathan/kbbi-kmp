@@ -6,7 +6,6 @@ import com.arrazyfathan.kbbi.core.domain.visitor.StoredVisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdProvider
 import com.arrazyfathan.kbbi.core.domain.visitor.VisitorIdStorage
 import com.arrazyfathan.kbbi.core.platform.AlternateAppIcon
-import com.arrazyfathan.kbbi.core.platform.IosUrlOpener
 import com.arrazyfathan.kbbi.core.platform.CapabilityResult
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchRequests
 import com.arrazyfathan.kbbi.core.platform.IosAlternateAppIcon
@@ -14,6 +13,7 @@ import com.arrazyfathan.kbbi.core.platform.IosHaptics
 import com.arrazyfathan.kbbi.core.platform.IosLocaleProvider
 import com.arrazyfathan.kbbi.core.platform.IosNotificationPermission
 import com.arrazyfathan.kbbi.core.platform.IosTextShare
+import com.arrazyfathan.kbbi.core.platform.IosUrlOpener
 import com.arrazyfathan.kbbi.core.platform.IosWidgetSnapshotPublisher
 import com.arrazyfathan.kbbi.core.platform.LocaleProvider
 import com.arrazyfathan.kbbi.core.platform.NotificationPermission
@@ -23,13 +23,13 @@ import com.arrazyfathan.kbbi.core.platform.TextShare
 import com.arrazyfathan.kbbi.core.platform.UnsupportedSpeechInput
 import com.arrazyfathan.kbbi.core.platform.UrlOpener
 import com.arrazyfathan.kbbi.core.platform.WidgetSnapshotPublisher
-import com.arrazyfathan.kbbi.feature.reminders.IosReminderScheduler
-import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconciler
-import com.arrazyfathan.kbbi.feature.campaigns.IosCampaignSubscriptionReconciler
-import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateLauncher
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdatePlatformMetadata
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateTarget
-import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateLauncher
+import com.arrazyfathan.kbbi.feature.campaigns.IosCampaignSubscriptionReconciler
+import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconciler
+import com.arrazyfathan.kbbi.feature.reminders.IosReminderScheduler
+import com.arrazyfathan.kbbi.feature.reminders.domain.ReminderScheduler
 import com.arrazyfathan.kbbi.navigation.IosIncomingLaunchRequests
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.darwin.Darwin

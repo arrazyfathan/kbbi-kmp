@@ -85,9 +85,7 @@ class SettingsViewModel(
                     )
                 }
 
-                AppIconTarget.UNSUPPORTED -> {
-                    Unit
-                }
+                AppIconTarget.UNSUPPORTED -> {}
             }
         }
     }

@@ -85,4 +85,6 @@ internal data object AiSettingsKey : NavKey
 
 @Serializable
 @SerialName("update")
-internal data class AppUpdateKey(val releaseId: String) : NavKey
+internal data class AppUpdateKey(
+    val releaseId: String,
+) : NavKey

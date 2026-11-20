@@ -1,3 +1,4 @@
+import com.android.build.api.variant.HostTestBuilder
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
@@ -35,6 +36,7 @@ val versionMinor = appVersion.requiredVersionPart("VERSION_MINOR")
 val versionPatch = appVersion.requiredVersionPart("VERSION_PATCH")
 val appVersionCode = appVersion.requiredVersionPart("VERSION_CODE")
 val appVersionName = "$versionMajor.$versionMinor.$versionPatch"
+
 fun releaseInput(name: String): String? =
     providers.gradleProperty(name).orNull?.takeIf(String::isNotBlank)
         ?: providers.environmentVariable(name).orNull?.takeIf(String::isNotBlank)
@@ -91,6 +93,10 @@ android {
         versionCode = appVersionCode
         versionName = appVersionName
     }
+    testOptions {
+        // Compose Preview uses Android resources from the unit test variant.
+        unitTests.isIncludeAndroidResources = true
+    }
     bundle {
         language {
             // The app has an in-app language picker, so package all supported
@@ -129,5 +135,12 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+androidComponents {
+    beforeVariants(selector().withBuildType("release")) { variant ->
+        // AGP also creates a Compose Preview task for release during IDE sync.
+        variant.hostTests.getValue(HostTestBuilder.UNIT_TEST_TYPE).enable = true
     }
 }

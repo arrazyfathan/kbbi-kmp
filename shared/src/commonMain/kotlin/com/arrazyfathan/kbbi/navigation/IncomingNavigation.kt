@@ -117,7 +117,8 @@ internal fun BindIncomingNavigation(
                 }
                 action
                     ?.takeIf {
-                        it == IncomingLaunchAction.SEARCH || it == IncomingLaunchAction.FOCUS_SEARCH ||
+                        it == IncomingLaunchAction.SEARCH ||
+                            it == IncomingLaunchAction.FOCUS_SEARCH ||
                             it == IncomingLaunchAction.RANDOM_WORD
                     }?.let { incomingAction ->
                         IncomingActionSignal.publish(

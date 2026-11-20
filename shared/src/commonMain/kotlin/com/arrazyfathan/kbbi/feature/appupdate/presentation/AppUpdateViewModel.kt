@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.arrazyfathan.kbbi.core.platform.CapabilityResult
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdate
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateCheckResult
-import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateRepository
-import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdatePlatformMetadata
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateLauncher
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdatePlatformMetadata
+import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateRepository
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateRequirement
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -56,18 +56,22 @@ class AppUpdateViewModel(
         }
     }
 
-    private fun check(force: Boolean, manual: Boolean) {
+    private fun check(
+        force: Boolean,
+        manual: Boolean,
+    ) {
         if (_state.value.isChecking) return
         viewModelScope.launch {
             _state.update { it.copy(isChecking = true, manualCheckResult = null) }
             val result = repository.checkForUpdate(force)
             _state.update { current ->
                 current.copy(
-                    availableUpdate = when (result) {
-                        is AppUpdateCheckResult.Available -> result.update
-                        AppUpdateCheckResult.UpToDate, AppUpdateCheckResult.Disabled -> null
-                        AppUpdateCheckResult.Unavailable -> current.availableUpdate
-                    },
+                    availableUpdate =
+                        when (result) {
+                            is AppUpdateCheckResult.Available -> result.update
+                            AppUpdateCheckResult.UpToDate, AppUpdateCheckResult.Disabled -> null
+                            AppUpdateCheckResult.Unavailable -> current.availableUpdate
+                        },
                     isChecking = false,
                     manualCheckResult =
                         if (manual) {

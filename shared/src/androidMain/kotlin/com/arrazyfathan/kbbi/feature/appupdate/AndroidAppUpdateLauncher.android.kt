@@ -2,7 +2,6 @@ package com.arrazyfathan.kbbi.feature.appupdate
 
 import android.app.DownloadManager
 import android.content.Context
-import android.net.Uri
 import android.os.Environment
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
@@ -33,14 +32,16 @@ class AndroidAppUpdateLauncher(
             val preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
             preferences.getLong(DOWNLOAD_ID, -1L).takeIf { it >= 0L }?.let(downloadManager::remove)
             val request =
-                DownloadManager.Request(uri)
+                DownloadManager
+                    .Request(uri)
                     .setTitle("KBBI update")
                     .setDescription("Version ${update.latestVersion}")
                     .setMimeType(APK_MIME_TYPE)
                     .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                     .setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, "kbbi-update-${update.latestVersion}.apk")
             val id = downloadManager.enqueue(request)
-            preferences.edit()
+            preferences
+                .edit()
                 .putLong(DOWNLOAD_ID, id)
                 .putString(EXPECTED_VERSION, update.latestVersion)
                 .apply()

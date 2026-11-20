@@ -10,7 +10,10 @@ import kotlinx.serialization.json.Json
 internal interface AppUpdateStore {
     fun shouldRunAutomaticCheck(nowMillis: Long): Boolean
 
-    fun markAutomaticCheckFinished(nowMillis: Long, successful: Boolean)
+    fun markAutomaticCheckFinished(
+        nowMillis: Long,
+        successful: Boolean,
+    )
 
     fun readRequiredUpdate(): AppUpdate?
 
@@ -30,7 +33,10 @@ internal class PlatformAppUpdateStore(
         return nowMillis - lastAttempt >= interval
     }
 
-    override fun markAutomaticCheckFinished(nowMillis: Long, successful: Boolean) {
+    override fun markAutomaticCheckFinished(
+        nowMillis: Long,
+        successful: Boolean,
+    ) {
         writeSettingsPreference(KEY_LAST_ATTEMPT, nowMillis.toString())
         if (successful) writeSettingsPreference(KEY_LAST_SUCCESS, nowMillis.toString())
     }

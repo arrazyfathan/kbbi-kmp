@@ -10,6 +10,8 @@ import kotlinx.coroutines.CancellationException
 internal class AndroidWidgetSnapshotPublisher(
     private val context: Context,
 ) : WidgetSnapshotPublisher {
+    // Glance refresh is best-effort for any widget or host failure.
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun publish(snapshot: WidgetDataSnapshot) {
         try {
             WordOfDayWidget().updateAll(context)

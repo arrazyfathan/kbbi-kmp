@@ -56,6 +56,5 @@ class ProverbRemoteDataSource(
             else -> AppResult.Error(DataError.NotFound)
         }
 
-    private fun String.toPathSegment(): String =
-        encodeURLPathPart()
+    private fun String.toPathSegment(): String = encodeURLPathPart()
 }

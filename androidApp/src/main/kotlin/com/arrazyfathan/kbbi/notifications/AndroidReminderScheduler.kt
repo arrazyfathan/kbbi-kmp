@@ -44,7 +44,8 @@ class AndroidReminderScheduler(
             preferences.preferences.value.reminders
                 .getValue(type)
         if (!reminder.enabled) return cancel(type)
-        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS,
             ) != PackageManager.PERMISSION_GRANTED

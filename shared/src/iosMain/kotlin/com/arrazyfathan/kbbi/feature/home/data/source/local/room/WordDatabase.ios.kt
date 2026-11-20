@@ -20,8 +20,9 @@ actual fun getDatabaseBuilder(): RoomDatabase.Builder<WordDatabase> {
         )
     val dbFilePath = documentDirectory!!.path!! + "/kbbi_db.db"
     // KMP-safe: resolved post-KSP
-    return Room.databaseBuilder<WordDatabase>(
-        name = dbFilePath,
-        factory = { WordDatabaseConstructor.initialize() },
-    ).setDriver(BundledSQLiteDriver())
+    return Room
+        .databaseBuilder<WordDatabase>(
+            name = dbFilePath,
+            factory = { WordDatabaseConstructor.initialize() },
+        ).setDriver(BundledSQLiteDriver())
 }

@@ -8,8 +8,9 @@ import java.io.File
 actual fun getDatabaseBuilder(): RoomDatabase.Builder<WordDatabase> {
     val databaseFile = File(System.getProperty("user.home"), ".kbbi/kbbi_db.db")
     databaseFile.parentFile.mkdirs()
-    return Room.databaseBuilder<WordDatabase>(
-        name = databaseFile.absolutePath,
-        factory = { WordDatabaseConstructor.initialize() },
-    ).setDriver(BundledSQLiteDriver())
+    return Room
+        .databaseBuilder<WordDatabase>(
+            name = databaseFile.absolutePath,
+            factory = { WordDatabaseConstructor.initialize() },
+        ).setDriver(BundledSQLiteDriver())
 }

@@ -5,7 +5,10 @@ import kotlinx.coroutines.flow.Flow
 interface WordStorage {
     fun getItem(key: String): String?
 
-    fun setItem(key: String, value: String)
+    fun setItem(
+        key: String,
+        value: String,
+    )
 }
 
 enum class StorageOperation {

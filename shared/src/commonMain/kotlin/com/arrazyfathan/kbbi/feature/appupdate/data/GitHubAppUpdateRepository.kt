@@ -1,5 +1,6 @@
 package com.arrazyfathan.kbbi.feature.appupdate.data
 
+import com.arrazyfathan.kbbi.core.data.remote.network.safeCall
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdate
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateCheckResult
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdatePlatformMetadata
@@ -7,7 +8,6 @@ import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateRepository
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateRequirement
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateTarget
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppVersionComparator
-import com.arrazyfathan.kbbi.core.data.remote.network.safeCall
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -62,33 +62,37 @@ internal class GitHubAppUpdateRepository(
             }
             return failed(force, null)
         }
-        val targetAllowed = when {
-            policy.targets == null -> metadata.target == AppUpdateTarget.ANDROID
-            else -> metadata.target.policyKey in policy.targets
-        }
+        val targetAllowed =
+            when {
+                policy.targets == null -> metadata.target == AppUpdateTarget.ANDROID
+                else -> metadata.target.policyKey in policy.targets
+            }
         if (!targetAllowed) {
             finish(force, successful = policy.successful)
             return AppUpdateCheckResult.UpToDate
         }
 
-        val actionUrl = when (metadata.target) {
-            AppUpdateTarget.IOS -> metadata.releaseDestination?.takeIf(::isSafeHttpsUrl)
-            AppUpdateTarget.WEB -> null
-            AppUpdateTarget.ANDROID ->
-                AppUpdateAssetSelector.select(
-                    metadata.target,
-                    version,
-                    release.assets,
-                    metadata.desktopPackageExtension,
-                )?.takeIf(::isSafeReleaseAssetUrl) ?: release.htmlUrl
-            AppUpdateTarget.DESKTOP ->
-                AppUpdateAssetSelector.select(
-                    metadata.target,
-                    version,
-                    release.assets,
-                    metadata.desktopPackageExtension,
-                )?.takeIf(::isSafeReleaseAssetUrl)
-        }
+        val actionUrl =
+            when (metadata.target) {
+                AppUpdateTarget.IOS -> metadata.releaseDestination?.takeIf(::isSafeHttpsUrl)
+                AppUpdateTarget.WEB -> null
+                AppUpdateTarget.ANDROID ->
+                    AppUpdateAssetSelector
+                        .select(
+                            metadata.target,
+                            version,
+                            release.assets,
+                            metadata.desktopPackageExtension,
+                        )?.takeIf(::isSafeReleaseAssetUrl) ?: release.htmlUrl
+                AppUpdateTarget.DESKTOP ->
+                    AppUpdateAssetSelector
+                        .select(
+                            metadata.target,
+                            version,
+                            release.assets,
+                            metadata.desktopPackageExtension,
+                        )?.takeIf(::isSafeReleaseAssetUrl)
+            }
         if (metadata.target != AppUpdateTarget.WEB && actionUrl == null) {
             finish(force, successful = policy.successful)
             return AppUpdateCheckResult.UpToDate
@@ -113,7 +117,10 @@ internal class GitHubAppUpdateRepository(
         return AppUpdateCheckResult.Available(update)
     }
 
-    private suspend fun loadPolicy(releaseVersion: String, assets: List<GitHubReleaseAssetDto>): LoadedPolicy {
+    private suspend fun loadPolicy(
+        releaseVersion: String,
+        assets: List<GitHubReleaseAssetDto>,
+    ): LoadedPolicy {
         val policyUrl = AppUpdateAssetSelector.selectPolicy(assets) ?: return LoadedPolicy(true, false, null)
         if (!isSafeReleaseAssetUrl(policyUrl)) return LoadedPolicy(false, false, null)
         return when (val response = safeCall<GitHubUpdatePolicyDto> { httpClient.get { url(policyUrl) } }) {
@@ -137,17 +144,25 @@ internal class GitHubAppUpdateRepository(
         if (cached.requirement == AppUpdateRequirement.REQUIRED &&
             AppVersionComparator.isNewer(cached.latestVersion, metadata.currentVersion) &&
             cached.actionUrl?.let(::isSafeHttpsUrl) != false
-        ) return cached
+        ) {
+            return cached
+        }
         store.clearRequiredUpdate()
         return null
     }
 
-    private fun failed(force: Boolean, cached: AppUpdate?): AppUpdateCheckResult {
+    private fun failed(
+        force: Boolean,
+        cached: AppUpdate?,
+    ): AppUpdateCheckResult {
         finish(force, successful = false)
         return cached?.let(AppUpdateCheckResult::Available) ?: AppUpdateCheckResult.Unavailable
     }
 
-    private fun finish(force: Boolean, successful: Boolean) {
+    private fun finish(
+        force: Boolean,
+        successful: Boolean,
+    ) {
         if (!force) store.markAutomaticCheckFinished(currentTimeMillis(), successful)
     }
 

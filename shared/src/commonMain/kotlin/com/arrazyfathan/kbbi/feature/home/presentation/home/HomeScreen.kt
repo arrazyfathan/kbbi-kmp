@@ -69,8 +69,8 @@ import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import com.arrazyfathan.kbbi.core.platform.Haptics
-import com.arrazyfathan.kbbi.core.platform.supportsGlanceableHomeSurface
 import com.arrazyfathan.kbbi.core.platform.IncomingLaunchAction
+import com.arrazyfathan.kbbi.core.platform.supportsGlanceableHomeSurface
 import com.arrazyfathan.kbbi.core.presentation.designsystem.BlueBg
 import com.arrazyfathan.kbbi.core.presentation.designsystem.InterFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.KBBITheme

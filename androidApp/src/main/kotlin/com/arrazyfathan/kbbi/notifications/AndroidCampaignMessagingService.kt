@@ -21,6 +21,7 @@ import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignEnvironment
 import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignMessage
 import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignPayloadParser
 import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignPlatform
+import com.arrazyfathan.kbbi.feature.campaigns.domain.EditorialCampaign
 import com.arrazyfathan.kbbi.feature.settings.data.SettingsPreferenceStore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -54,7 +55,11 @@ class AndroidCampaignMessagingService : FirebaseMessagingService() {
         // Notification payloads can be auto-rendered by FCM while the app is backgrounded,
         // bypassing the local category preference. The campaign sender must use data-only payloads.
         if (message.notification != null) return
-        if (message.data.size > MAX_FIELDS || message.data.entries.any { (key, value) -> key.length > 64 || value.length > 1024 }) {
+        if (message.data.size > MAX_FIELDS ||
+            message.data.entries.any { (key, value) ->
+                key.length > MAX_FIELD_NAME_LENGTH || value.length > MAX_FIELD_VALUE_LENGTH
+            }
+        ) {
             return
         }
         val environment =
@@ -80,10 +85,10 @@ class AndroidCampaignMessagingService : FirebaseMessagingService() {
     }
 
     @SuppressLint("MissingPermission") // Permission is checked before posting and SecurityException is handled.
-    private suspend fun deliverEditorial(campaign: com.arrazyfathan.kbbi.feature.campaigns.domain.EditorialCampaign) {
+    private suspend fun deliverEditorial(campaign: EditorialCampaign) {
         val store = GlobalContext.get().get<SettingsPreferenceStore>()
         val enabled = store.preferences.first().campaignNotificationsEnabled
-        if (!enabled || campaign.expiresAt < Instant.fromEpochMilliseconds(System.currentTimeMillis()) || !hasPermission()) return
+        if (!enabled || !canDeliver(campaign)) return
 
         val deliveryState = getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
         pruneExpired(deliveryState)
@@ -127,19 +132,23 @@ class AndroidCampaignMessagingService : FirebaseMessagingService() {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build()
-        if (campaign.expiresAt < Instant.fromEpochMilliseconds(System.currentTimeMillis()) || !hasPermission()) return
-        try {
-            NotificationManagerCompat
-                .from(this)
-                .notify(campaign.deliveryId.hashCode(), notification)
-            deliveryState.edit { putLong(campaign.deliveryId, System.currentTimeMillis()) }
-        } catch (_: SecurityException) {
-            // OS permission can change between the final check and notify().
+        if (canDeliver(campaign)) {
+            try {
+                NotificationManagerCompat
+                    .from(this)
+                    .notify(campaign.deliveryId.hashCode(), notification)
+                deliveryState.edit { putLong(campaign.deliveryId, System.currentTimeMillis()) }
+            } catch (_: SecurityException) {
+                // OS permission can change between the final check and notify().
+            }
         }
     }
 
+    private fun canDeliver(campaign: EditorialCampaign): Boolean =
+        campaign.expiresAt >= Instant.fromEpochMilliseconds(System.currentTimeMillis()) && hasPermission()
+
     private fun pruneExpired(preferences: android.content.SharedPreferences) {
-        val cutoff = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7)
+        val cutoff = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(DELIVERY_RETENTION_DAYS)
         preferences.edit {
             preferences.all
                 .filterValues { it is Long && it < cutoff }
@@ -150,10 +159,11 @@ class AndroidCampaignMessagingService : FirebaseMessagingService() {
 
     private fun hasPermission(): Boolean =
         (
-            Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS,
-            ) == PackageManager.PERMISSION_GRANTED
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                ) == PackageManager.PERMISSION_GRANTED
         ) &&
             NotificationManagerCompat
                 .from(this)
@@ -166,6 +176,9 @@ class AndroidCampaignMessagingService : FirebaseMessagingService() {
 
     companion object {
         private const val MAX_FIELDS = 24
+        private const val MAX_FIELD_NAME_LENGTH = 64
+        private const val MAX_FIELD_VALUE_LENGTH = 1024
+        private const val DELIVERY_RETENTION_DAYS = 7L
         private const val PREFERENCES = "editorial_deliveries"
         private const val EDITORIAL_CHANNEL = "editorial_notifications"
     }

@@ -27,7 +27,10 @@ class StoredVisitorIdProvider(
 private fun createVisitorId(): String {
     val bytes = ByteArray(UUID_BYTE_COUNT)
     for (index in bytes.indices) {
-        bytes[index] = kotlin.random.Random.nextInt(0, 256).toByte()
+        bytes[index] =
+            kotlin.random.Random
+                .nextInt(0, 256)
+                .toByte()
     }
 
     bytes[6] = ((bytes[6].toInt() and 0x0f) or 0x40).toByte()

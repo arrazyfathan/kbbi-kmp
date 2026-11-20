@@ -39,7 +39,10 @@ object IosIncomingLaunchRequests : IncomingLaunchRequests {
         publish(uri, "ios-${kotlin.random.Random.nextLong()}")
     }
 
-    fun publish(uri: String, requestId: String) {
+    fun publish(
+        uri: String,
+        requestId: String,
+    ) {
         enqueue(
             IncomingLaunchRequest(
                 uri = uri.take(2049),

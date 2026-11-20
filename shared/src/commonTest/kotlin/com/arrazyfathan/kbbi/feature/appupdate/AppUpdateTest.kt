@@ -22,8 +22,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -51,103 +51,117 @@ class AppUpdateTest {
     }
 
     @Test
-    fun newerAndroidReleaseUsesApkAndRequiredPolicy() = runTest {
-        val client = client { request ->
-            if (request.url.host == "api.github.com") {
-                respond(releaseJson(assets = apkAndPolicyAssets), headers = jsonHeaders)
-            } else {
-                respond("""{"schemaVersion":1,"releaseVersion":"2.0.0","forceUpdate":true}""", headers = jsonHeaders)
-            }
+    fun newerAndroidReleaseUsesApkAndRequiredPolicy() =
+        runTest {
+            val client =
+                client { request ->
+                    if (request.url.host == "api.github.com") {
+                        respond(releaseJson(assets = apkAndPolicyAssets), headers = jsonHeaders)
+                    } else {
+                        respond("""{"schemaVersion":1,"releaseVersion":"2.0.0","forceUpdate":true}""", headers = jsonHeaders)
+                    }
+                }
+            val repository = repository(client, AppUpdateTarget.ANDROID)
+            val result = assertIs<AppUpdateCheckResult.Available>(repository.checkForUpdate(force = true))
+            assertEquals(AppUpdateRequirement.REQUIRED, result.update.requirement)
+            assertEquals("https://github.com/arrazyfathan/kbbi/releases/download/v2.0.0/kbbi-v2.0.0-release.apk", result.update.actionUrl)
+            client.close()
         }
-        val repository = repository(client, AppUpdateTarget.ANDROID)
-        val result = assertIs<AppUpdateCheckResult.Available>(repository.checkForUpdate(force = true))
-        assertEquals(AppUpdateRequirement.REQUIRED, result.update.requirement)
-        assertEquals("https://github.com/arrazyfathan/kbbi/releases/download/v2.0.0/kbbi-v2.0.0-release.apk", result.update.actionUrl)
-        client.close()
-    }
 
     @Test
-    fun missingAndroidAssetFallsBackToReleaseNotesInsteadOfAnotherPackage() = runTest {
-        val client = client { respond(releaseJson(assets = emptyList()), headers = jsonHeaders) }
-        val result = assertIs<AppUpdateCheckResult.Available>(repository(client, AppUpdateTarget.ANDROID).checkForUpdate(force = true))
-        assertEquals("https://github.com/arrazyfathan/kbbi/releases/tag/v2.0.0", result.update.actionUrl)
-        client.close()
-    }
-
-    @Test
-    fun iosRequiresAnExplicitTargetPolicyAndUsesConfiguredStoreDestination() = runTest {
-        val client = client { request ->
-            if (request.url.host == "api.github.com") {
-                respond(releaseJson(assets = apkAndPolicyAssets), headers = jsonHeaders)
-            } else {
-                respond("""{"schemaVersion":1,"releaseVersion":"2.0.0","forceUpdate":false,"targets":["android"]}""", headers = jsonHeaders)
-            }
+    fun missingAndroidAssetFallsBackToReleaseNotesInsteadOfAnotherPackage() =
+        runTest {
+            val client = client { respond(releaseJson(assets = emptyList()), headers = jsonHeaders) }
+            val result = assertIs<AppUpdateCheckResult.Available>(repository(client, AppUpdateTarget.ANDROID).checkForUpdate(force = true))
+            assertEquals("https://github.com/arrazyfathan/kbbi/releases/tag/v2.0.0", result.update.actionUrl)
+            client.close()
         }
-        assertEquals(
-            AppUpdateCheckResult.UpToDate,
-            repository(client, AppUpdateTarget.IOS).checkForUpdate(force = true),
-        )
-        client.close()
-    }
 
     @Test
-    fun policyFailureKeepsAStillNewerCachedRequiredUpdate() = runTest {
-        val cached =
-            AppUpdate(
-                latestVersion = "1.3.0",
-                releaseUrl = "https://github.com/arrazyfathan/kbbi/releases/tag/v1.3.0",
-                actionUrl = "https://github.com/arrazyfathan/kbbi/releases/download/v1.3.0/app.apk",
-                releaseNotes = "Required fix",
-                requirement = AppUpdateRequirement.REQUIRED,
+    fun iosRequiresAnExplicitTargetPolicyAndUsesConfiguredStoreDestination() =
+        runTest {
+            val client =
+                client { request ->
+                    if (request.url.host == "api.github.com") {
+                        respond(releaseJson(assets = apkAndPolicyAssets), headers = jsonHeaders)
+                    } else {
+                        respond(
+                            """{"schemaVersion":1,"releaseVersion":"2.0.0","forceUpdate":false,"targets":["android"]}""",
+                            headers = jsonHeaders,
+                        )
+                    }
+                }
+            assertEquals(
+                AppUpdateCheckResult.UpToDate,
+                repository(client, AppUpdateTarget.IOS).checkForUpdate(force = true),
             )
-        val store = FakeStore(cached)
-        val client = client { request ->
-            if (request.url.host == "api.github.com") {
-                respond(
-                    releaseJson(
-                        version = "1.3.0",
-                        assets =
-                            listOf(
-                                GitHubReleaseAssetDto(
-                                    "kbbi-v1.3.0-release.apk",
-                                    "https://github.com/arrazyfathan/kbbi/releases/download/v1.3.0/kbbi-v1.3.0-release.apk",
-                                ),
-                                GitHubReleaseAssetDto(
-                                    "kbbi-update-policy.json",
-                                    "https://github.com/arrazyfathan/kbbi/releases/download/v1.3.0/kbbi-update-policy.json",
-                                ),
-                            ),
-                    ),
-                    headers = jsonHeaders,
+            client.close()
+        }
+
+    @Test
+    fun policyFailureKeepsAStillNewerCachedRequiredUpdate() =
+        runTest {
+            val cached =
+                AppUpdate(
+                    latestVersion = "1.3.0",
+                    releaseUrl = "https://github.com/arrazyfathan/kbbi/releases/tag/v1.3.0",
+                    actionUrl = "https://github.com/arrazyfathan/kbbi/releases/download/v1.3.0/app.apk",
+                    releaseNotes = "Required fix",
+                    requirement = AppUpdateRequirement.REQUIRED,
                 )
-            } else {
-                respond("unavailable", status = HttpStatusCode.ServiceUnavailable)
-            }
+            val store = FakeStore(cached)
+            val client =
+                client { request ->
+                    if (request.url.host == "api.github.com") {
+                        respond(
+                            releaseJson(
+                                version = "1.3.0",
+                                assets =
+                                    listOf(
+                                        GitHubReleaseAssetDto(
+                                            "kbbi-v1.3.0-release.apk",
+                                            "https://github.com/arrazyfathan/kbbi/releases/download/v1.3.0/kbbi-v1.3.0-release.apk",
+                                        ),
+                                        GitHubReleaseAssetDto(
+                                            "kbbi-update-policy.json",
+                                            "https://github.com/arrazyfathan/kbbi/releases/download/v1.3.0/kbbi-update-policy.json",
+                                        ),
+                                    ),
+                            ),
+                            headers = jsonHeaders,
+                        )
+                    } else {
+                        respond("unavailable", status = HttpStatusCode.ServiceUnavailable)
+                    }
+                }
+            val result =
+                GitHubAppUpdateRepository(
+                    client,
+                    metadata(AppUpdateTarget.ANDROID),
+                    store,
+                ).checkForUpdate(force = true)
+            assertEquals(cached, assertIs<AppUpdateCheckResult.Available>(result).update)
+            client.close()
         }
-        val result =
-            GitHubAppUpdateRepository(
-                client,
-                metadata(AppUpdateTarget.ANDROID),
-                store,
-            ).checkForUpdate(force = true)
-        assertEquals(cached, assertIs<AppUpdateCheckResult.Available>(result).update)
-        client.close()
-    }
 
     @Test
-    fun malformedReleaseDoesNotCreateAnUpdate() = runTest {
-        val client = client {
-            respond(
-                """{"tag_name":"release-unknown","html_url":"https://github.com/arrazyfathan/kbbi/releases/tag/bad","assets":[]}""",
-                headers = jsonHeaders,
-            )
+    fun malformedReleaseDoesNotCreateAnUpdate() =
+        runTest {
+            val client =
+                client {
+                    respond(
+                        """{"tag_name":"release-unknown","html_url":"https://github.com/arrazyfathan/kbbi/releases/tag/bad","assets":[]}""",
+                        headers = jsonHeaders,
+                    )
+                }
+            assertEquals(AppUpdateCheckResult.Unavailable, repository(client, AppUpdateTarget.ANDROID).checkForUpdate(force = true))
+            client.close()
         }
-        assertEquals(AppUpdateCheckResult.Unavailable, repository(client, AppUpdateTarget.ANDROID).checkForUpdate(force = true))
-        client.close()
-    }
 
-    private fun repository(client: HttpClient, target: AppUpdateTarget) =
-        GitHubAppUpdateRepository(client, metadata(target), FakeStore())
+    private fun repository(
+        client: HttpClient,
+        target: AppUpdateTarget,
+    ) = GitHubAppUpdateRepository(client, metadata(target), FakeStore())
 
     private fun metadata(target: AppUpdateTarget) =
         AppUpdatePlatformMetadata(
@@ -163,7 +177,10 @@ class AppUpdateTest {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
         }
 
-    private fun releaseJson(version: String = "2.0.0", assets: List<GitHubReleaseAssetDto>): String =
+    private fun releaseJson(
+        version: String = "2.0.0",
+        assets: List<GitHubReleaseAssetDto>,
+    ): String =
         Json.encodeToString(
             GitHubReleaseDto(
                 tagName = "v$version",
@@ -177,10 +194,21 @@ class AppUpdateTest {
         private var cached: AppUpdate? = null,
     ) : AppUpdateStore {
         override fun shouldRunAutomaticCheck(nowMillis: Long) = true
-        override fun markAutomaticCheckFinished(nowMillis: Long, successful: Boolean) = Unit
+
+        override fun markAutomaticCheckFinished(
+            nowMillis: Long,
+            successful: Boolean,
+        ) = Unit
+
         override fun readRequiredUpdate() = cached
-        override fun writeRequiredUpdate(update: AppUpdate) { cached = update }
-        override fun clearRequiredUpdate() { cached = null }
+
+        override fun writeRequiredUpdate(update: AppUpdate) {
+            cached = update
+        }
+
+        override fun clearRequiredUpdate() {
+            cached = null
+        }
     }
 
     private companion object {

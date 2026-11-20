@@ -39,7 +39,9 @@ interface AppUpdateRepository {
 }
 
 sealed interface AppUpdateCheckResult {
-    data class Available(val update: AppUpdate) : AppUpdateCheckResult
+    data class Available(
+        val update: AppUpdate,
+    ) : AppUpdateCheckResult
 
     data object UpToDate : AppUpdateCheckResult
 

@@ -1,8 +1,8 @@
 package com.arrazyfathan.kbbi.feature.campaigns.presentation
 
+import io.ktor.http.Url
 import platform.Foundation.NSBundle
 import platform.Foundation.NSUserDefaults
-import io.ktor.http.Url
 
 actual fun readAppUpdateCopy(releaseId: String): AppUpdateCopy? {
     if (releaseId.isBlank() || releaseId.length > 100 || releaseId.any { !it.isLetterOrDigit() && it !in "-_" }) return null
@@ -18,5 +18,7 @@ actual fun configuredAppReleaseUrl(): String? {
     val value = NSBundle.mainBundle.objectForInfoDictionaryKey("KBBIIosReleaseURL") as? String ?: return null
     if (value.length > 2048) return null
     val url = runCatching { Url(value) }.getOrNull() ?: return null
-    return value.takeIf { url.protocol.name == "https" && url.host.isNotBlank() && url.user.isNullOrEmpty() && url.password.isNullOrEmpty() }
+    return value.takeIf {
+        url.protocol.name == "https" && url.host.isNotBlank() && url.user.isNullOrEmpty() && url.password.isNullOrEmpty()
+    }
 }

@@ -163,7 +163,9 @@ object NetworkLogFormatter {
     private fun String.extractHeaders(): String =
         lineSequence()
             .filterNot { line ->
-                line.startsWith("REQUEST:") || line.startsWith("RESPONSE:") || line.startsWith("METHOD:") ||
+                line.startsWith("REQUEST:") ||
+                    line.startsWith("RESPONSE:") ||
+                    line.startsWith("METHOD:") ||
                     line.startsWith(
                         "FROM:",
                     )

@@ -29,9 +29,13 @@ enum class CampaignPlatform(
 }
 
 sealed interface CampaignDestination {
-    data class Word(val term: String) : CampaignDestination
+    data class Word(
+        val term: String,
+    ) : CampaignDestination
 
-    data class Proverb(val slug: String) : CampaignDestination
+    data class Proverb(
+        val slug: String,
+    ) : CampaignDestination
 }
 
 data class EditorialCampaign(
@@ -55,9 +59,13 @@ data class AppUpdateAnnouncement(
 )
 
 sealed interface CampaignMessage {
-    data class Editorial(val value: EditorialCampaign) : CampaignMessage
+    data class Editorial(
+        val value: EditorialCampaign,
+    ) : CampaignMessage
 
-    data class AppUpdate(val value: AppUpdateAnnouncement) : CampaignMessage
+    data class AppUpdate(
+        val value: AppUpdateAnnouncement,
+    ) : CampaignMessage
 }
 
 /** Validates untrusted FCM/Web Push data before it reaches storage, presentation, or navigation. */
@@ -131,13 +139,15 @@ object CampaignPayloadParser {
         }
     }
 
-    private fun parseExpiry(value: String?): Instant? =
-        value?.let { raw -> runCatching { Instant.parse(raw) }.getOrNull() }
+    private fun parseExpiry(value: String?): Instant? = value?.let { raw -> runCatching { Instant.parse(raw) }.getOrNull() }
 }
 
 /** Compares the source's numeric version names without relying on platform-specific version APIs. */
 object CampaignVersionComparator {
-    fun isNewer(candidate: String, installed: String): Boolean {
+    fun isNewer(
+        candidate: String,
+        installed: String,
+    ): Boolean {
         val left = normalize(candidate) ?: return false
         val right = normalize(installed) ?: return false
         val size = maxOf(left.size, right.size)

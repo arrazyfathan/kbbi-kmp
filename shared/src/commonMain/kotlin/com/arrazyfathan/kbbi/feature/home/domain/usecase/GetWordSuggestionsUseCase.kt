@@ -14,16 +14,18 @@ class GetWordSuggestionsUseCase {
         if (normalizedQuery.length < MIN_SUGGESTION_QUERY_LENGTH) return emptyList()
 
         val candidates =
-            words.asSequence()
+            words
+                .asSequence()
                 .map { original -> WordCandidate(original, original.trim().lowercase()) }
                 .filter { it.normalized.isNotBlank() }
                 .distinctBy { it.normalized }
                 .toList()
 
         val exact =
-            (candidates.filter { it.normalized.startsWith(normalizedQuery) } +
-                candidates.filter { normalizedQuery in it.normalized && !it.normalized.startsWith(normalizedQuery) })
-                .distinctBy { it.normalized }
+            (
+                candidates.filter { it.normalized.startsWith(normalizedQuery) } +
+                    candidates.filter { normalizedQuery in it.normalized && !it.normalized.startsWith(normalizedQuery) }
+            ).distinctBy { it.normalized }
                 .take(maxSuggestions)
 
         if (exact.size >= maxSuggestions || normalizedQuery.length < MIN_FUZZY_QUERY_LENGTH) {
@@ -33,7 +35,8 @@ class GetWordSuggestionsUseCase {
         val exactWords = exact.mapTo(mutableSetOf()) { it.normalized }
         val maxDistance = if (normalizedQuery.length <= 4) 1 else 2
         val fuzzy =
-            candidates.asSequence()
+            candidates
+                .asSequence()
                 .filterNot { it.normalized in exactWords }
                 .filter { abs(it.normalized.length - normalizedQuery.length) <= maxDistance }
                 .mapNotNull { candidate ->
@@ -44,14 +47,12 @@ class GetWordSuggestionsUseCase {
                         sameFirstCharacter = candidate.normalized.firstOrNull() == normalizedQuery.firstOrNull(),
                         lengthDelta = abs(candidate.normalized.length - normalizedQuery.length),
                     )
-                }
-                .sortedWith(
+                }.sortedWith(
                     compareBy<RankedCandidate> { it.distance }
                         .thenByDescending { it.sameFirstCharacter }
                         .thenBy { it.lengthDelta }
                         .thenBy { it.candidate.normalized },
-                )
-                .take(maxSuggestions - exact.size)
+                ).take(maxSuggestions - exact.size)
                 .map { it.candidate }
                 .toList()
 
@@ -79,7 +80,8 @@ class GetWordSuggestionsUseCase {
                         previous[rightIndex] + substitutionCost,
                     )
                 if (
-                    leftIndex > 0 && rightIndex > 0 &&
+                    leftIndex > 0 &&
+                    rightIndex > 0 &&
                     left[leftIndex] == right[rightIndex - 1] &&
                     left[leftIndex - 1] == right[rightIndex]
                 ) {

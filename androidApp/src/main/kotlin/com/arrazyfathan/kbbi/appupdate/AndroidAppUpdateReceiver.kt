@@ -75,29 +75,50 @@ class AndroidAppUpdateReceiver : BroadcastReceiver() {
         val directory = File(context.cacheDir, UPDATE_DIRECTORY).apply { mkdirs() }
         val apk = File(directory, "kbbi-update.apk")
         val temporary = File(directory, "kbbi-update.part")
-        val input = context.contentResolver.openInputStream(source) ?: return null
-        input.use { sourceStream ->
-            FileOutputStream(temporary).use { destination ->
+        if (!copyDownload(context, source, temporary) || !isValidUpdate(context, temporary, expectedVersion)) {
+            return null
+        }
+        apk.delete()
+        return apk.takeIf { temporary.renameTo(it) }
+    }
+
+    private fun copyDownload(
+        context: Context,
+        source: Uri,
+        target: File,
+    ): Boolean =
+        context.contentResolver.openInputStream(source)?.use { input ->
+            FileOutputStream(target).use { output ->
                 val buffer = ByteArray(BUFFER_SIZE)
                 var totalBytes = 0L
-                while (true) {
-                    val count = sourceStream.read(buffer)
-                    if (count < 0) break
+                var count = input.read(buffer)
+                while (count >= 0 && totalBytes + count <= MAX_APK_BYTES) {
+                    output.write(buffer, 0, count)
                     totalBytes += count
-                    if (totalBytes > MAX_APK_BYTES) return null
-                    destination.write(buffer, 0, count)
+                    count = input.read(buffer)
                 }
+                count < 0
             }
-        }
+        } ?: false
 
-        val candidate = packageInfoFromArchive(context.packageManager, temporary.path) ?: return null
-        if (candidate.packageName != context.packageName || candidate.versionName != expectedVersion) return null
+    private fun isValidUpdate(
+        context: Context,
+        apk: File,
+        expectedVersion: String,
+    ): Boolean {
+        val candidate = packageInfoFromArchive(context.packageManager, apk.path) ?: return false
+        return candidate.packageName == context.packageName &&
+            candidate.versionName == expectedVersion &&
+            matchesInstalledApp(context, candidate)
+    }
+
+    private fun matchesInstalledApp(
+        context: Context,
+        candidate: PackageInfo,
+    ): Boolean {
         val installed = packageInfoForInstalledApp(context.packageManager, context.packageName)
-        if (candidate.longVersionCode() <= installed.longVersionCode()) return null
-        if (candidate.signerDigests() != installed.signerDigests()) return null
-        apk.delete()
-        if (!temporary.renameTo(apk)) return null
-        return apk
+        return candidate.longVersionCode() > installed.longVersionCode() &&
+            candidate.signerDigests() == installed.signerDigests()
     }
 
     private fun packageInfoFromArchive(
@@ -181,7 +202,7 @@ class AndroidAppUpdateReceiver : BroadcastReceiver() {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build()
-        if (Build.VERSION.SDK_INT < 33 ||
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
             PackageManager.PERMISSION_GRANTED
         ) {

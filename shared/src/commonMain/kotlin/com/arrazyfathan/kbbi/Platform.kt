@@ -1,8 +1,8 @@
 package com.arrazyfathan.kbbi
 
 import androidx.compose.runtime.Composable
-import org.koin.core.module.Module
 import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdatePlatformMetadata
+import org.koin.core.module.Module
 
 interface Platform {
     val name: String

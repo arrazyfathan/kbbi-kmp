@@ -27,7 +27,8 @@ external class Date {
     fun getMinutes(): Int
 
     companion object {
-        fun UTC(
+        @JsName("UTC")
+        fun utc(
             year: Int,
             month: Int,
             day: Int,
@@ -76,7 +77,7 @@ class BrowserReminderScheduler(
         val month = now.getMonth()
         val day = now.getDate()
         val dayOfYear =
-            ((Date.UTC(year, month, day) - Date.UTC(year, 0, 0)) / MILLIS_PER_DAY).toInt()
+            ((Date.utc(year, month, day) - Date.utc(year, 0, 0)) / MILLIS_PER_DAY).toInt()
         val date =
             "$year-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
         val minutesNow = now.getHours() * 60 + now.getMinutes()

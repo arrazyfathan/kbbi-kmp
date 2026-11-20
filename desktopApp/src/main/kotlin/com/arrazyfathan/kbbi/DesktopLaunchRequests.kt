@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import java.nio.file.Files
+import java.nio.file.Path
 
 internal object DesktopLaunchRequests : IncomingLaunchRequests {
     private val pending = MutableStateFlow<List<IncomingLaunchRequest>>(emptyList())
@@ -25,90 +27,61 @@ internal object DesktopLaunchRequests : IncomingLaunchRequests {
     }
 
     fun publish(request: IncomingLaunchRequest) {
-        pending.update { queue -> if (queue.size >= 32 || queue.any { it.requestId == request.requestId }) queue else queue + request }
-    }
-
-    fun parse(arguments: List<String>): IncomingLaunchRequest? {
-        if (arguments.isEmpty()) return null
-        val recognized = arguments.firstOrNull()?.startsWith("--") == true
-        if (!recognized) {
-            val value =
-                arguments.singleOrNull()?.takeIf {
-                    it.length <= 2048 && (
-                        it.startsWith("kbbi://") || it.startsWith("https://") ||
-                            it.startsWith(
-                                "http://",
-                            )
-                    )
-                } ?: return null
-            return IncomingLaunchRequest(uri = value)
-        }
-        val requests = mutableListOf<IncomingLaunchRequest>()
-        var index = 0
-        while (index < arguments.size) {
-            when (arguments[index]) {
-                "--search", "--word" -> {
-                    val value =
-                        arguments
-                            .getOrNull(index + 1)
-                            ?.takeIf { it.isNotBlank() && it.length <= 4096 } ?: return null
-                    requests += IncomingLaunchRequest(sharedText = value)
-                    index += 2
-                }
-
-                "--bookmarks" -> {
-                    requests += IncomingLaunchRequest(action = IncomingLaunchAction.OPEN_BOOKMARKS)
-                    index++
-                }
-
-                "--proverbs" -> {
-                    requests += IncomingLaunchRequest(action = IncomingLaunchAction.OPEN_PROVERBS)
-                    index++
-                }
-
-                "--random-word" -> {
-                    requests += IncomingLaunchRequest(action = IncomingLaunchAction.RANDOM_WORD)
-                    index++
-                }
-
-                "--uri" -> {
-                    val value =
-                        arguments.getOrNull(index + 1)?.takeIf {
-                            it.length <= 2048 && (
-                                it.startsWith("kbbi://") || it.startsWith("https://") ||
-                                    it.startsWith(
-                                        "http://",
-                                    )
-                            )
-                        } ?: return null
-                    requests += IncomingLaunchRequest(uri = value)
-                    index += 2
-                }
-
-                "--text-file" -> {
-                    val path = arguments.getOrNull(index + 1) ?: return null
-                    val file =
-                        java.nio.file.Path
-                            .of(path)
-                    if (!java.nio.file.Files
-                            .isRegularFile(file) || java.nio.file.Files
-                            .size(file) > 16 * 1024
-                    ) {
-                        return null
-                    }
-                    val value =
-                        java.nio.file.Files
-                            .readString(file, Charsets.UTF_8)
-                            .takeIf { it.length <= 4096 } ?: return null
-                    requests += IncomingLaunchRequest(sharedText = value)
-                    index += 2
-                }
-
-                else -> {
-                    return null
-                }
+        pending.update { queue ->
+            if (queue.size >= MAX_PENDING_REQUESTS || queue.any { it.requestId == request.requestId }) {
+                queue
+            } else {
+                queue + request
             }
         }
-        return requests.singleOrNull()
     }
+
+    fun parse(arguments: List<String>): IncomingLaunchRequest? =
+        when (arguments.size) {
+            1 -> parseSingleArgument(arguments.single())
+            2 -> parseOption(arguments[0], arguments[1])
+            else -> null
+        }
+
+    private fun parseSingleArgument(argument: String): IncomingLaunchRequest? =
+        when (argument) {
+            "--bookmarks" -> IncomingLaunchRequest(action = IncomingLaunchAction.OPEN_BOOKMARKS)
+            "--proverbs" -> IncomingLaunchRequest(action = IncomingLaunchAction.OPEN_PROVERBS)
+            "--random-word" -> IncomingLaunchRequest(action = IncomingLaunchAction.RANDOM_WORD)
+            else -> parseUri(argument)
+        }
+
+    private fun parseOption(
+        option: String,
+        value: String,
+    ): IncomingLaunchRequest? =
+        when (option) {
+            "--search", "--word" ->
+                value
+                    .takeIf { it.isNotBlank() && it.length <= MAX_TEXT_LENGTH }
+                    ?.let { IncomingLaunchRequest(sharedText = it) }
+            "--uri" -> parseUri(value)
+            "--text-file" -> parseTextFile(value)
+            else -> null
+        }
+
+    private fun parseUri(value: String): IncomingLaunchRequest? =
+        value
+            .takeIf { uri -> uri.length <= MAX_URI_LENGTH && URI_PREFIXES.any { uri.startsWith(it) } }
+            ?.let { IncomingLaunchRequest(uri = it) }
+
+    private fun parseTextFile(path: String): IncomingLaunchRequest? {
+        val file = Path.of(path)
+        if (!Files.isRegularFile(file) || Files.size(file) > MAX_TEXT_FILE_BYTES) return null
+        return Files
+            .readString(file, Charsets.UTF_8)
+            .takeIf { it.length <= MAX_TEXT_LENGTH }
+            ?.let { IncomingLaunchRequest(sharedText = it) }
+    }
+
+    private const val MAX_PENDING_REQUESTS = 32
+    private const val MAX_URI_LENGTH = 2048
+    private const val MAX_TEXT_LENGTH = 4096
+    private const val MAX_TEXT_FILE_BYTES = 16 * 1024
+    private val URI_PREFIXES = listOf("kbbi://", "https://", "http://")
 }

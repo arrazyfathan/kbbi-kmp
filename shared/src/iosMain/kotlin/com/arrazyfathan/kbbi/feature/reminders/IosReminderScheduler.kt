@@ -91,16 +91,19 @@ class IosReminderScheduler(
                     NSCalendarUnitYear or NSCalendarUnitMonth or NSCalendarUnitDay,
                     fromDate = date,
                 )
-            if (offset == 0 && (
+            if (offset == 0 &&
+                (
                     settings.hour <
                         calendar
                             .component(
                                 NSCalendarUnitHour,
                                 fromDate = now,
-                            ).toInt() || settings.hour ==
+                            ).toInt() ||
+                        settings.hour ==
                         calendar
                             .component(NSCalendarUnitHour, fromDate = now)
-                            .toInt() && settings.minute <=
+                            .toInt() &&
+                        settings.minute <=
                         calendar
                             .component(
                                 NSCalendarUnitMinute,

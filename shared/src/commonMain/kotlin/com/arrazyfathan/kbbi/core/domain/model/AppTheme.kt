@@ -12,7 +12,6 @@ enum class AppTheme(
     ;
 
     companion object {
-        fun fromStorageKey(key: String?): AppTheme =
-            entries.firstOrNull { it.storageKey == key } ?: ROYAL_OCEAN
+        fun fromStorageKey(key: String?): AppTheme = entries.firstOrNull { it.storageKey == key } ?: ROYAL_OCEAN
     }
 }

@@ -11,11 +11,13 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
-val appVersionProperties = Properties().apply {
-    rootProject.file("version.properties").inputStream().use(::load)
-}
-val desktopAppVersion = listOf("VERSION_MAJOR", "VERSION_MINOR", "VERSION_PATCH")
-    .joinToString(".") { key -> requireNotNull(appVersionProperties.getProperty(key)) { "$key is missing from version.properties" } }
+val appVersionProperties =
+    Properties().apply {
+        rootProject.file("version.properties").inputStream().use(::load)
+    }
+val desktopAppVersion =
+    listOf("VERSION_MAJOR", "VERSION_MINOR", "VERSION_PATCH")
+        .joinToString(".") { key -> requireNotNull(appVersionProperties.getProperty(key)) { "$key is missing from version.properties" } }
 
 dependencies {
     implementation(projects.shared)

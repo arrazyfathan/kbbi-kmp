@@ -67,12 +67,14 @@ class DailyReminderWorker(
     private fun canNotify(): Boolean =
         NotificationManagerCompat
             .from(applicationContext)
-            .areNotificationsEnabled() && (
-            Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.POST_NOTIFICATIONS,
-            ) == PackageManager.PERMISSION_GRANTED
-        )
+            .areNotificationsEnabled() &&
+            (
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                    ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    ) == PackageManager.PERMISSION_GRANTED
+            )
 
     private fun alreadyDelivered(
         type: ReminderType,
@@ -83,7 +85,8 @@ class DailyReminderWorker(
             .getString(type.name, null) == date
 
     private fun post(content: ReminderContent): Boolean {
-        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
                 applicationContext,
                 Manifest.permission.POST_NOTIFICATIONS,
             ) != PackageManager.PERMISSION_GRANTED
@@ -102,8 +105,30 @@ class DailyReminderWorker(
                 ),
             )
         }
+        val notification =
+            NotificationCompat
+                .Builder(applicationContext, channel)
+                .setSmallIcon(R.drawable.ic_new_icon_foreground)
+                .setContentTitle(content.title)
+                .setContentText(content.body)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(content.body))
+                .setContentIntent(reminderPendingIntent(content.destination))
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .build()
+        return try {
+            NotificationManagerCompat
+                .from(applicationContext)
+                .notify(NOTIFICATION_ID_BASE + content.type.ordinal, notification)
+            true
+        } catch (_: SecurityException) {
+            false
+        }
+    }
+
+    private fun reminderPendingIntent(destination: ReminderDestination): PendingIntent {
         val uri =
-            when (val destination = content.destination) {
+            when (destination) {
                 is ReminderDestination.Word -> "kbbi://word/${Uri.encode(destination.word)}"
                 is ReminderDestination.Proverb -> "kbbi://proverb/${Uri.encode(destination.slug)}"
                 ReminderDestination.Bookmarks -> "kbbi://bookmarks"
@@ -115,32 +140,12 @@ class DailyReminderWorker(
                 applicationContext,
                 MainActivity::class.java,
             ).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val pending =
-            PendingIntent.getActivity(
-                applicationContext,
-                uri.hashCode(),
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-        val notification =
-            NotificationCompat
-                .Builder(applicationContext, channel)
-                .setSmallIcon(R.drawable.ic_new_icon_foreground)
-                .setContentTitle(content.title)
-                .setContentText(content.body)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(content.body))
-                .setContentIntent(pending)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .build()
-        return try {
-            NotificationManagerCompat
-                .from(applicationContext)
-                .notify(4100 + content.type.ordinal, notification)
-            true
-        } catch (_: SecurityException) {
-            false
-        }
+        return PendingIntent.getActivity(
+            applicationContext,
+            uri.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
     }
 
     private fun markDelivered(
@@ -161,6 +166,7 @@ class DailyReminderWorker(
 
     companion object {
         const val TYPE_KEY = "reminder_type"
+        private const val NOTIFICATION_ID_BASE = 4100
         private const val STORE = "kbbi_reminder_delivery"
     }
 }

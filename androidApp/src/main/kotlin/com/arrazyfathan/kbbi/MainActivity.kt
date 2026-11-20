@@ -83,7 +83,8 @@ class MainActivity : ComponentActivity() {
     }
 
     fun requestReminderPermission(type: ReminderType) {
-        if (Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.POST_NOTIFICATIONS,
             ) == PackageManager.PERMISSION_GRANTED
@@ -96,7 +97,8 @@ class MainActivity : ComponentActivity() {
     }
 
     fun requestNotificationPermission(onResult: (Boolean) -> Unit) {
-        if (Build.VERSION.SDK_INT < 33 || ContextCompat.checkSelfPermission(
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.POST_NOTIFICATIONS,
             ) == PackageManager.PERMISSION_GRANTED

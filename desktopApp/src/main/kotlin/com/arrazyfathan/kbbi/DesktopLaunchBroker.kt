@@ -41,15 +41,15 @@ internal class DesktopLaunchBroker private constructor(
     }
 
     private fun receive(socket: Socket) {
-        socket.soTimeout = 2_000
+        socket.soTimeout = RECEIVE_TIMEOUT_MS
         val input = socket.getInputStream().bufferedReader(Charsets.UTF_8)
         if (input.readLine() != token) return
         val encoded = input.readLine() ?: return
         val args =
             runCatching {
                 String(Base64.getUrlDecoder().decode(encoded), Charsets.UTF_8).split('\u0000')
-            }.getOrNull() ?: return
-        DesktopLaunchRequests.parse(args)?.let(DesktopLaunchRequests::publish)
+            }.getOrNull()
+        args?.let(DesktopLaunchRequests::parse)?.let(DesktopLaunchRequests::publish)
     }
 
     override fun close() {
@@ -60,6 +60,9 @@ internal class DesktopLaunchBroker private constructor(
     }
 
     companion object {
+        private const val RECEIVE_TIMEOUT_MS = 2_000
+        private const val CONNECTION_BACKLOG = 16
+
         fun startOrForward(arguments: List<String>): DesktopLaunchBroker? {
             val directory = Path.of(System.getProperty("user.home"), ".kbbi-kmp")
             Files.createDirectories(directory)
@@ -84,7 +87,7 @@ internal class DesktopLaunchBroker private constructor(
                 channel.close()
                 return null
             }
-            val server = ServerSocket(0, 16, InetAddress.getLoopbackAddress())
+            val server = ServerSocket(0, CONNECTION_BACKLOG, InetAddress.getLoopbackAddress())
             return DesktopLaunchBroker(
                 directory,
                 channel,

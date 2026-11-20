@@ -21,7 +21,10 @@ data class IosParsedCampaignPush(
 )
 
 object IosCampaignPayloadParser {
-    fun parse(data: Map<String, String>, nowEpochMillis: Double): IosParsedCampaignPush? {
+    fun parse(
+        data: Map<String, String>,
+        nowEpochMillis: Double,
+    ): IosParsedCampaignPush? {
         val environment =
             if (NSBundle.mainBundle.objectForInfoDictionaryKey("KBBIEnvironment") as? String == "production") {
                 CampaignEnvironment.PRODUCTION
@@ -31,20 +34,24 @@ object IosCampaignPayloadParser {
         if (data["environment"] != environment.wireValue || data["platform"] != CampaignPlatform.IOS.wireValue) return null
         if (data["type"] == "app_update" &&
             (data["title"].isNullOrBlank() || data["title"]!!.length > 100 || data["body"].isNullOrBlank() || data["body"]!!.length > 500)
-        ) return null
+        ) {
+            return null
+        }
         return when (
-            val message = CampaignPayloadParser.parse(
-                data,
-                Instant.fromEpochMilliseconds(nowEpochMillis.toLong()),
-                environment,
-                CampaignPlatform.IOS,
-            ) ?: return null
+            val message =
+                CampaignPayloadParser.parse(
+                    data,
+                    Instant.fromEpochMilliseconds(nowEpochMillis.toLong()),
+                    environment,
+                    CampaignPlatform.IOS,
+                ) ?: return null
         ) {
             is CampaignMessage.Editorial -> {
-                val route = when (val destination = message.value.destination) {
-                    is CampaignDestination.Word -> "kbbi://word/${destination.term.encodeURLPathPart()}"
-                    is CampaignDestination.Proverb -> "kbbi://proverb/${destination.slug.encodeURLPathPart()}"
-                }
+                val route =
+                    when (val destination = message.value.destination) {
+                        is CampaignDestination.Word -> "kbbi://word/${destination.term.encodeURLPathPart()}"
+                        is CampaignDestination.Proverb -> "kbbi://proverb/${destination.slug.encodeURLPathPart()}"
+                    }
                 IosParsedCampaignPush(
                     message.value.deliveryId,
                     message.value.topic.wireValue,
@@ -58,8 +65,13 @@ object IosCampaignPayloadParser {
 
             is CampaignMessage.AppUpdate -> {
                 val currentVersion = NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?: return null
-                val currentCode = (NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleVersion") as? String)?.toLongOrNull() ?: return null
-                if (!CampaignVersionComparator.isNewer(message.value.versionName, currentVersion) || message.value.versionCode <= currentCode) return null
+                val currentCode =
+                    (NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleVersion") as? String)?.toLongOrNull() ?: return null
+                if (!CampaignVersionComparator.isNewer(message.value.versionName, currentVersion) ||
+                    message.value.versionCode <= currentCode
+                ) {
+                    return null
+                }
                 IosParsedCampaignPush(
                     data["delivery_id"]?.takeIf { it.length <= 128 } ?: "update-${message.value.releaseId}",
                     "app_updates",

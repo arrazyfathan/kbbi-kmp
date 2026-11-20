@@ -63,10 +63,10 @@ import com.arrazyfathan.kbbi.core.presentation.designsystem.MetropolisFontFamily
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextH1
 import com.arrazyfathan.kbbi.core.presentation.designsystem.TextP
 import com.arrazyfathan.kbbi.core.presentation.designsystem.components.KBBITimePickerBottomSheet
-import com.arrazyfathan.kbbi.feature.settings.domain.AppIcon
-import com.arrazyfathan.kbbi.feature.settings.domain.ReminderType
 import com.arrazyfathan.kbbi.feature.appupdate.presentation.AppUpdateState
 import com.arrazyfathan.kbbi.feature.appupdate.presentation.ManualUpdateCheckResult
+import com.arrazyfathan.kbbi.feature.settings.domain.AppIcon
+import com.arrazyfathan.kbbi.feature.settings.domain.ReminderType
 import com.arrazyfathan.kbbi.getAppVersionName
 import com.arrazyfathan.kbbi.showToast
 import kbbi_kmp.shared.generated.resources.Res
@@ -78,10 +78,10 @@ import kbbi_kmp.shared.generated.resources.app_icon_change_dialog_message_window
 import kbbi_kmp.shared.generated.resources.app_icon_change_dialog_title
 import kbbi_kmp.shared.generated.resources.app_icon_change_failed
 import kbbi_kmp.shared.generated.resources.app_icon_change_success
-import kbbi_kmp.shared.generated.resources.app_update_title
 import kbbi_kmp.shared.generated.resources.app_update_available
 import kbbi_kmp.shared.generated.resources.app_update_check_failed
 import kbbi_kmp.shared.generated.resources.app_update_checking
+import kbbi_kmp.shared.generated.resources.app_update_title
 import kbbi_kmp.shared.generated.resources.app_update_up_to_date
 import kbbi_kmp.shared.generated.resources.app_version_title
 import kbbi_kmp.shared.generated.resources.cancel
@@ -111,8 +111,6 @@ import kbbi_kmp.shared.generated.resources.interaction_section_title
 import kbbi_kmp.shared.generated.resources.navigate_back
 import kbbi_kmp.shared.generated.resources.notification_app_updates_description
 import kbbi_kmp.shared.generated.resources.notification_app_updates_title
-import kbbi_kmp.shared.generated.resources.notification_permission_denied
-import kbbi_kmp.shared.generated.resources.notification_open_system_settings
 import kbbi_kmp.shared.generated.resources.notification_bookmark_review
 import kbbi_kmp.shared.generated.resources.notification_bookmark_review_description
 import kbbi_kmp.shared.generated.resources.notification_daily_proverb
@@ -121,6 +119,8 @@ import kbbi_kmp.shared.generated.resources.notification_daily_word
 import kbbi_kmp.shared.generated.resources.notification_daily_word_description
 import kbbi_kmp.shared.generated.resources.notification_editorial_description
 import kbbi_kmp.shared.generated.resources.notification_editorial_title
+import kbbi_kmp.shared.generated.resources.notification_open_system_settings
+import kbbi_kmp.shared.generated.resources.notification_permission_denied
 import kbbi_kmp.shared.generated.resources.notification_reminders_section
 import kbbi_kmp.shared.generated.resources.notification_time_label
 import kbbi_kmp.shared.generated.resources.open_source_licenses_title
@@ -397,7 +397,10 @@ private fun SettingsScreen(
                             stringResource(Res.string.app_update_available, it.latestVersion)
                         } ?: when {
                             appUpdateState.isChecking -> stringResource(Res.string.app_update_checking)
-                            appUpdateState.manualCheckResult == ManualUpdateCheckResult.UNAVAILABLE -> stringResource(Res.string.app_update_check_failed)
+                            appUpdateState.manualCheckResult == ManualUpdateCheckResult.UNAVAILABLE ->
+                                stringResource(
+                                    Res.string.app_update_check_failed,
+                                )
                             else -> stringResource(Res.string.app_update_up_to_date)
                         },
                     trailing = "›",
@@ -479,7 +482,9 @@ private fun SettingsScreen(
             when (state.appIconTarget) {
                 AppIconTarget.LAUNCHER -> Res.string.app_icon_change_dialog_message_android
                 AppIconTarget.IOS_HOME_SCREEN -> Res.string.app_icon_change_dialog_message_ios
-                AppIconTarget.DESKTOP_WINDOW, AppIconTarget.BROWSER_TAB, AppIconTarget.UNSUPPORTED -> Res.string.app_icon_change_dialog_message_window
+                AppIconTarget.DESKTOP_WINDOW, AppIconTarget.BROWSER_TAB, AppIconTarget.UNSUPPORTED -> {
+                    Res.string.app_icon_change_dialog_message_window
+                }
             }
         AlertDialog(
             onDismissRequest = { if (!state.appIconUpdating) pendingAppIcon = null },

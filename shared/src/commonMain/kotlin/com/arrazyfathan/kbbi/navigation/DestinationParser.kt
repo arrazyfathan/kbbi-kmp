@@ -42,7 +42,8 @@ internal object DestinationParser {
 
                 else -> {
                     val url = runCatching { Url(raw) }.getOrNull() ?: return null
-                    if (!url.user.isNullOrEmpty() || !url.password.isNullOrEmpty() ||
+                    if (!url.user.isNullOrEmpty() ||
+                        !url.password.isNullOrEmpty() ||
                         url.parameters
                             .names()
                             .isNotEmpty()
@@ -115,7 +116,9 @@ internal object DestinationParser {
                 input.removePrefix("#/widget/").split('/')
             } else {
                 val url = runCatching { Url(input) }.getOrNull() ?: return null
-                if (url.protocol.name.lowercase() != "kbbi" || url.host != "widget" || !url.user.isNullOrEmpty() ||
+                if (url.protocol.name.lowercase() != "kbbi" ||
+                    url.host != "widget" ||
+                    !url.user.isNullOrEmpty() ||
                     !url.password.isNullOrEmpty() ||
                     url.parameters
                         .names()
@@ -176,6 +179,9 @@ internal object DestinationParser {
         }
 
     private fun validArgument(value: String): Boolean =
-        value.isNotBlank() && value.length <= MAX_ARGUMENT_LENGTH && value.none { it.isISOControl() || it in "/\\?#" } && value != "." &&
+        value.isNotBlank() &&
+            value.length <= MAX_ARGUMENT_LENGTH &&
+            value.none { it.isISOControl() || it in "/\\?#" } &&
+            value != "." &&
             value != ".."
 }

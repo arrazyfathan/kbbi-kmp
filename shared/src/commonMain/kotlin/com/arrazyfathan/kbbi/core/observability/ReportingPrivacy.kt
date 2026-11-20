@@ -19,7 +19,8 @@ fun sanitizePerformanceUrl(
         setOf(
             "http",
             "https",
-        ) || uri.host.isBlank()
+        ) ||
+        uri.host.isBlank()
     ) {
         return "https://invalid.invalid/unknown"
     }
@@ -128,7 +129,8 @@ fun sanitizedDiagnostic(
     message: String,
 ): String =
     when {
-        tag == "KBBI-API" && message in
+        tag == "KBBI-API" &&
+            message in
             setOf(
                 "Network request failed unexpectedly",
                 "Network response serialization failed",

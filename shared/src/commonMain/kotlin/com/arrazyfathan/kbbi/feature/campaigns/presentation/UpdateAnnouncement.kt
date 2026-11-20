@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -23,17 +23,25 @@ import kbbi_kmp.shared.generated.resources.app_update_up_to_date
 import kbbi_kmp.shared.generated.resources.ic_arrow_back
 import kbbi_kmp.shared.generated.resources.navigate_back
 import kbbi_kmp.shared.generated.resources.update_open_release_page
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
-data class AppUpdateCopy(val versionName: String, val title: String, val body: String)
+data class AppUpdateCopy(
+    val versionName: String,
+    val title: String,
+    val body: String,
+)
 
 expect fun readAppUpdateCopy(releaseId: String): AppUpdateCopy?
+
 expect fun configuredAppReleaseUrl(): String?
 
 @Composable
-fun UpdateAnnouncementRoute(releaseId: String, onBack: () -> Unit) {
+fun UpdateAnnouncementRoute(
+    releaseId: String,
+    onBack: () -> Unit,
+) {
     val copy = remember(releaseId) { readAppUpdateCopy(releaseId) }
     val urlOpener: UrlOpener = koinInject()
     val releaseUrl = remember { configuredAppReleaseUrl()?.takeIf { it.startsWith("https://") } }

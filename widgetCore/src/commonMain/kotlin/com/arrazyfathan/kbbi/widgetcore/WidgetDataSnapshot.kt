@@ -26,12 +26,15 @@ object WidgetDataSnapshotCodec {
         return runCatching { json.decodeFromString<WidgetDataSnapshot>(encoded) }
             .getOrNull()
             ?.takeIf {
-                it.schemaVersion == WidgetSnapshot.CURRENT_SCHEMA_VERSION && it.languageTag in
+                it.schemaVersion == WidgetSnapshot.CURRENT_SCHEMA_VERSION &&
+                    it.languageTag in
                     setOf(
                         "en",
                         "id",
                         "in",
-                    ) && it.catalogWords.size <= MAX_WORD_COUNT && it.savedWords.size <= MAX_WORD_COUNT &&
+                    ) &&
+                    it.catalogWords.size <= MAX_WORD_COUNT &&
+                    it.savedWords.size <= MAX_WORD_COUNT &&
                     (it.catalogWords + it.savedWords).all { word ->
                         word.length <= MAX_WORD_LENGTH && word.none(Char::isISOControl)
                     }

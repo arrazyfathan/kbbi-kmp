@@ -406,7 +406,8 @@ private fun speechFailure(
             CapabilityResult.Denied
         }
 
-        error.domain == "kAFAssistantErrorDomain" && error.code in
+        error.domain == "kAFAssistantErrorDomain" &&
+            error.code in
             listOf(
                 1101L,
                 1107L,
@@ -415,7 +416,8 @@ private fun speechFailure(
             CapabilityResult.Unavailable
         }
 
-        error.domain == "kLSRErrorDomain" && error.code in
+        error.domain == "kLSRErrorDomain" &&
+            error.code in
             listOf(
                 102L,
                 201L,

@@ -18,5 +18,4 @@ class GetTopWordsUseCase(
         repository.getCachedTopWords(limit.normalizedTopWordsLimit())
 }
 
-private fun Int.normalizedTopWordsLimit(): Int =
-    takeIf { it > 0 }?.coerceAtMost(MAX_TOP_WORDS_LIMIT) ?: DEFAULT_TOP_WORDS_LIMIT
+private fun Int.normalizedTopWordsLimit(): Int = takeIf { it > 0 }?.coerceAtMost(MAX_TOP_WORDS_LIMIT) ?: DEFAULT_TOP_WORDS_LIMIT

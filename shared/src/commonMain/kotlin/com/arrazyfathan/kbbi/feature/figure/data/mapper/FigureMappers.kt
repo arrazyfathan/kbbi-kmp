@@ -37,6 +37,7 @@ private fun String.isValidHttpUrl(): Boolean =
                 "http://",
                 ignoreCase = true,
             )
-    ) && substringAfter("://").substringBefore('/').isNotBlank()
+    ) &&
+        substringAfter("://").substringBefore('/').isNotBlank()
 
 private fun kotlinx.serialization.json.JsonElement.stringValue(): String? = (this as? JsonPrimitive)?.takeIf { it.isString }?.content

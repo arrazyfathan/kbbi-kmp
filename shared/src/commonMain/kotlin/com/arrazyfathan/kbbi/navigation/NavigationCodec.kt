@@ -35,9 +35,12 @@ internal object NavigationCodec {
             ?.let {
                 runCatching { json.decodeFromString(stackSerializer, it) }.getOrNull()
             }?.takeIf { stack ->
-                stack.isNotEmpty() && stack.size <= 32 && stack.first() == root &&
+                stack.isNotEmpty() &&
+                    stack.size <= 32 &&
+                    stack.first() == root &&
                     stack.all(
                         DestinationParser::isAvailable,
-                    ) && stack.drop(1).none { it in topLevelRoutes }
+                    ) &&
+                    stack.drop(1).none { it in topLevelRoutes }
             } ?: listOf(root)
 }

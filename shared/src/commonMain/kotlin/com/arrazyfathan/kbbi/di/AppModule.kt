@@ -7,7 +7,6 @@ import com.arrazyfathan.kbbi.core.observability.ReportingController
 import com.arrazyfathan.kbbi.core.observability.observabilityModule
 import com.arrazyfathan.kbbi.core.platform.Haptics
 import com.arrazyfathan.kbbi.core.platform.SettingsAwareHaptics
-import com.arrazyfathan.kbbi.getAppUpdatePlatformMetadata
 import com.arrazyfathan.kbbi.feature.appupdate.data.AppUpdateStore
 import com.arrazyfathan.kbbi.feature.appupdate.data.GitHubAppUpdateRepository
 import com.arrazyfathan.kbbi.feature.appupdate.data.PlatformAppUpdateStore
@@ -16,7 +15,6 @@ import com.arrazyfathan.kbbi.feature.appupdate.domain.AppUpdateRepository
 import com.arrazyfathan.kbbi.feature.appupdate.presentation.AppUpdateViewModel
 import com.arrazyfathan.kbbi.feature.bookmark.data.BookmarkLayoutPreferenceStore
 import com.arrazyfathan.kbbi.feature.bookmark.presentation.bookmark.BookmarksViewModel
-import com.arrazyfathan.kbbi.feature.campaigns.domain.CampaignSubscriptionReconciler
 import com.arrazyfathan.kbbi.feature.detail.presentation.detail.DetailViewModel
 import com.arrazyfathan.kbbi.feature.detail.presentation.navigation.WordDetailRouteViewModel
 import com.arrazyfathan.kbbi.feature.figure.data.di.figureDataModule
@@ -62,6 +60,7 @@ import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.SelectBackendAiPro
 import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.SelectCustomAiProviderUseCase
 import com.arrazyfathan.kbbi.feature.wordstudy.domain.usecase.TestAiConnectionUseCase
 import com.arrazyfathan.kbbi.feature.wordstudy.presentation.ai.AiSettingsViewModel
+import com.arrazyfathan.kbbi.getAppUpdatePlatformMetadata
 import com.arrazyfathan.kbbi.platformModule
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin

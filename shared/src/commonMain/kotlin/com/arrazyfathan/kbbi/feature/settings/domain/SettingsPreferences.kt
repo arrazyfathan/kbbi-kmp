@@ -12,7 +12,8 @@ enum class AppLanguage(
 
     companion object {
         fun fromLanguageTag(tag: String?): AppLanguage =
-            if (tag?.substringBefore('-')?.lowercase() == "id" || tag
+            if (tag?.substringBefore('-')?.lowercase() == "id" ||
+                tag
                     ?.substringBefore('-')
                     ?.lowercase() == "in"
             ) {

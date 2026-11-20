@@ -32,7 +32,9 @@ class SaveAiConfigurationUseCase(
         val url = normalizeAiBaseUrl(baseUrl) ?: return AppResult.Error(DataError.BadRequest)
         val normalizedModels = models.map(String::trim).filter(String::isNotBlank).distinct()
         val selected = selectedModel.trim()
-        if (normalizedModels.isEmpty() || normalizedModels.size > 20 || normalizedModels.any { it.length > 200 } ||
+        if (normalizedModels.isEmpty() ||
+            normalizedModels.size > 20 ||
+            normalizedModels.any { it.length > 200 } ||
             selected !in normalizedModels ||
             apiKey?.isBlank() == true
         ) {
@@ -133,10 +135,14 @@ class TestAiConnectionUseCase(
 internal fun normalizeAiBaseUrl(value: String): String? {
     val normalized = value.trim().trimEnd('/')
     val url = runCatching { Url(normalized) }.getOrNull() ?: return null
-    if (url.protocol.name != "https" || url.host.isBlank() || url.user != null || url.password != null ||
+    if (url.protocol.name != "https" ||
+        url.host.isBlank() ||
+        url.user != null ||
+        url.password != null ||
         url.parameters
             .isEmpty()
-            .not() || url.fragment.isNotEmpty() ||
+            .not() ||
+        url.fragment.isNotEmpty() ||
         url.encodedPath
             .trimEnd('/')
             .endsWith("/chat/completions", ignoreCase = true)

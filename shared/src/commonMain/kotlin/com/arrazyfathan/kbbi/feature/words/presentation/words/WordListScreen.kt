@@ -205,8 +205,7 @@ private fun WordListScreenContent(
                                                 MaterialTheme.colorScheme.secondary,
                                             ),
                                     ),
-                            )
-                            .statusBarsPadding(),
+                            ).statusBarsPadding(),
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Text(
@@ -232,7 +231,7 @@ private fun WordListScreenContent(
                             fontFamily = InterFontFamily,
                             fontWeight = FontWeight.Medium,
                             fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSecondary,
+                            color = MaterialTheme.colorScheme.onSecondary,
                         )
                     },
                     textStyle =

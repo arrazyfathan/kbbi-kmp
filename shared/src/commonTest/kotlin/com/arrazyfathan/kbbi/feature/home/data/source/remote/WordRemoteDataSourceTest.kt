@@ -30,7 +30,22 @@ class WordRemoteDataSourceTest {
                     assertEquals("/search/hello%20world", request.url.encodedPath)
                     assertEquals("visitor-123", request.headers["x-visitor-id"])
                     respond(
-                        content = """{"success":true,"message":"ok","data":{"word":"hello world","visitorCount":42,"aiGenerated":true,"entries":[{"headword":"hello","definitions":[{"wordClass":"interjection","description":"a greeting"}]}]}}""",
+                        content =
+                            """
+                            {
+                              "success": true,
+                              "message": "ok",
+                              "data": {
+                                "word": "hello world",
+                                "visitorCount": 42,
+                                "aiGenerated": true,
+                                "entries": [{
+                                  "headword": "hello",
+                                  "definitions": [{"wordClass": "interjection", "description": "a greeting"}]
+                                }]
+                              }
+                            }
+                            """.trimIndent(),
                         headers = jsonHeaders,
                     )
                 }

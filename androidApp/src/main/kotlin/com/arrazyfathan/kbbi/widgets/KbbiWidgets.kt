@@ -71,6 +71,12 @@ private data class WidgetPalette(
     val actionTint: ColorProvider,
 )
 
+private data class WidgetLabels(
+    val primary: String,
+    val supporting: String,
+    val iconDescription: String,
+)
+
 private val wordOfDayPalette =
     WidgetPaletteResources(
         background = R.color.widget_daily_background,
@@ -165,14 +171,17 @@ internal class WordOfDayWidget : GlanceAppWidget() {
         provideContent {
             KbbiWidgetContent(
                 iconResId = R.drawable.widget_word,
-                primaryText = word ?: context.getString(R.string.widget_catalog_unavailable),
-                supportingText =
-                    if (word == null) {
-                        context.getString(R.string.widget_search_fallback)
-                    } else {
-                        context.getString(R.string.widget_word_of_day_heading)
-                    },
-                contentDescription = context.getString(R.string.widget_word_of_day_label),
+                labels =
+                    WidgetLabels(
+                        primary = word ?: context.getString(R.string.widget_catalog_unavailable),
+                        supporting =
+                            if (word == null) {
+                                context.getString(R.string.widget_search_fallback)
+                            } else {
+                                context.getString(R.string.widget_word_of_day_heading)
+                            },
+                        iconDescription = context.getString(R.string.widget_word_of_day_label),
+                    ),
                 palette = palette,
                 action = actionStartActivity(intent),
             )
@@ -205,14 +214,17 @@ internal class SavedWordWidget : GlanceAppWidget() {
         provideContent {
             KbbiWidgetContent(
                 iconResId = R.drawable.widget_saved,
-                primaryText = word ?: context.getString(R.string.widget_no_saved_words),
-                supportingText =
-                    if (word == null) {
-                        context.getString(R.string.widget_save_word_prompt)
-                    } else {
-                        context.getString(R.string.widget_saved_word_heading)
-                    },
-                contentDescription = context.getString(R.string.widget_saved_word_label),
+                labels =
+                    WidgetLabels(
+                        primary = word ?: context.getString(R.string.widget_no_saved_words),
+                        supporting =
+                            if (word == null) {
+                                context.getString(R.string.widget_save_word_prompt)
+                            } else {
+                                context.getString(R.string.widget_saved_word_heading)
+                            },
+                        iconDescription = context.getString(R.string.widget_saved_word_label),
+                    ),
                 palette = palette,
                 action = actionStartActivity(intent),
             )
@@ -232,9 +244,12 @@ internal class QuickSearchWidget : GlanceAppWidget() {
         provideContent {
             KbbiWidgetContent(
                 iconResId = R.drawable.widget_search,
-                primaryText = context.getString(R.string.widget_quick_search_heading),
-                supportingText = context.getString(R.string.widget_search_prompt),
-                contentDescription = context.getString(R.string.widget_quick_search_label),
+                labels =
+                    WidgetLabels(
+                        primary = context.getString(R.string.widget_quick_search_heading),
+                        supporting = context.getString(R.string.widget_search_prompt),
+                        iconDescription = context.getString(R.string.widget_quick_search_label),
+                    ),
                 palette = palette,
                 action = actionStartActivity(intent),
             )
@@ -288,9 +303,7 @@ internal abstract class DataWidgetReceiver : GlanceAppWidgetReceiver() {
 @Composable
 private fun KbbiWidgetContent(
     iconResId: Int,
-    primaryText: String,
-    supportingText: String,
-    contentDescription: String,
+    labels: WidgetLabels,
     palette: WidgetPalette,
     action: Action,
 ) {
@@ -326,61 +339,75 @@ private fun KbbiWidgetContent(
             ) {
                 Image(
                     provider = ImageProvider(iconResId),
-                    contentDescription = contentDescription,
+                    contentDescription = labels.iconDescription,
                     modifier = GlanceModifier.size(20.dp),
                     colorFilter = ColorFilter.tint(palette.iconTint),
                 )
             }
             Spacer(modifier = GlanceModifier.width(10.dp))
-            Column(
-                modifier = GlanceModifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = primaryText,
-                    maxLines = 1,
-                    style =
-                        TextStyle(
-                            color = palette.primaryText,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                )
-                if (expanded) {
-                    Text(
-                        text = supportingText,
-                        maxLines = 1,
-                        style =
-                            TextStyle(
-                                color = palette.supportingText,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                            ),
-                    )
-                }
-            }
+            WidgetText(labels, palette, expanded)
         }
         if (expanded) {
-            Box(
-                modifier = GlanceModifier.width(52.dp).fillMaxHeight(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    modifier =
-                        GlanceModifier
-                            .size(36.dp)
-                            .background(palette.actionBackground)
-                            .cornerRadius(12.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Image(
-                        provider = ImageProvider(R.drawable.ic_widget_arrow),
-                        contentDescription = null,
-                        modifier = GlanceModifier.size(16.dp),
-                        colorFilter = ColorFilter.tint(palette.actionTint),
-                    )
-                }
-            }
+            WidgetActionIndicator(palette)
+        }
+    }
+}
+
+@Composable
+private fun WidgetText(
+    labels: WidgetLabels,
+    palette: WidgetPalette,
+    expanded: Boolean,
+) {
+    Column(
+        modifier = GlanceModifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = labels.primary,
+            maxLines = 1,
+            style =
+                TextStyle(
+                    color = palette.primaryText,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                ),
+        )
+        if (expanded) {
+            Text(
+                text = labels.supporting,
+                maxLines = 1,
+                style =
+                    TextStyle(
+                        color = palette.supportingText,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+            )
+        }
+    }
+}
+
+@Composable
+private fun WidgetActionIndicator(palette: WidgetPalette) {
+    Box(
+        modifier = GlanceModifier.width(52.dp).fillMaxHeight(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier =
+                GlanceModifier
+                    .size(36.dp)
+                    .background(palette.actionBackground)
+                    .cornerRadius(12.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                provider = ImageProvider(R.drawable.ic_widget_arrow),
+                contentDescription = null,
+                modifier = GlanceModifier.size(16.dp),
+                colorFilter = ColorFilter.tint(palette.actionTint),
+            )
         }
     }
 }

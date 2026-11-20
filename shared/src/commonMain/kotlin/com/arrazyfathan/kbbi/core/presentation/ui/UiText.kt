@@ -42,5 +42,7 @@ sealed interface UiText {
 suspend fun UiText.asStringNonComposable(): String =
     when (this) {
         is UiText.DynamicString -> value
-        is UiText.StringResource -> org.jetbrains.compose.resources.getString(resource, *args)
+        is UiText.StringResource ->
+            org.jetbrains.compose.resources
+                .getString(resource, *args)
     }
